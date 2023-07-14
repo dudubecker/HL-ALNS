@@ -1,1 +1,3 @@
-Release/main.cpp.o: main.cpp
+Release/main.cpp.o: main.cpp Instance.hpp
+
+Instance.hpp:
