@@ -27,6 +27,18 @@ public:
 	// Counties
 	std::vector<std::string> counties {};
 	
+	// Initial nodes (set S_0)
+	std::vector<int> S_0 {};
+	
+	// Pickup nodes (set P)
+	std::vector<int> P {};
+	
+	// Delivery nodes (set D)
+	std::vector<int> D {};
+	
+	// Final nodes (set S_f)
+	std::vector<int> S_f {};
+	
 	// Service times
 	std::vector<double> s {};
 	
@@ -38,6 +50,9 @@ public:
 	
 	// Closing time windows
 	std::vector<double> w_b {};
+	
+	// Vehicles locations (in terms of capacities)
+	std::vector<std::vector<double>> Q_loc;
 	
 	// Capacities
 	std::vector<double> Q {};
@@ -55,7 +70,7 @@ public:
 	std::vector<std::vector<std::vector<double>>> c {};
 	
 	//Constructor/destructor
-	Instance(std::string &file_name, int number_of_periods);
+	Instance(std::string &file_name, int &number_of_periods);
 	Instance();
 	~Instance();
 	

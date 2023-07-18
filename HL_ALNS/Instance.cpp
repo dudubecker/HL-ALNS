@@ -57,7 +57,7 @@ std::vector<double> reduceDimension(std::vector<std::vector<double>> &input){
 	
 	std::vector<double> return_vector {};
 	
-	for (auto i = 0; i < input.size(); i++){
+	for (unsigned i = 0; i < input.size(); i++){
 		
 		for (auto j: input.at(i)){
 			
@@ -78,7 +78,7 @@ Instance::Instance()
 
 // Initialization with file and number of periods
 
-Instance::Instance(std::string &file_name, int number_of_periods)
+Instance::Instance(std::string &file_name, int &number_of_periods)
 {
 	T = number_of_periods;
 	
@@ -122,7 +122,7 @@ Instance::Instance(std::string &file_name, int number_of_periods)
 	//// Vehicle parameters
 	
 	// Vehicles capacities
-	std::vector<std::vector<double>> Q_loc;
+	
 	vehicleDataReader(Q_loc, instance);
 	
 	Q = reduceDimension(Q_loc);
@@ -285,9 +285,9 @@ Instance::Instance(std::string &file_name, int number_of_periods)
 	c = std::vector<std::vector<std::vector<double>>> (counties.size(), std::vector<std::vector<double>>(counties.size(), std::vector<double>(m)));
 	
 	
-	for (auto i = 0; i < counties.size(); i++){
+	for (unsigned i = 0; i < counties.size(); i++){
 		
-		for (auto j = 0; j < counties.size(); j++){
+		for (unsigned j = 0; j < counties.size(); j++){
 			
 			for (auto k = 0; k < m; k++){
 				
@@ -312,6 +312,46 @@ Instance::Instance(std::string &file_name, int number_of_periods)
 		
 	}
 	
+	// Sets of problem - initial nodes, pickups, deliveries and final nodes
+	
+	// Getting information of node type by demands (d) data
+	
+	int node_index = 0;
+	
+	
+	// Set S_0
+	while (d.at(node_index) == 0){
+		
+		S_0.push_back(node_index);
+		
+		node_index += 1;
+		
+	}
+	
+	// Set P
+	while (d.at(node_index) > 0){
+		
+		P.push_back(node_index);
+		
+		node_index += 1;
+		
+	}
+	
+	// Set D
+	while (d.at(node_index) < 0){
+		
+		D.push_back(node_index);
+		
+		node_index += 1;
+		
+	}
+	
+	// Set S_f
+	for (unsigned i = node_index; i < counties.size(); i++){
+		
+		S_f.push_back(i);
+		
+	}
 	
 	
 }

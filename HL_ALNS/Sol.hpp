@@ -13,7 +13,7 @@ public:
 	Instance inst;
 	
 	// Routes - 2D vector with concatenated routes
-	std::vector<std::vector<int>> S {};
+	std::vector<std::vector<int>> R {};
 	
 	// Total met demand for each client
 	std::vector<double> Z {};
@@ -28,6 +28,28 @@ public:
 	Sol(Instance &inst_val);
 	
 	~Sol();
+	
+	//// Methods
+	
+	// Printing solution
+	void printSol();
+	
+	// FO solution
+	void objectiveFunction();
+	
+	// Insert node
+	void insertNode(int &node_index, int &route_index, int &insertion_position);
+	
+	// Remove node (specific position)
+	void removeNode(int &node_index, int &route_index, int &removal_position);
+	
+	// Remove node (any position)
+	void removeNode(int &node_index, int &route_index);
+	
+	// Remove route
+	
+	
+	
 
 };
 

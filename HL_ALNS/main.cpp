@@ -22,12 +22,14 @@ int main(){
 	
 	int number_of_periods = 1;
 	
-	
 	Instance inst(file_name, number_of_periods);
 	
 	Sol S(inst);
 	
 	
+	// Printing solution
+	
+	S.printSol();
 	
 	
 }
