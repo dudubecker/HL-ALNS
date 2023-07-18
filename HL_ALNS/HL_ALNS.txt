@@ -1,1 +1,1 @@
-Release/Sol.cpp.o Release/main.cpp.o Release/Instance.cpp.o   
+Release/main.cpp.o Release/Sol.cpp.o Release/Instance.cpp.o   

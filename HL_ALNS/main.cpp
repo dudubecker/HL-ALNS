@@ -1,5 +1,8 @@
 #include <iostream>
 #include "Instance.hpp"
+#include "Sol.hpp"
+
+using namespace std;
 
 void print(std::vector<double> &input)
 {
@@ -13,13 +16,18 @@ void print(std::vector<double> &input)
 
 int main(){
 	
-	Instance inst;
+	//// Problem data
 	
 	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	inst.read(file_name);
+	int number_of_periods = 1;
 	
-	print(inst.w_b);
+	
+	Instance inst(file_name, number_of_periods);
+	
+	Sol S(inst);
+	
+	
 	
 	
 }

@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=User
-Date                   :=14/07/2023
+Date                   :=18/07/2023
 CodeLitePath           :="C:/Program Files/CodeLite"
 LinkerName             :="C:/Program Files/mingw-w64/mingw64/bin/g++.exe"
 SharedObjectLinkerName :="C:/Program Files/mingw-w64/mingw64/bin/g++.exe" -shared -fPIC
@@ -62,7 +62,7 @@ AS       := "C:/Program Files/mingw-w64/mingw64/bin/as.exe"
 ## User defined environment variables
 ##
 CodeLiteDir:=C:\Program Files\CodeLite
-Objects0=$(IntermediateDirectory)/Sol.cpp$(ObjectSuffix) $(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/Instance.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/Sol.cpp$(ObjectSuffix) $(IntermediateDirectory)/Instance.cpp$(ObjectSuffix) 
 
 
 
@@ -93,17 +93,17 @@ PreBuild:
 ##
 ## Objects
 ##
-$(IntermediateDirectory)/Sol.cpp$(ObjectSuffix): Sol.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Sol.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Sol.cpp$(DependSuffix) -MM Sol.cpp
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/User/Desktop/IC/BEPE/HL_ALNS/HL_ALNS/Sol.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Sol.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Sol.cpp$(PreprocessSuffix): Sol.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Sol.cpp$(PreprocessSuffix) Sol.cpp
-
 $(IntermediateDirectory)/main.cpp$(ObjectSuffix): main.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/main.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/main.cpp$(DependSuffix) -MM main.cpp
 	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/User/Desktop/IC/BEPE/HL_ALNS/HL_ALNS/main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/main.cpp$(PreprocessSuffix): main.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/main.cpp$(PreprocessSuffix) main.cpp
+
+$(IntermediateDirectory)/Sol.cpp$(ObjectSuffix): Sol.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Sol.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Sol.cpp$(DependSuffix) -MM Sol.cpp
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/User/Desktop/IC/BEPE/HL_ALNS/HL_ALNS/Sol.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Sol.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Sol.cpp$(PreprocessSuffix): Sol.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Sol.cpp$(PreprocessSuffix) Sol.cpp
 
 $(IntermediateDirectory)/Instance.cpp$(ObjectSuffix): Instance.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Instance.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Instance.cpp$(DependSuffix) -MM Instance.cpp

@@ -13,7 +13,10 @@ class Instance
 {
 	
 	// Attributes
-	public:
+public:
+	
+	// Number of periods
+	int T {};
 	
 	// Number of delivery requests
 	int n {};
@@ -52,11 +55,11 @@ class Instance
 	std::vector<std::vector<std::vector<double>>> c {};
 	
 	//Constructor/destructor
+	Instance(std::string &file_name, int number_of_periods);
 	Instance();
 	~Instance();
 	
-	// Methods
-	void read(std::string &file_name);
+	
 };
 
 #endif // INSTANCE_HPP

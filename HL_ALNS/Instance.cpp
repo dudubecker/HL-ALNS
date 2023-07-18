@@ -1,14 +1,7 @@
 #include "Instance.hpp"
 
-Instance::Instance()
-{
-}
 
-Instance::~Instance()
-{
-}
-
-// Auxiliar functions for reading method
+// Auxiliar functions for initialization
 
 // Reading vehicles data (capacity, velocity and price per distance)
 void vehicleDataReader(std::vector<std::vector<double>>  &input_vector, std::string &instance)
@@ -76,9 +69,18 @@ std::vector<double> reduceDimension(std::vector<std::vector<double>> &input){
 	
 }
 
+// Raw initialization
 
-// Reading method
-void Instance::read(std::string &file_name){
+Instance::Instance()
+{
+}
+
+
+// Initialization with file and number of periods
+
+Instance::Instance(std::string &file_name, int number_of_periods)
+{
+	T = number_of_periods;
 	
 	std::string instance;
 	
@@ -253,7 +255,6 @@ void Instance::read(std::string &file_name){
 		
 		while (line_data.length() > 0){
 			
-			
 			double distance = stod(line_data.substr(0, line_data.find(",")));
 			
 			std::string destination_county = destination_counties.at(county_index);
@@ -268,6 +269,8 @@ void Instance::read(std::string &file_name){
 		
 	}
 	
+	
+	// std::cout << distances_data["JOAO PESSOA"]["NATAL"] << std::endl;
 	
 	in_file.close();
 	
@@ -290,6 +293,12 @@ void Instance::read(std::string &file_name){
 				
 				double distance = distances_data[counties.at(i)][counties.at(j)];
 				
+				// if (i != j){
+					
+				// 	std::cout << distance << std::endl;
+					
+				// }
+				
 				double time = distance/V[k] + s[j];
 				
 				double costs = distance*C[k];
@@ -305,6 +314,8 @@ void Instance::read(std::string &file_name){
 	
 	
 	
-	
 }
 
+Instance::~Instance()
+{
+}
