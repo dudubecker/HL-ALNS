@@ -31,9 +31,19 @@ Sol::Sol(Instance &inst_val){
 		
 	}
 	
-	// Z vector with 0 met demands for P and D:
+	// Z vector with 0 met demands:
 	Z.resize(inst.counties.size());
 	std::fill(Z.begin(), Z.end(), 0);
+	
+	// Filling depot met demands with very large number
+	std::vector<int> depots = inst.S_0;
+	depots.insert(depots.end(), inst.S_f.begin(), inst.S_f.end());
+	
+	for (auto &i: depots){
+		
+		Z.at(i) = 9999;
+		
+	}
 	
 	// W vector, with routes lengths
 	W.resize(inst.m);
@@ -87,7 +97,7 @@ Sol::Sol(Instance &inst_val){
 		
 		
 		
-		// Turns loop on/off:
+		// Turns loop off:
 		unfinished_routes = false;
 		
 	}

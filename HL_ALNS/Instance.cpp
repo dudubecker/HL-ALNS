@@ -3,6 +3,53 @@
 
 // Auxiliar functions for initialization
 
+// Comparator function to sort pairs
+// according to second value
+bool cmp(std::pair<int, double>& a,
+        std::pair<int, double>& b)
+{
+    return a.second < b.second;
+}
+ 
+// Function to sort the map according
+// to value in a (key-value) pairs
+std::vector<int> sortIndexes(std::vector<double> &input_vector){
+	
+	std::vector<int> return_vector {};
+	
+	std::map<int, double> M;
+	
+	for (auto i = 0; i < input_vector.size(); i ++){
+		
+		M[i] = input_vector.at(i);
+		
+	}
+	
+    // Declare vector of pairs
+    std::vector<std::pair<int, double>> A;
+ 
+    // Copy key-value pair from Map
+    // to vector of pairs
+    for (auto& it : M) {
+        A.push_back(it);
+    }
+ 
+    // Sort using comparator function
+    sort(A.begin(), A.end(), cmp);
+ 
+    // Print the sorted value
+    for (auto& it : A) {
+		
+		return_vector.push_back(it.first);
+		
+        // cout << it.first << ' '
+        //     << it.second << endl;
+    }
+	
+	return return_vector;
+	
+}
+
 // Reading vehicles data (capacity, velocity and price per distance)
 void vehicleDataReader(std::vector<std::vector<double>>  &input_vector, std::string &instance)
 {
@@ -352,6 +399,40 @@ Instance::Instance(std::string &file_name, int &number_of_periods)
 		S_f.push_back(i);
 		
 	}
+	
+	
+	
+	// Creating ordered lists
+	for (auto i = 0; i < d.size(); i++){
+		
+		std::vector<double> traveling_times {};
+		
+		for (auto j = 0; j < d.size(); j++){
+			
+			traveling_times.push_back(t.at(i).at(j).at(0));
+		
+		}
+		
+		std::vector<int> sorted_traveling_times = sortIndexes(traveling_times);
+		
+		// If its a pickup or delivery, ordered map is updated
+		if (d.at(i) != 0){
+			
+			proximitiesPUD[i] = sorted_traveling_times;
+			
+		}
+		
+		
+		proximitiesN.push_back(sorted_traveling_times);
+		
+		
+	}
+	
+	
+	
+	
+	
+	
 	
 	
 }

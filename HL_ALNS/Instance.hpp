@@ -69,6 +69,12 @@ public:
 	// Traveling costs
 	std::vector<std::vector<std::vector<double>>> c {};
 	
+	// Ordered list according to proximity of node i to j in N
+	std::vector<std::vector<int>> proximitiesN {};
+	
+	// Ordered list according to proximity of node i to j in P U D - Needs to be a map for indexes to coincide
+	std::map<int, std::vector<int>> proximitiesPUD {};
+	
 	//Constructor/destructor
 	Instance(std::string &file_name, int &number_of_periods);
 	Instance();

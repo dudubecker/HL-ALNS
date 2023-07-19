@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void print(std::vector<double> &input)
+void printDouble(std::vector<double> &input)
 {
     for (auto const &i: input) {
         std::cout << i << " ";
@@ -13,6 +13,18 @@ void print(std::vector<double> &input)
 	std::cout << std::endl;
 	
 }
+
+void printInt(std::vector<int> &input)
+{
+    for (auto const &i: input) {
+        std::cout << i << " ";
+    }
+	
+	std::cout << std::endl;
+	
+}
+
+
 
 int main(){
 	
@@ -26,10 +38,28 @@ int main(){
 	
 	Sol S(inst);
 	
+	cout << "All proximities:\n";
 	
-	// Printing solution
+	for (auto i=0; i < S.inst.d.size(); i++){
+		
+		printInt(S.inst.proximitiesN.at(i));
+		
+	}
 	
-	S.printSol();
+	cout << "\nProximities of PUD:\n";
 	
+	for (auto i=0; i < S.inst.d.size(); i++){
+		
+		if (S.inst.d.at(i) != 0){
+			
+			printInt(S.inst.proximitiesPUD[i]);
+			
+		}
+		
+		
+	}
+	
+	
+	return 0;
 	
 }
