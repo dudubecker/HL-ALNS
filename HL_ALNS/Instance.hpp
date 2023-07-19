@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include "utils.h"
 
 // using namespace std;
 
@@ -38,6 +39,9 @@ public:
 	
 	// Final nodes (set S_f)
 	std::vector<int> S_f {};
+	
+	// All nodes (set N)
+	std::vector<int> N {};
 	
 	// Service times
 	std::vector<double> s {};

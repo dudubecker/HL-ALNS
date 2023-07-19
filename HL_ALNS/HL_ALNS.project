@@ -93,6 +93,8 @@
     </Configuration>
   </Settings>
   <VirtualDirectory Name="src">
+    <File Name="utils.cpp"/>
+    <File Name="utils.h"/>
     <File Name="Instance.cpp"/>
     <File Name="Instance.hpp"/>
     <File Name="Sol.cpp"/>

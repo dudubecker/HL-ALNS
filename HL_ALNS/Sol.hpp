@@ -15,7 +15,10 @@ public:
 	// Routes - 2D vector with concatenated routes
 	std::vector<std::vector<int>> R {};
 	
-	// Total met demand for each client
+	// Current amount of goods in each node
+	std::vector<double> G {};
+	
+	// Relative met demand for each client
 	std::vector<double> Z {};
 	
 	// Amount delivered for each visit
