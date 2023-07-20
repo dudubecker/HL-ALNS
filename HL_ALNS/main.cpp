@@ -8,44 +8,28 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_BE_CA_CA_CO_CR_FO_HE_IM_IR_JO_MA_MA_NA_RE_RO_RO_TE_209_cpp.txt";
+	std::string file_name = "INST_MA_RE_20_cpp.txt";
 	
 	int number_of_periods = 7;
 	
+	// Randomness parameter
+	double p {6};
+	
+	// Proximity weight
+	double Gamma1 {0.5};
+	
+	// Met demand weight
+	double Gamma2 {0.5};
+	
 	Instance inst(file_name, number_of_periods);
 	
-	Sol S(inst);
+	Sol S(inst, p, Gamma1, Gamma2);
 	
 	S.printSol();
 	
 	// S.toTXT(file_name);
 	
 	
-	
-	/*
-	
-	cout << "All proximities:\n";
-	
-	for (auto i=0; i < S.inst.d.size(); i++){
-		
-		printInt(S.inst.proximitiesN.at(i));
-		
-	}
-	
-	cout << "\nProximities of PUD:\n";
-	
-	for (auto i=0; i < S.inst.d.size(); i++){
-		
-		if (S.inst.d.at(i) != 0){
-			
-			printInt(S.inst.proximitiesPUD[i]);
-			
-		}
-		
-		
-	}
-	
-	*/
 	
 	return 0;
 	

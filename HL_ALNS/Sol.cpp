@@ -9,7 +9,7 @@
 
 // By doing so, it become easier to avoid solution copies.
 
-Sol::Sol(Instance &inst_val){
+Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 	
 	// Replicable data
 	srand(120);
@@ -146,16 +146,6 @@ Sol::Sol(Instance &inst_val){
 			std::vector<int> sorted_met_demands = sortIndexes(Z);
 			
 			std::vector<double> scores {};
-			
-			// Proximity weight
-			double Gamma1 {0.5};
-			
-			// Met demand weight
-			double Gamma2 {0.5};
-			
-			// Randomness parameter
-			double p {4};
-			
 			
 			// Calculating score for each possible node
 			

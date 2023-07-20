@@ -28,7 +28,7 @@ public:
 	std::vector<double> W {};
 	
 	// Initialization by passing instance object
-	Sol(Instance &inst_val);
+	Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2);
 	
 	~Sol();
 	
