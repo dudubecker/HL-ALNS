@@ -37,6 +37,9 @@ public:
 	// Printing solution
 	void printSol();
 	
+	// Exporting solution
+	void toTXT(std::string &file_name);
+	
 	// FO solution
 	void objectiveFunction();
 	

@@ -5,12 +5,14 @@
 #include <algorithm>
 
 
+// Initialization already constructs initial solution!
 
+// By doing so, it become easier to avoid solution copies.
 
 Sol::Sol(Instance &inst_val){
 	
 	// Replicable data
-	srand(123);
+	srand(120);
 	
 	// True random data
 	// srand(time(NULL);
@@ -136,10 +138,10 @@ Sol::Sol(Instance &inst_val){
 			std::vector<double> scores {};
 			
 			// Proximity weight
-			double Gamma1 {0.8};
+			double Gamma1 {0.9};
 			
 			// Met demand weight
-			double Gamma2 {0.2};
+			double Gamma2 {0.1};
 			
 			// Randomness parameter
 			double p {8};
@@ -317,6 +319,95 @@ void Sol::printSol(){
 		std::cout << "]\n";
 		
 	}
+	
+	
+}
+
+void Sol::toTXT(std::string &file_name){
+	
+	// Removing ".txt" from file_name
+	file_name.erase(file_name.length() - 4);
+	std::string output_name = file_name + "_OUTPUT.txt";
+	
+	std::ofstream fw(output_name, std::ofstream::out);
+	
+	// Writing data
+	if (fw.is_open())
+	{
+		// Writing number of periods
+		fw << inst.T << "\n\n\n";
+		
+		// Writing routes data
+		for (auto &route: R){
+		
+			fw << "[ ";
+			
+			for (auto &node: route){
+				
+				fw << node << " ";
+			}
+			
+			fw << "]\n";
+			
+		}
+		
+		fw << "\n\n";
+		
+		// Writing collected/delivered demand at each visit
+		// Writing routes data
+		for (auto &route: z){
+		
+			fw << "[ ";
+			
+			for (auto &node: route){
+				
+				fw << node << " ";
+			}
+			
+			fw << "]\n";
+			
+		}
+		
+		fw << "\n\n";
+		
+		// Writing total met demand data
+		
+		double total_met_demand = {};
+		
+		for (int i; i < inst.m; i++){
+		
+			for (auto value: z.at(i)){
+				
+				if (value > 0){
+					
+					total_met_demand += value;
+					
+				}
+			}
+		}
+		
+		fw << total_met_demand <<"\n\n";
+		
+		
+		// Writing met demands
+		
+		for (int node; node < Z.size(); node++){
+		
+			if (Z.at(node) <= 1){
+				
+				fw << node << " " << Z.at(node) << "\n";
+				
+			}
+			
+		
+		}
+		
+		
+	}
+	else std::cout << "Problem with opening file";
+	
+	
+	fw.close();
 	
 	
 }
