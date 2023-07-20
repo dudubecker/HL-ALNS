@@ -8,15 +8,17 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_CR_IM_IR_JO_MA_MA_NA_RE_TE_82_cpp.txt";
+	std::string file_name = "INST_BE_CA_CA_CO_CR_FO_HE_IM_IR_JO_MA_MA_NA_RE_RO_RO_TE_209_cpp.txt";
 	
-	int number_of_periods = 2;
+	int number_of_periods = 7;
 	
 	Instance inst(file_name, number_of_periods);
 	
 	Sol S(inst);
 	
-	S.toTXT(file_name);
+	S.printSol();
+	
+	// S.toTXT(file_name);
 	
 	
 	

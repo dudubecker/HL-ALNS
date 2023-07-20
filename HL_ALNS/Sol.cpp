@@ -81,7 +81,15 @@ Sol::Sol(Instance &inst_val){
 			
 			route_index = rand()%inst.m;
 			
+			
+			
+			
 		}
+		
+		// printSol();
+		
+		// std::cout << "\n\n\n";
+		
 		
 		// Inserting nearest pickup node on route
 		
@@ -125,6 +133,8 @@ Sol::Sol(Instance &inst_val){
 		// While the capacity can be assigned to node
 		while (available_load > 0){
 			
+			
+			
 			int last_node = R.at(route_index).back();
 			
 			// Choosing delivery node
@@ -138,13 +148,13 @@ Sol::Sol(Instance &inst_val){
 			std::vector<double> scores {};
 			
 			// Proximity weight
-			double Gamma1 {0.9};
+			double Gamma1 {0.5};
 			
 			// Met demand weight
-			double Gamma2 {0.1};
+			double Gamma2 {0.5};
 			
 			// Randomness parameter
-			double p {8};
+			double p {4};
 			
 			
 			// Calculating score for each possible node
@@ -161,7 +171,7 @@ Sol::Sol(Instance &inst_val){
 				if (Z.at(node) != 9999){
 					
 					//score = Gamma1*index_proximity + Gamma2*index_met_demand;
-					score = (1/Gamma1)*(index_proximity/inst.N.size()) + (1/Gamma2)*(Z.at(node));
+					score = (Gamma1)*(index_proximity/inst.N.size()) + (Gamma2)*(Z.at(node));
 					
 					
 				} else {
@@ -210,16 +220,19 @@ Sol::Sol(Instance &inst_val){
 			
 			while (unvalid_node){
 				
+				epsilon = ((double) rand() / (RAND_MAX));
+				
 				index_delivery_node = round(pow(epsilon, p)*((sorted_scores).size()-1));
 				
 				next_delivery_node = sorted_scores.at(index_delivery_node);
 				
-				if (Z.at(next_delivery_node) < 0.999){
+				
+				// if (Z.at(next_delivery_node) < 0.9999999){
+				if (Z.at(next_delivery_node) < 1){
 					
 					unvalid_node = false;
 					
 				}
-				
 				
 			}
 			
@@ -305,7 +318,7 @@ Sol::~Sol()
 
 void Sol::printSol(){
 	
-	std::cout << "S: \n" << std::endl;
+	std::cout << "Routes (R): \n" << std::endl;
 	
 	for (auto &route: R){
 		
@@ -319,6 +332,75 @@ void Sol::printSol(){
 		std::cout << "]\n";
 		
 	}
+	
+	std::cout << "\n\nAmounts collected/delivered (z): \n" << std::endl;
+	
+	for (auto &route: z){
+		
+			std::cout << "[ ";
+			
+			for (auto &node: route){
+				
+				std::cout << node << " ";
+			}
+			
+			std::cout << "]\n";
+			
+	}
+	
+	std::cout << "\n\nTotal met demand: \n" << std::endl;
+	
+	double total_met_demand = {};
+		
+	for (int i; i < inst.m; i++){
+	
+		for (auto value: z.at(i)){
+			
+			if (value > 0){
+				
+				total_met_demand += value;
+				
+			}
+		}
+	}
+	
+	double total_demand = {};
+	
+	for (auto &node: inst.P){
+		
+		total_demand += inst.d.at(node);
+		
+	}
+	
+	std::cout << total_met_demand << " / "  << total_demand << "\n\n";
+	
+	std::cout << "Relative met demand at each delivery node: \n" << std::endl;
+	
+	std::vector<double> relative_met_demands = {};
+	
+	for (int node; node < Z.size(); node++){
+	
+		if (Z.at(node) <= 1){
+			
+			std::cout << node << ": " << G.at(node) << " / " << std::abs(inst.d.at(node)) << " = " << Z.at(node) << "\n";
+			relative_met_demands.push_back(Z.at(node));
+		}
+		
+	}
+	
+	double sum = std::accumulate(std::begin(relative_met_demands), std::end(relative_met_demands), 0.0);
+	double m =  sum / relative_met_demands.size();
+
+	double accum = 0.0;
+	std::for_each (std::begin(relative_met_demands), std::end(relative_met_demands), [&](const double d) {
+		accum += (d - m) * (d - m);
+	});
+
+	double stdev = std::sqrt(accum / (relative_met_demands.size()-1));
+	
+	std::cout << "\n\nStandard deviation of met demands: " << stdev << "\n\n" << std::endl;
+	
+	
 	
 	
 }
@@ -399,7 +481,6 @@ void Sol::toTXT(std::string &file_name){
 				
 			}
 			
-		
 		}
 		
 		
