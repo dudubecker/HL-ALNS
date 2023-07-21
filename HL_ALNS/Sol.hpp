@@ -47,10 +47,10 @@ public:
 	void insertNode(int &node_index, int &route_index, int &insertion_position);
 	
 	// Remove node (specific position)
-	void removeNode(int &node_index, int &route_index, int &removal_position);
+	void removeNode(int &node_index, int &route_index, int &removal_index);
 	
 	// Remove node (any position)
-	void removeNode(int &node_index, int &route_index);
+	void removeNode(int &node_index);
 	
 	// Remove route
 	

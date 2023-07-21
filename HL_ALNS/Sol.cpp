@@ -86,10 +86,6 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 			
 		}
 		
-		// printSol();
-		
-		// std::cout << "\n\n\n";
-		
 		
 		// Inserting nearest pickup node on route
 		
@@ -256,10 +252,6 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 			
 		}
 		
-		
-		
-		
-		
 		// Checking if all routes are finished (regarding time)
 		// or demands are fully met (constructive heuristic breakpoint) !!!!!!
 		
@@ -291,10 +283,6 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 			
 		}
 		
-		
-		
-		// Turns loop off:
-		// unfinished_routes = false;
 		
 	}
 	
@@ -391,8 +379,6 @@ void Sol::printSol(){
 	std::cout << "\n\nStandard deviation of met demands: " << stdev << "\n\n" << std::endl;
 	
 	
-	
-	
 }
 
 void Sol::toTXT(std::string &file_name){
@@ -407,23 +393,22 @@ void Sol::toTXT(std::string &file_name){
 	if (fw.is_open())
 	{
 		// Writing number of periods
-		fw << inst.T << "\n\n\n";
+		fw << inst.T << "\n\nR:\n";
 		
 		// Writing routes data
 		for (auto &route: R){
 		
-			fw << "[ ";
 			
 			for (auto &node: route){
 				
 				fw << node << " ";
 			}
 			
-			fw << "]\n";
+			fw << "\n";
 			
 		}
 		
-		fw << "\n\n";
+		fw << "\nz:\n";
 		
 		// Writing collected/delivered demand at each visit
 		// Writing routes data
@@ -479,6 +464,82 @@ void Sol::toTXT(std::string &file_name){
 	
 	
 	fw.close();
+	
+	
+}
+
+// Removing node by passing specific positions (Worst removal may use)
+
+void Sol::removeNode(int &node_index, int &route_index, int &removal_index){
+	
+	// "node_index" can never be the first node on route! But it can be the last one (before "post-processing" in which final depots are included)
+	
+	// Updating W attribute first, as it is arc dependent
+	
+	// If node is the last one on route, calculation of W is different
+	bool last_node = false;
+	if (removal_index == (R.at(route_index).size() - 1)){
+		
+		last_node = true;
+		
+	}
+	
+	if (last_node){
+		
+		int last_but_one_node = R.at(route_index).at(removal_index - 1);
+		
+		W.at(route_index) -= inst.t.at(node_index).at(last_but_one_node).at(route_index);
+		
+		
+	} else {
+		
+		// If node to be removed is pickup node, then the whole segment is removed
+		
+		// If node to be remove is delivery node, then onlny the single node is removed
+		
+		
+		
+		
+		// Arc time travel difference
+		
+		int first_node = R.at(route_index).at(removal_index - 1);
+		
+		int second_node = R.at(route_index).at(removal_index + 1);
+		
+		double first_old_arc_time = inst.t.at(first_node).at(node_index).at(route_index);
+		
+		double second_old_arc_time = inst.t.at(node_index).at(second_node).at(route_index);
+		
+		double new_arc_time = inst.t.at(first_node).at(second_node).at(route_index);
+		
+		double delta_time = new_arc_time - (first_old_arc_time + second_old_arc_time);
+		
+		W.at(route_index) += delta_time;
+		
+	}
+	
+	
+	// Removing node from route
+	R.at(route_index).erase(R.at(route_index).begin() + removal_index);
+	
+	// Storing load picked-up/delivered in visit
+	double load = z.at(route_index).at(removal_index);
+	
+	// Removing position of visit in z attribute
+	z.at(route_index).erase(z.at(route_index).begin() + removal_index);
+	
+	// Updating G attribute - Signal of load is convenient here
+	G.at(node_index) += load;
+	
+	// Updating Z attribute - Only at delivery nodes
+	if (load < 0){
+		
+		Z.at(node_index) -= std::abs(load)/inst.d.at(node_index);
+		
+	}
+	
+	
+	
 	
 	
 }

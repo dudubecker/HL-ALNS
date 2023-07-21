@@ -50,6 +50,7 @@ std::vector<int> sortIndexes(std::vector<double> &input_vector){
 	
 };
 
+
 void printDouble(std::vector<double> &input)
 {
     for (auto const &i: input) {
