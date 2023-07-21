@@ -470,7 +470,14 @@ void Sol::toTXT(std::string &file_name){
 
 // Removing node by passing specific positions (Worst removal may use)
 
-void Sol::removeNode(int &node_index, int &route_index, int &removal_index){
+void Sol::removeNode(int &route_index, int &removal_index){
+	
+	// Corresponding node on removal position
+	int node_index = R.at(route_index).at(removal_index);
+	
+	// Nodes indexes to be removed by operation
+	int segment_size = 1;
+	
 	
 	// "node_index" can never be the first node on route! But it can be the last one (before "post-processing" in which final depots are included)
 	
@@ -494,51 +501,135 @@ void Sol::removeNode(int &node_index, int &route_index, int &removal_index){
 	} else {
 		
 		// If node to be removed is pickup node, then the whole segment is removed
+		if (Z.at(node_index) == 9999){
+			
+			// Size of route
+			int route_size = R.at(route_index).size();
+			
+			// Boolean variable for controlling if it is last segment
+			bool last_segment = false;
+			
+			
+			// Starting index of segment, which is the own removal index
+			int starting_index = removal_index;
+			
+			// Final index of segment, to be incremented
+			int final_index = removal_index;
+			
+			// Amount load/unloaded in next node, which is the stop criteria - if it gets positive, it means the segment is ended
+			double load_on_node = z.at(route_index).at(final_index + 1);
+			
+			while (load_on_node < 0){
+				
+				// Check later if it's right! But I guess it's making sense
+				
+				final_index += 1;
+				
+				// Incrementing segment size
+				segment_size += 1;
+				
+				
+				// Treating case when segment is last element on route
+				if ((final_index + 1) == route_size){
+					
+					final_index -= 1;
+					last_segment = true;
+					break;
+					
+				} else {
+					
+					load_on_node = z.at(route_index).at(final_index + 1);
+					
+				}
+				
+			}
+			
+			// Travel time of old segment (for loop)
+			double old_segment_time = 0;
+			
+			for (int index {starting_index - 1}; index < final_index + 1 ;index++){
+				
+				int i = R.at(route_index).at(index);
+				
+				int j = R.at(route_index).at(index + 1);
+				
+				std::cout << i << "-" << j << ": " << inst.t.at(i).at(j).at(route_index) << std::endl;
+				
+				old_segment_time += inst.t.at(i).at(j).at(route_index);
+				
+			}
+			
+			// Travel time of new arc
+			
+			// First node of new arc
+			int first_node = R.at(route_index).at(starting_index - 1);
+			
+			// Second node of new arc
+			int second_node = R.at(route_index).at(final_index + 1);
+			
+			double new_arc_time = 0;
+			
+			if (!last_segment){
+				
+				double new_arc_time = inst.t.at(first_node).at(second_node).at(route_index);
+				
+			}
+			
+			// Variation of time
+			double delta_time = new_arc_time - old_segment_time;
+			
+			// Incrementing time attribute
+			W.at(route_index) += delta_time;
+			
+			
+		// If node to be remove is delivery node, then only the single node is removed
+		} else {
+			
+			// Arc time travel difference
+			
+			int first_node = R.at(route_index).at(removal_index - 1);
+			
+			int second_node = R.at(route_index).at(removal_index + 1);
+			
+			double first_old_arc_time = inst.t.at(first_node).at(node_index).at(route_index);
+			
+			double second_old_arc_time = inst.t.at(node_index).at(second_node).at(route_index);
+			
+			double new_arc_time = inst.t.at(first_node).at(second_node).at(route_index);
+			
+			
+			double delta_time = new_arc_time - (first_old_arc_time + second_old_arc_time);
+			
+			W.at(route_index) += delta_time;
+			
+			
+		}
 		
-		// If node to be remove is delivery node, then onlny the single node is removed
-		
-		
-		
-		
-		// Arc time travel difference
-		
-		int first_node = R.at(route_index).at(removal_index - 1);
-		
-		int second_node = R.at(route_index).at(removal_index + 1);
-		
-		double first_old_arc_time = inst.t.at(first_node).at(node_index).at(route_index);
-		
-		double second_old_arc_time = inst.t.at(node_index).at(second_node).at(route_index);
-		
-		double new_arc_time = inst.t.at(first_node).at(second_node).at(route_index);
-		
-		double delta_time = new_arc_time - (first_old_arc_time + second_old_arc_time);
-		
-		W.at(route_index) += delta_time;
 		
 	}
 	
-	
-	// Removing node from route
-	R.at(route_index).erase(R.at(route_index).begin() + removal_index);
-	
-	// Storing load picked-up/delivered in visit
-	double load = z.at(route_index).at(removal_index);
-	
-	// Removing position of visit in z attribute
-	z.at(route_index).erase(z.at(route_index).begin() + removal_index);
-	
-	// Updating G attribute - Signal of load is convenient here
-	G.at(node_index) += load;
-	
-	// Updating Z attribute - Only at delivery nodes
-	if (load < 0){
+	for (int segment_element {0}; segment_element < segment_size; segment_element++){
 		
-		Z.at(node_index) -= std::abs(load)/inst.d.at(node_index);
+		// Removing node from route
+		R.at(route_index).erase(R.at(route_index).begin() + removal_index);
 		
+		// Storing load picked-up/delivered in visit
+		double load = z.at(route_index).at(removal_index);
+		
+		// Removing position of visit in z attribute
+		z.at(route_index).erase(z.at(route_index).begin() + removal_index);
+		
+		// Updating G attribute - Signal of load is convenient here
+		G.at(node_index) += load;
+		
+		// Updating Z attribute - Only at delivery nodes
+		if (load < 0){
+			
+			Z.at(node_index) -= load/inst.d.at(node_index);
+			
+		}
+	
 	}
-	
-	
 	
 	
 	

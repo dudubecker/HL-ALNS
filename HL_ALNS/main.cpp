@@ -37,11 +37,12 @@ int main(){
 	std::cout << "\n\n\n\n\n\n\n\n\n";
 	
 	
-	int node_index = 11; 
-	int route_index = 0; 
-	int removal_index = 16;
 	
-	S.removeNode(node_index, route_index, removal_index);
+	int route_index = 0; 
+	int removal_index = 14;
+	
+	
+	S.removeNode(route_index, removal_index);
 	
 	S.printSol();
 	
@@ -51,7 +52,7 @@ int main(){
 	
 	printDouble(S.W);
 	
-	std::cout << "\n\n";
+	std::cout << "\n\n\n";
 	
 	
 	
