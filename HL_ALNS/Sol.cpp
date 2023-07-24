@@ -41,6 +41,14 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 	Z.resize(inst.counties.size());
 	std::fill(Z.begin(), Z.end(), 9999);
 	
+	
+	
+	// nodesPositions attribute (initializing with empty structures)
+	
+	std::vector<std::pair<int, int>> empty_vec = {};
+	nodesPositions.resize(inst.counties.size());
+	std::fill(nodesPositions.begin(), nodesPositions.end(), empty_vec);
+	
 	// Filling depot met demands with very large number
 	
 	for (auto &i: inst.D){
@@ -58,10 +66,13 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		
 	}
 	
-	// W vector, with routes lengths
+	// W vector, with routes lengths in terms of time
 	W.resize(inst.m);
 	std::fill(W.begin(), W.end(), 0);
 	
+	// RSize vector, with routes lengths in terms of number of nodes - initiates in 1 because of depot node
+	RSize.resize(inst.m);
+	std::fill(RSize.begin(), RSize.end(), 1);
 	
 	//// Construction heuristic main loop
 	
@@ -81,11 +92,7 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 			
 			route_index = rand()%inst.m;
 			
-			
-			
-			
 		}
-		
 		
 		// Inserting nearest pickup node on route
 		
@@ -95,6 +102,7 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		
 		for (auto &node: inst.proximitiesN.at(last_node)){
 			
+			// If it is possible to insert node
 			if ((count(inst.P.begin(), inst.P.end(), node)) && (G.at(node) > 0)){
 				
 				next_pickup_node = node;
@@ -105,7 +113,7 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 			
 		}
 		
-		// Inserting node
+		// Inserting node at route
 		R.at(route_index).push_back(next_pickup_node);
 		
 		// Amount of load picked up - minimum between vehicle capacity and amount of goods in pickup node
@@ -120,6 +128,17 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		// Adding travel times to attribute w
 		W.at(route_index) += inst.t.at(last_node).at(next_pickup_node).at(route_index);
 		
+		// Adding node to nodes counter attribute
+		RSize.at(route_index) += 1;
+		
+		// Inserting pair at nodesPositions attribute
+		std::pair<int,int> positions;
+		positions.first = route_index;
+		
+		// As the constructive heuristic always inserts nodes at last position, the new node position is the size minus one (because index starts at 0)
+		positions.second = RSize.at(route_index) - 1;
+		
+		nodesPositions.at(next_pickup_node).push_back(positions);
 		
 		// Inserting all possible delivery nodes
 		
@@ -128,8 +147,6 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		
 		// While the capacity can be assigned to node
 		while (available_load > 0){
-			
-			
 			
 			int last_node = R.at(route_index).back();
 			
@@ -244,10 +261,20 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 			// Adding travel times to attribute w
 			W.at(route_index) += inst.t.at(last_node).at(next_delivery_node).at(route_index);
 			
+			// Adding node to nodes counter attribute
+			RSize.at(route_index) += 1;
+			
 			// Subtracting delivered load from available load variable
 			available_load -= delivered_load;
 			
+			// Inserting pair at nodesPositions attribute
+			std::pair<int,int> positions;
+			positions.first = route_index;
 			
+			// As the constructive heuristic always inserts nodes at last position, the new node position is the size minus one (because index starts at 0)
+			positions.second = RSize.at(route_index) - 1;
+			
+			nodesPositions.at(next_delivery_node).push_back(positions);
 			
 			
 		}
@@ -468,9 +495,9 @@ void Sol::toTXT(std::string &file_name){
 	
 }
 
-// Removing node by passing specific positions (Worst removal may use)
+// Removing node by passing specific positions (Used by heuristics and all other removal methods)
 
-void Sol::removeNode(int &route_index, int &removal_index){
+void Sol::removeNodeAt(int &route_index, int &removal_index){
 	
 	// Corresponding node on removal position
 	int node_index = R.at(route_index).at(removal_index);
@@ -553,7 +580,7 @@ void Sol::removeNode(int &route_index, int &removal_index){
 				
 				int j = R.at(route_index).at(index + 1);
 				
-				std::cout << i << "-" << j << ": " << inst.t.at(i).at(j).at(route_index) << std::endl;
+				// std::cout << i << "-" << j << ": " << inst.t.at(i).at(j).at(route_index) << std::endl;
 				
 				old_segment_time += inst.t.at(i).at(j).at(route_index);
 				
@@ -608,7 +635,16 @@ void Sol::removeNode(int &route_index, int &removal_index){
 		
 	}
 	
+	// Variable used for removal positions in pairs
+	
+	// The explanation is that, to remove full segments in a route, it is possible to always remove the same index at "x" times, being "x" the segment size
+	// But this is not possible for nodesPositions attribute, as the indexes are static
+	int removal_position_in_pair = removal_index;
+	
 	for (int segment_element {0}; segment_element < segment_size; segment_element++){
+		
+		// Node which is being deleted (information used to update nodesPositions!)
+		int current_node =  R.at(route_index).at(removal_index);
 		
 		// Removing node from route
 		R.at(route_index).erase(R.at(route_index).begin() + removal_index);
@@ -622,14 +658,120 @@ void Sol::removeNode(int &route_index, int &removal_index){
 		// Updating G attribute - Signal of load is convenient here
 		G.at(node_index) += load;
 		
+		// Removing node to nodes counter attribute
+		RSize.at(route_index) -= 1;
+		
+		
 		// Updating Z attribute - Only at delivery nodes
 		if (load < 0){
 			
 			Z.at(node_index) -= load/inst.d.at(node_index);
 			
 		}
-	
+		
+		// Search for pair position to be removed
+		
+		// The pair position that will be removed has "node_index" as key, and the corresponding pair first element is "route_index" and second element is "removal_index"
+		
+		// The great advantage of this approach is that, instead of iterating in all routes and positions of solution to remove a node,
+		// it is possible to iterate only in node specific occurances, which drastically reduces the iterating process
+		
+		int occurance = 0;
+		
+		for (int node_occurance {0}; node_occurance < nodesPositions.at(current_node).size(); node_occurance++){
+			
+			
+			
+			// If current occurance is the one that I'm trying to find, I store this and break loop
+			if ((nodesPositions.at(current_node).at(node_occurance).first == route_index) and (nodesPositions.at(current_node).at(node_occurance).second == removal_position_in_pair)){
+				
+				occurance = node_occurance;
+				
+				// std::cout << current_node << " " << node_occurance << " " << route_index << " " << removal_position_in_pair << "\n\n\n\n";
+				
+				removal_position_in_pair += 1;
+				
+				break;
+				
+			}
+			
+		}
+		
+		// Finally deleting position in nodesPositions attribute
+		nodesPositions.at(current_node).erase(nodesPositions.at(current_node).begin() + occurance);
+		
+		
 	}
+	
+	
+	
+}
+
+void Sol::removeNodeCase(int &node_index){
+	
+	// Node needs to have already been visited in solution for removal to be possible!
+	if (G.at(node_index) != std::abs(inst.d.at(node_index))){
+		
+		// Getting random occasion pair of node
+		
+		// Removing it from solution
+		
+		
+		;
+		
+		
+		
+		
+	} else {
+		
+		std::cout << "BUG: Node not visited in solution" << std::endl;
+		
+	}
+	
+	
+	
+}
+
+void Sol::removeNodes(int &node_index){
+	
+	// Node needs to have already been visited in solution for removal to be possible!
+	if (G.at(node_index) != std::abs(inst.d.at(node_index))){
+		
+		
+		////////////////////// No need anymore with "nodesPositions" attribute!!!!!!!!
+		
+		// Iterating at all possible positions in which "node_index" could be
+		for (auto route_index {0}; route_index < inst.m; route_index++){
+			
+			for (auto position {1}; position < RSize.at(route_index); position++){
+				
+				// If node at route and position is the one that I want to remove
+				if (R.at(route_index).at(position) == node_index){
+					
+					removeNodeAt(route_index, position);
+					
+				}
+				
+				
+			}
+			
+			
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+	} else {
+		
+		std::cout << "BUG: Node not visited in solution" << std::endl;
+		
+	}
+	
 	
 	
 	

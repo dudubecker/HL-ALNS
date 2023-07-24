@@ -15,6 +15,14 @@ public:
 	// Routes - 2D vector with concatenated routes
 	std::vector<std::vector<int>> R {};
 	
+	// Quantity of nodes at each route (this way, no ".size()" operation is needed)
+	std::vector<int> RSize {};
+	
+	// Occurances of client (in N) in solution - This is used for removal operations, so solution doesn't need to be iterated for nodes to be removed
+	
+	// The first key is the route index, and the second key is the position of node in route
+	std::vector<std::vector<std::pair<int, int>>> nodesPositions {};
+	
 	// Current amount of goods in each node
 	std::vector<double> G {};
 	
@@ -24,7 +32,7 @@ public:
 	// Amount delivered for each visit
 	std::vector<std::vector<double>> z {};
 	
-	// Total duration of each route
+	// Total lenght (in terms of time) of each route
 	std::vector<double> W {};
 	
 	// Initialization by passing instance object
@@ -46,11 +54,14 @@ public:
 	// Insert node
 	void insertNode(int &node_index, int &route_index, int &insertion_position);
 	
-	// Remove node (specific position)
-	void removeNode(int &route_index, int &removal_index);
+	// Remove node (specific route and position)
+	void removeNodeAt(int &route_index, int &removal_index);
 	
-	// Remove node (any position)
-	void removeNode(int &node_index);
+	// Remove one case of node (at any random position)
+	void removeNodeCase(int &node_index);
+	
+	// Remove all node cases in S
+	void removeNodes(int &node_index);
 	
 	// Remove route
 	

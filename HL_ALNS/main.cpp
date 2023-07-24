@@ -28,33 +28,49 @@ int main(){
 	
 	S.printSol();
 	
-	printDouble(S.Z);
 	
-	std::cout << "\n\n";
+	// For printing nodesPositions attribute:
+	for (auto node_index {0}; node_index < S.nodesPositions.size(); node_index++){
+		
+		std::cout << node_index << ": ";
+		
+		for(auto position_pair: S.nodesPositions.at(node_index)){
+			
+			
+			std::cout << position_pair.first << " " << position_pair.second << "; ";
+			
+			
+		}
+		
+		std::cout << "\n\n";
+		
+	}
 	
-	printDouble(S.W);
 	
-	std::cout << "\n\n\n\n\n\n\n\n\n";
-	
-	
-	
-	int route_index = 0; 
-	int removal_index = 14;
+	int route_index = 1; 
+	int removal_index = 7;
 	
 	
-	S.removeNode(route_index, removal_index);
+	S.removeNodeAt(route_index, removal_index);
 	
 	S.printSol();
 	
-	printDouble(S.Z);
-	
-	std::cout << "\n\n";
-	
-	printDouble(S.W);
-	
-	std::cout << "\n\n\n";
-	
-	
+	// For printing nodesPositions attribute:
+	for (auto node_index {0}; node_index < S.nodesPositions.size(); node_index++){
+		
+		std::cout << node_index << ": ";
+		
+		for(auto position_pair: S.nodesPositions.at(node_index)){
+			
+			
+			std::cout << position_pair.first << " " << position_pair.second << "; ";
+			
+			
+		}
+		
+		std::cout << "\n\n";
+		
+	}
 	
 	// S.toTXT(file_name);
 	
