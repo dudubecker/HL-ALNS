@@ -29,24 +29,6 @@ int main(){
 	S.printSol();
 	
 	
-	// For printing nodesPositions attribute:
-	for (auto node_index {0}; node_index < S.nodesPositions.size(); node_index++){
-		
-		std::cout << node_index << ": ";
-		
-		for(auto position_pair: S.nodesPositions.at(node_index)){
-			
-			
-			std::cout << position_pair.first << " " << position_pair.second << "; ";
-			
-			
-		}
-		
-		std::cout << "\n\n";
-		
-	}
-	
-	
 	int route_index = 1; 
 	int removal_index = 7;
 	
@@ -55,22 +37,6 @@ int main(){
 	
 	S.printSol();
 	
-	// For printing nodesPositions attribute:
-	for (auto node_index {0}; node_index < S.nodesPositions.size(); node_index++){
-		
-		std::cout << node_index << ": ";
-		
-		for(auto position_pair: S.nodesPositions.at(node_index)){
-			
-			
-			std::cout << position_pair.first << " " << position_pair.second << "; ";
-			
-			
-		}
-		
-		std::cout << "\n\n";
-		
-	}
 	
 	// S.toTXT(file_name);
 	

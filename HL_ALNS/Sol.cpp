@@ -495,7 +495,7 @@ void Sol::toTXT(std::string &file_name){
 	
 }
 
-// Removing node by passing specific positions (Used by heuristics and all other removal methods)
+// Removing node by passing specific positions (Used by all other removal methods)
 
 void Sol::removeNodeAt(int &route_index, int &removal_index){
 	
@@ -707,19 +707,22 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 	
 }
 
+// Removes random case
 void Sol::removeNodeCase(int &node_index){
 	
 	// Node needs to have already been visited in solution for removal to be possible!
 	if (G.at(node_index) != std::abs(inst.d.at(node_index))){
 		
 		// Getting random occasion pair of node
+		int number_of_occurances = nodesPositions.at(node_index).size();
+		
+		int random_occasion = rand()%number_of_occurances;
+		
+		// Data for removing
+		std::pair<int,int> removal_pair = nodesPositions.at(node_index).at(random_occasion);
 		
 		// Removing it from solution
-		
-		
-		;
-		
-		
+		removeNodeAt(removal_pair.first, removal_pair.second);
 		
 		
 	} else {
@@ -732,38 +735,23 @@ void Sol::removeNodeCase(int &node_index){
 	
 }
 
-void Sol::removeNodes(int &node_index){
+// Removes all cases
+void Sol::removeNodeCases(int &node_index){
 	
 	// Node needs to have already been visited in solution for removal to be possible!
 	if (G.at(node_index) != std::abs(inst.d.at(node_index))){
 		
-		
-		////////////////////// No need anymore with "nodesPositions" attribute!!!!!!!!
-		
 		// Iterating at all possible positions in which "node_index" could be
-		for (auto route_index {0}; route_index < inst.m; route_index++){
+		for (auto occurrance: nodesPositions.at(node_index){
 			
-			for (auto position {1}; position < RSize.at(route_index); position++){
-				
-				// If node at route and position is the one that I want to remove
-				if (R.at(route_index).at(position) == node_index){
-					
-					removeNodeAt(route_index, position);
-					
-				}
-				
-				
-			}
+			// Data for removing
+			std::pair<int,int> removal_pair = occurance;
 			
+			// Removing it from solution
+			removeNodeAt(removal_pair.first, removal_pair.second);
 			
 			
 		}
-		
-		
-		
-		
-		
-		
 		
 		
 	} else {
@@ -771,8 +759,5 @@ void Sol::removeNodes(int &node_index){
 		std::cout << "BUG: Node not visited in solution" << std::endl;
 		
 	}
-	
-	
-	
 	
 }

@@ -61,7 +61,7 @@ public:
 	void removeNodeCase(int &node_index);
 	
 	// Remove all node cases in S
-	void removeNodes(int &node_index);
+	void removeNodeCases(int &node_index);
 	
 	// Remove route
 	
