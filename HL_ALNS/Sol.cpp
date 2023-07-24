@@ -41,8 +41,6 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 	Z.resize(inst.counties.size());
 	std::fill(Z.begin(), Z.end(), 9999);
 	
-	
-	
 	// nodesPositions attribute (initializing with empty structures)
 	
 	std::vector<std::pair<int, int>> empty_vec = {};
@@ -114,36 +112,19 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		}
 		
 		// Inserting node at route
-		R.at(route_index).push_back(next_pickup_node);
+		// R.at(route_index).push_back(next_pickup_node);
+		
+		// Insertion position -> last position
+		int insertion_index = RSize.at(route_index);
 		
 		// Amount of load picked up - minimum between vehicle capacity and amount of goods in pickup node
 		double picked_up_load = std::min(inst.Q.at(route_index), G.at(next_pickup_node));
 		
-		// Adding amount collected to attribute z
-		z.at(route_index).push_back(picked_up_load);
-		
-		// Subtracting capacity in attribute G
-		G.at(next_pickup_node) -= picked_up_load;
-		
-		// Adding travel times to attribute w
-		W.at(route_index) += inst.t.at(last_node).at(next_pickup_node).at(route_index);
-		
-		// Adding node to nodes counter attribute
-		RSize.at(route_index) += 1;
-		
-		// Inserting pair at nodesPositions attribute
-		std::pair<int,int> positions;
-		positions.first = route_index;
-		
-		// As the constructive heuristic always inserts nodes at last position, the new node position is the size minus one (because index starts at 0)
-		positions.second = RSize.at(route_index) - 1;
-		
-		nodesPositions.at(next_pickup_node).push_back(positions);
+		insertNodeAt(next_pickup_node, route_index, insertion_index, picked_up_load);
 		
 		// Inserting all possible delivery nodes
 		
 		double available_load = picked_up_load;
-		
 		
 		// While the capacity can be assigned to node
 		while (available_load > 0){
@@ -239,42 +220,16 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 				
 			}
 			
-			
-			
-			// Adding node to route
-			
-			// Inserting node
-			R.at(route_index).push_back(next_delivery_node);
-			
 			// Amount of delivered load - minimum between available load and amount of goods demanded
 			double delivered_load = std::min(available_load, (std::abs(inst.d.at(next_delivery_node)) - G.at(next_delivery_node)));
 			
-			// Adding amount collected to attribute z
-			z.at(route_index).push_back(-delivered_load);
-			
-			// Adding relative covered demand to attribute Z
-			Z.at(next_delivery_node) += std::abs(delivered_load/inst.d.at(next_delivery_node));
-			
-			// Adding delivery in attribute G
-			G.at(next_delivery_node) += delivered_load;
-			
-			// Adding travel times to attribute w
-			W.at(route_index) += inst.t.at(last_node).at(next_delivery_node).at(route_index);
-			
-			// Adding node to nodes counter attribute
-			RSize.at(route_index) += 1;
+			// Insertion position -> last position
+			int insertion_index = RSize.at(route_index);
+				
+			insertNodeAt(next_delivery_node, route_index, insertion_index, delivered_load);
 			
 			// Subtracting delivered load from available load variable
 			available_load -= delivered_load;
-			
-			// Inserting pair at nodesPositions attribute
-			std::pair<int,int> positions;
-			positions.first = route_index;
-			
-			// As the constructive heuristic always inserts nodes at last position, the new node position is the size minus one (because index starts at 0)
-			positions.second = RSize.at(route_index) - 1;
-			
-			nodesPositions.at(next_delivery_node).push_back(positions);
 			
 			
 		}
@@ -505,7 +460,6 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 	// Nodes indexes to be removed by operation
 	int segment_size = 1;
 	
-	
 	// "node_index" can never be the first node on route! But it can be the last one (before "post-processing" in which final depots are included)
 	
 	// Updating W attribute first, as it is arc dependent
@@ -674,20 +628,19 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		// The pair position that will be removed has "node_index" as key, and the corresponding pair first element is "route_index" and second element is "removal_index"
 		
 		// The great advantage of this approach is that, instead of iterating in all routes and positions of solution to remove a node,
-		// it is possible to iterate only in node specific occurances, which drastically reduces the iterating process
+		// it is possible to iterate only in node specific occurrences, which drastically reduces the iterating process
 		
-		int occurance = 0;
+		int occurrence = 0;
 		
-		for (int node_occurance {0}; node_occurance < nodesPositions.at(current_node).size(); node_occurance++){
+		for (int node_occurrence {0}; node_occurrence < nodesPositions.at(current_node).size(); node_occurrence++){
 			
 			
-			
-			// If current occurance is the one that I'm trying to find, I store this and break loop
-			if ((nodesPositions.at(current_node).at(node_occurance).first == route_index) and (nodesPositions.at(current_node).at(node_occurance).second == removal_position_in_pair)){
+			// If current occurrence is the one that I'm trying to find, I store this and break loop
+			if ((nodesPositions.at(current_node).at(node_occurrence).first == route_index) and (nodesPositions.at(current_node).at(node_occurrence).second == removal_position_in_pair)){
 				
-				occurance = node_occurance;
+				occurrence = node_occurrence;
 				
-				// std::cout << current_node << " " << node_occurance << " " << route_index << " " << removal_position_in_pair << "\n\n\n\n";
+				// std::cout << current_node << " " << " " << route_index << " " << removal_position_in_pair << "\n\n\n\n";
 				
 				removal_position_in_pair += 1;
 				
@@ -698,7 +651,7 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		}
 		
 		// Finally deleting position in nodesPositions attribute
-		nodesPositions.at(current_node).erase(nodesPositions.at(current_node).begin() + occurance);
+		nodesPositions.at(current_node).erase(nodesPositions.at(current_node).begin() + occurrence);
 		
 		
 	}
@@ -714,9 +667,9 @@ void Sol::removeNodeCase(int &node_index){
 	if (G.at(node_index) != std::abs(inst.d.at(node_index))){
 		
 		// Getting random occasion pair of node
-		int number_of_occurances = nodesPositions.at(node_index).size();
+		int number_of_occurrences = nodesPositions.at(node_index).size();
 		
-		int random_occasion = rand()%number_of_occurances;
+		int random_occasion = rand()%number_of_occurrences;
 		
 		// Data for removing
 		std::pair<int,int> removal_pair = nodesPositions.at(node_index).at(random_occasion);
@@ -742,10 +695,10 @@ void Sol::removeNodeCases(int &node_index){
 	if (G.at(node_index) != std::abs(inst.d.at(node_index))){
 		
 		// Iterating at all possible positions in which "node_index" could be
-		for (auto occurrance: nodesPositions.at(node_index){
+		for (auto occurrence: nodesPositions.at(node_index)){
 			
 			// Data for removing
-			std::pair<int,int> removal_pair = occurance;
+			std::pair<int,int> removal_pair = occurrence;
 			
 			// Removing it from solution
 			removeNodeAt(removal_pair.first, removal_pair.second);
@@ -759,5 +712,77 @@ void Sol::removeNodeCases(int &node_index){
 		std::cout << "BUG: Node not visited in solution" << std::endl;
 		
 	}
+	
+}
+
+
+// Insert node at specific position
+
+void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, double &demand){
+	
+	// Time attribute - first one to be updated!
+	
+	// Process is different if insertion position is the last one!
+	if (insertion_index == RSize.at(route_index)){
+		
+		int last_node_index = R.at(route_index).back();
+		
+		double new_arc_time = inst.t.at(last_node_index).at(node_index).at(route_index);
+		
+		W.at(route_index) += new_arc_time;
+		
+		
+	// If it's not last position, arcs difference needs to be taken into account
+	} else {
+		
+		int old_arc_first_node = R.at(route_index).at(insertion_index - 1);
+		
+		int old_arc_second_node = R.at(route_index).at(insertion_index);
+		
+		double old_arc_time = inst.t.at(old_arc_first_node).at(old_arc_second_node).at(route_index);
+		
+		double first_new_arc_time = inst.t.at(old_arc_first_node).at(node_index).at(route_index);
+		
+		double second_new_arc_time = inst.t.at(node_index).at(old_arc_second_node).at(route_index);
+		
+		double delta_time = (first_new_arc_time + second_new_arc_time) - old_arc_time;
+		
+		W.at(route_index) += delta_time;
+		
+	}
+	
+	// Inserting node in routes attribute
+	R.at(route_index).insert(R.at(route_index).begin() + insertion_index, node_index);
+	
+	// Updating routes length in number of nodes
+	RSize.at(route_index) += 1;
+	
+	// Updating nodesPositions attribute (used in removal methods)
+	std::pair<int,int> insertion_pair = {};
+	insertion_pair.first = route_index;
+	insertion_pair.second = insertion_index;
+	
+	nodesPositions.at(node_index).push_back(insertion_pair);
+	
+	// Counting picked-up/delivered demand at corresponding attributes
+	
+	// If pickup node
+	if (Z.at(node_index) == 9999){
+		
+		G.at(node_index) -= demand;
+		z.at(route_index).insert(z.at(route_index).begin() + insertion_index, demand);
+		
+	// If delivery node
+	} else {
+		
+		
+		G.at(node_index) += demand;
+		Z.at(node_index) += demand/std::abs(inst.d.at(node_index));
+		z.at(route_index).insert(z.at(route_index).begin() + insertion_index, -demand);
+		
+	}
+	
+
+	
 	
 }
