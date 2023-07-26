@@ -10,7 +10,6 @@ int main(){
 	
 	
 	
-	/*
 	//// Problem data
 	
 	std::string file_name = "INST_JO_NA_9_cpp.txt";
@@ -30,7 +29,14 @@ int main(){
 	
 	Sol S(inst, p, Gamma1, Gamma2);
 	
-	// S.printSol();
+	S.printSol();
+	
+	PartialRandomRemoval prr {};
+	
+	prr.apply(S);
+	
+	S.printSol();
+	
 	
 	/*
 	// For printing nodesPositions attribute:

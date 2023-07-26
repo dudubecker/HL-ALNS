@@ -1,86 +1,84 @@
-// Heuristic.cpp 
-
 #include "Heuristic.hpp"
-#include <iostream>
+#include <ctime>
+#include <random>
+#include <chrono>
+#include <algorithm>
+#include <numeric>
 
 // Implementação do método "apply" da classe base "Heuristic"
-void Heuristic::apply() {
+Sol Heuristic::apply(Sol &S){
     std::cout << "Comportamento base de Heuristic\n";
     // Coloque aqui o código base que deve ser comum a todas as classes derivadas
 
     // Chamada para o método "specificApply" específico da classe derivada
     // Isso garantirá que o comportamento específico da classe derivada seja chamado após o código base.
-    specificApply();
+	specificApply(S);
+	
+	return S;
+	
 }
 
-// Implementação dos construtores das classes derivadas
-Heuristic::Heuristic(const std::string& name) : name(name) {}
-RemovalHeuristic::RemovalHeuristic(const std::string& name) : Heuristic(name) {}
-PartialRandomRemoval::PartialRandomRemoval(const std::string& name) : RemovalHeuristic(name) {}
 
 // Sobrescrita do método "specificApply" para a RemovalHeuristic
-void RemovalHeuristic::specificApply() {
-    std::cout << "Executando comportamento da RemovalHeuristic...\n";
-    // Coloque aqui o código específico para a RemovalHeuristic
+int RemovalHeuristic::chooseNumberofNodes(Sol &S) {
+	
+	std::cout << "Removal heuristics base code\n";
+	
+	// Replicable data
+	srand(121);
+	
+	// True random data
+	// srand(time(NULL));
+	
+	// Number of nodes in solution
+	int number_of_nodes = std::accumulate(S.RSize.begin(), S.RSize.end(), 0);
+	
+	// Valor mínimo de mi (10% da quantidade de pedidos)
+	int low_mi = round(number_of_nodes*0.2);
+	
+	// Valor máximo de mi (40% da quantidade de pedidos)
+	int high_mi = round(number_of_nodes*0.3);
+	
+	int mi = low_mi + rand()%(high_mi - low_mi + 1);
+	
+	return mi;
+	
 }
 
 // Sobrescrita do método "specificApply" para a PartialRandomRemoval
-void PartialRandomRemoval::specificApply() {
-    // Chamada para o método "specificApply" da classe base "RemovalHeuristic"
-    RemovalHeuristic::specificApply();
-
-    std::cout << "Executando comportamento da PartialRandomRemoval...\n";
-    // Coloque aqui o código específico para a PartialRandomRemoval
-}
-
-
-
-
-/*
-// Apply - Here goes the code that will be firstly executed before other heuristic types calls
-void Heuristic::apply(){
+Sol PartialRandomRemoval::specificApply(Sol &S) {
+	// Chamada para o método "specificApply" da classe base "RemovalHeuristic"
 	
-    std::cout << "Comportamento base de Heuristic\n";
-    // Coloque aqui o código base que deve ser comum a todas as classes derivadas
-    // Por exemplo, alguma inicialização ou lógica comum antes de executar os comportamentos específicos.
-}
-
-// Constructors implementation
-
-Heuristic::Heuristic(){};
-Heuristic::~Heuristic(){};
-
-RemovalHeuristic::RemovalHeuristic() : Heuristic() {
+	std::cout << "Partial Random Removal: \n";
 	
-}
-
-InsertionHeuristic::InsertionHeuristic() : Heuristic() {
+	int mi = RemovalHeuristic::chooseNumberofNodes(S);
 	
-}
-
-PartialRandomRemoval::PartialRandomRemoval() : RemovalHeuristic() {
+	// Initial number of nodes in solution
+	int initial_number_of_nodes = std::accumulate(S.RSize.begin(), S.RSize.end(), 0);
 	
-}
-
-// Sobrescrita do método "apply" para o comportamento 1
-void RemovalHeuristic::apply() {
-    
-	// Coloque aqui o código específico para o comportamento 1
+	int current_number_of_nodes = initial_number_of_nodes;
 	
-	std::cout << "Executando comportamento 1...\n";
+	// Vector with valid nodes to be removed (P U D)
+	std::vector<int> nodes = S.inst.P;
+	nodes.insert(nodes.end(), S.inst.D.begin(), S.inst.D.end());
+	
+	int amount_of_valid_nodes = nodes.size();
+	
+	while ((initial_number_of_nodes - current_number_of_nodes) < mi){
+		
+		// Choosing random node
+		int random_index = rand()%amount_of_valid_nodes;
+		
+		int random_node = nodes.at(random_index);
+		
+		// Removing node case
+		S.removeNodeCase(random_node);
+		
+		// Updating number of nodes in solution
+		current_number_of_nodes = std::accumulate(S.RSize.begin(), S.RSize.end(), 0);
+		
+	}
 	
 	
+	return S;
 }
-
-// Sobrescrita do método "apply" para o comportamento 2
-void InsertionHeuristic::apply() {
-    std::cout << "Executando comportamento 2...\n";
-    // Coloque aqui o código específico para o comportamento 2
-}
-
-// Sobrescrita do método "apply" para o comportamento 3
-void PartialRandomRemoval::apply() {
-    std::cout << "Executando comportamento 3...\n";
-    // Coloque aqui o código específico para o comportamento 3
-}
-*/

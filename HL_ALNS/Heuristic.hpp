@@ -1,38 +1,57 @@
-// Heuristic.hpp
-
 #ifndef HEURISTIC_HPP
 #define HEURISTIC_HPP
 
-#include <string>
+#include <iostream>
+#include <memory>
+#include "Sol.hpp"
 
 class Heuristic {
 public:
-    Heuristic(const std::string& name);
+
+	
+	// Attributes - all heuristic objects have these
+	
+	// Heuristic score, updated during algorithm
+	double score {0};
+	
+	// Heuristic weight, that determines its probability of being chosen
+	double weight {0};
+	
+	// Number of iterations on last segment
+	int n_it {0};
+	
+	// Number of iterations in total
+	int n_it_total {0};
+	
+	// Computational time of heuristic
+	double processing_time {};
+
 
     // Método "apply" virtual
-    virtual void apply();
+    virtual Sol apply(Sol &S);
 
     // Método "specificApply" puramente virtual
-    virtual void specificApply() = 0;
+    virtual int chooseNumberofNodes(Sol &S) = 0;
+	
+	virtual Sol specificApply(Sol &S)  = 0;
+
+    virtual ~Heuristic() {} // Adicionamos um destrutor virtual
 
 protected:
-    std::string name;
+    // Construtor protegido para evitar instanciar a classe Heuristic diretamente
+    Heuristic() {}
 };
 
 class RemovalHeuristic : public Heuristic {
 public:
-    RemovalHeuristic(const std::string& name);
-
     // Sobrescrita do método "specificApply" para a RemovalHeuristic
-    void specificApply() override;
+    int chooseNumberofNodes(Sol &S) override;
 };
 
 class PartialRandomRemoval : public RemovalHeuristic {
 public:
-    PartialRandomRemoval(const std::string& name);
-
     // Sobrescrita do método "specificApply" para a PartialRandomRemoval
-    void specificApply() override;
+    Sol specificApply(Sol &S) override;
 };
 
 

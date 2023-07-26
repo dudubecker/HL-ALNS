@@ -111,4 +111,17 @@ for (auto node_index {0}; node_index < S.nodesPositions.size(); node_index++){
 		
 		
 	}
+
+// Applying heuristic of heuristic vector
+ * 
+// Criando um vetor de smart pointers para Heuristic (classe base)
+std::vector<Heuristic*> heuristicVector;
+
+// Criando objetos das classes derivadas e adicionando ao vetor
+	
+PartialRandomRemoval prr {};
+	
+heuristicVector.push_back(&prr);
+
+heuristicVector.at(0) -> apply();
 */
