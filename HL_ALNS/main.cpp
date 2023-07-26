@@ -11,7 +11,7 @@ int main(){
 	
 	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	int number_of_periods = 1;
+	int number_of_periods = 3;
 	
 	// Randomness parameter
 	double p {6};
@@ -56,7 +56,7 @@ int main(){
 	
 	*/
 	
-	S.printSol();
+	// S.printSol();
 	
 	// // S.removeNodeCase(node_index);
 	// S.removeNodeCase(node_index);
@@ -68,8 +68,9 @@ int main(){
 	
 	S.removeNodeCases(node_index);
 	
-	 
 	S.printSol();
+	
+	printDouble(S.Z);
 	 
 	return 0;
 	

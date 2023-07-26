@@ -446,7 +446,7 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		// Updating Z attribute - Only at delivery nodes
 		if (load < 0){
 			
-			Z.at(current_node) -= load/inst.d.at(node_index);
+			Z.at(current_node) = G.at(current_node)/std::abs(inst.d.at(current_node));
 			
 		}
 		
