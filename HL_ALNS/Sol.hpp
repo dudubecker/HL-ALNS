@@ -18,10 +18,11 @@ public:
 	// Quantity of nodes at each route (this way, no ".size()" operation is needed)
 	std::vector<int> RSize {};
 	
-	// Occurances of client (in N) in solution - This is used for removal operations, so solution doesn't need to be iterated for nodes to be removed
+	// Occurrences of client (in N) in solution - This is used for removal operations, so solution doesn't need to be iterated for nodes to be removed
 	
 	// The first key is the route index, and the second key is the position of node in route
-	std::vector<std::vector<std::pair<int, int>>> nodesPositions {};
+	// std::vector<std::vector<std::pair<int, int>>> nodesPositions {};
+	std::vector<std::vector<std::vector<int>>> nodesPositions {};
 	
 	// Current amount of goods in each node
 	std::vector<double> G {};

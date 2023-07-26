@@ -88,4 +88,27 @@ for (auto node_index {0}; node_index < S.nodesPositions.size(); node_index++){
 	std::cout << "\n\n";
 	
 }
+ * 
+ * 
+ * 
+ * // Splitting "S" into segments
+	
+	for (int route_index {0}; route_index < S.inst.m; route_index++){
+		
+		for (auto &node: S.R.at(route_index)){
+			
+			if ((S.Z.at(node) == 9999)){
+				
+				cout << "\n";
+				
+			}
+			
+			cout << node << " ";
+			
+			
+		}
+		
+		
+		
+	}
 */
