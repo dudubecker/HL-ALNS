@@ -558,7 +558,7 @@ void Sol::removeNodeCase(int &node_index){
 }
 
 
-/*
+
 // Removes all cases
 void Sol::removeNodeCases(int &node_index){
 	
@@ -566,85 +566,19 @@ void Sol::removeNodeCases(int &node_index){
 	
 	if (((Z.at(node_index) == 9999) and (G.at(node_index) < inst.d.at(node_index))) or ((Z.at(node_index) != 9999) and (Z.at(node_index) > 0))){
 		
-		// For each route
-		for (auto route_index {0}; route_index < inst.m; route_index++){
+		for (auto route_index {0}; route_index < inst.m ; route_index++){
 			
-			int number_of_positions = nodesPositions.at(node_index).at(route_index).size();
-			
-			int available_positions = number_of_positions;
-			
-			std::cout << available_positions << std::endl;
+			int available_positions = nodesPositions.at(node_index).at(route_index).size();
 			
 			while (available_positions > 0){
 				
-				// printInt(nodesPositions.at(node_index).at(route_index));
-				
-				std::cout << "A" << std::endl;
-				
-				removeNodeAt(route_index, nodesPositions.at(node_index).at(route_index).at(0));
-				
-				// printInt(nodesPositions.at(node_index).at(route_index));
-				
-				// break;
-			}
-			
-			//for (auto position {0}; position < number_of_positions; position++){
-				
-				
-			//}
-			
-			
-			
-			/*
-			// Positions of node at current route
-			std::vector<int> node_route_positions(nodesPositions.at(node_index).at(route_index));
-			
-			int number_of_positions = node_route_positions.size();
-			
-			// Removing while there are available removal positions
-			while (number_of_positions > 0){
-				
-				printInt(node_route_positions);
-				
-				int removal_position = node_route_positions.at(0);
+				int removal_position = nodesPositions.at(node_index).at(route_index).at(0);
 				
 				removeNodeAt(route_index, removal_position);
 				
-				// Updating positions vector after removing node
-				node_route_positions.erase(node_route_positions.begin());
-				
-				number_of_positions -= 1;
-				
-				
-				for (auto i {0}; i < number_of_positions; i++){
-					
-					node_route_positions.at(i) -= 1;
-					
-				}
-				
-				// printInt(node_route_positions);
-				
-				
+				available_positions -= 1;
 				
 			}
-			 */
-		// }
-		
-		/*
-		// Iterating at all possible positions in which "node_index" could be
-		for (auto route_index {0}; route_index < nodesPositions.at(node_index).size(); route_index++){
-			
-			
-			
-			for (auto node_position: nodesPositions.at(node_index).at(route_index)){
-				
-				// Removing it from solution
-				removeNodeAt(route_index, node_position);
-				std::cout << "A" << std::endl;
-				
-			}
-			
-			printInt(nodesPositions.at(node_index).at(route_index));
 			
 		}
 		
@@ -659,7 +593,7 @@ void Sol::removeNodeCases(int &node_index){
 }
 
 
-*/
+
 
 // Insert node at specific position
 

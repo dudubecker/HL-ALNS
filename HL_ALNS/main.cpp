@@ -66,23 +66,10 @@ int main(){
 	
 	int node_index = 2;
 	
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	S.removeNodeCase(node_index);
-	
-	S.printSol();
+	S.removeNodeCases(node_index);
 	
 	 
+	S.printSol();
 	 
 	return 0;
 	
