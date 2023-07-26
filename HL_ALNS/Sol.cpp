@@ -426,7 +426,7 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 	
 	// The explanation is that, to remove full segments in a route, it is possible to always remove the same index at "x" times, being "x" the segment size
 	// But this is not possible for nodesPositions attribute, as the indexes are static
-	int removal_position_in_pair = removal_index;
+	// int removal_position_in_pair = removal_index;
 	
 	for (int segment_element {0}; segment_element < segment_size; segment_element++){
 		
@@ -443,16 +443,15 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		z.at(route_index).erase(z.at(route_index).begin() + removal_index);
 		
 		// Updating G attribute - Signal of load is convenient here
-		G.at(node_index) += load;
+		G.at(current_node) += load;
 		
 		// Removing node to nodes counter attribute
 		RSize.at(route_index) -= 1;
 		
-		
 		// Updating Z attribute - Only at delivery nodes
 		if (load < 0){
 			
-			Z.at(node_index) -= load/inst.d.at(node_index);
+			Z.at(current_node) -= load/inst.d.at(node_index);
 			
 		}
 		
