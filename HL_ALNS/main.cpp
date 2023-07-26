@@ -58,58 +58,30 @@ int main(){
 	
 	S.printSol();
 	
-	
-
-	
-	
-	
 	// // S.removeNodeCase(node_index);
 	// S.removeNodeCase(node_index);
 	
-	int route_index = 0;
-	int removal_index = 1;
-	// 
-	S.removeNodeAt(route_index, removal_index);
+	// int route_index = 0;
+	// int removal_index = 1;
+	
+	int node_index = 2;
+	
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
+	S.removeNodeCase(node_index);
 	
 	S.printSol();
 	
-	removal_index = 3;
-	
-	S.removeNodeAt(route_index, removal_index);
-	
-	// S.removeNodeCase(node_index);
-	// S.removeNodeCase(node_index);
-	// S.removeNodeCase(node_index);
-	
-	S.printSol();
-	
-	// 
-	/*
-		// For printing nodesPositions attribute:
-	for (auto node_index {0}; node_index < S.nodesPositions.size(); node_index++){
-		
-		std::cout << node_index << ": \n\n";
-		
-		for (auto route_index {0}; route_index < S.inst.m; route_index++){
-			
-			if (S.nodesPositions.at(node_index).at(route_index).size() > 0){
-				
-				std::cout << "Route " << route_index << ": ";
-				
-				printInt(S.nodesPositions.at(node_index).at(route_index));
-				
-			}
-			
-			
-		}
-		
-		std::cout << "\n";
-		
-	}
-	
-	
-	 
-	 */
 	 
 	 
 	return 0;

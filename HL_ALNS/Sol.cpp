@@ -422,11 +422,6 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		
 	}
 	
-	// Variable used for removal positions in pairs
-	
-	// The explanation is that, to remove full segments in a route, it is possible to always remove the same index at "x" times, being "x" the segment size
-	// But this is not possible for nodesPositions attribute, as the indexes are static
-	// int removal_position_in_pair = removal_index;
 	
 	for (int segment_element {0}; segment_element < segment_size; segment_element++){
 		
@@ -455,48 +450,15 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 			
 		}
 		
-		// Search for pair position to be removed
 		
-		// The pair position that will be removed has "node_index" as key, and the corresponding pair first element is "route_index" and second element is "removal_index"
+		
+		// "nodesPositions" code starts here
 		
 		// The great advantage of this approach is that, instead of iterating in all routes and positions of solution to remove a node,
 		// it is possible to iterate only in node specific occurrences, which drastically reduces the iterating process
 		
-		/*
-		int occurrence = 0;
 		
-		for (int node_occurrence {0}; node_occurrence < nodesPositions.at(current_node).size(); node_occurrence++){
-			
-			
-			// If current occurrence is the one that I'm trying to find, I store this and break loop
-			if ((nodesPositions.at(current_node).at(node_occurrence).first == route_index) and (nodesPositions.at(current_node).at(node_occurrence).second == removal_position_in_pair)){
-				
-				occurrence = node_occurrence;
-				
-				// std::cout << current_node << " " << " " << route_index << " " << removal_position_in_pair << "\n\n\n\n";
-				
-				removal_position_in_pair += 1;
-				
-				break;
-				
-			}
-			
-		}
-		
-		// Finally deleting position in nodesPositions attribute
-		nodesPositions.at(current_node).erase(nodesPositions.at(current_node).begin() + occurrence);
-		
-		*/
-	}
-	
-	
-	
-}
-		/*
-		
-		nodesPositions.at(current_node).at(route_index).erase(std::remove_if(nodesPositions.at(current_node).at(route_index).begin(), nodesPositions.at(current_node).at(route_index).end(), [&removal_position_in_pair](int value) -> bool { return value == removal_position_in_pair; }), nodesPositions.at(current_node).at(route_index).end());
-		
-		
+		nodesPositions.at(current_node).at(route_index).erase(std::remove_if(nodesPositions.at(current_node).at(route_index).begin(), nodesPositions.at(current_node).at(route_index).end(), [&removal_index](int value) -> bool { return value == removal_index; }), nodesPositions.at(current_node).at(route_index).end());
 		
 		// Updating positions of other nodes in route (only nodes after the removed node!)
 		
@@ -529,18 +491,25 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 				
 			}
 			
-			// std::cout << "\n";
-			
 		}
-				
-				
-				
-	
+		
+		// "nodesPositions" code ends here
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 	}
 	
 	
-	*/
+	
+}
+
 
 
 // Removes random case
@@ -572,7 +541,7 @@ void Sol::removeNodeCase(int &node_index){
 		
 		int random_occasion = nodesPositions.at(node_index).at(random_route).at(rand()%number_of_occurrences);
 		
-		std::cout << "\n\n\n\n" << random_route << " " <<  node_index << " " << random_occasion << "\n\n\n\n" << std::endl;
+		// std::cout << "\n\n\n\n" << random_route << " " <<  node_index << " " << random_occasion << "\n\n\n\n" << std::endl;
 		
 		// Removing it from solution
 		removeNodeAt(random_route, random_occasion);
@@ -688,9 +657,9 @@ void Sol::removeNodeCases(int &node_index){
 	}
 	
 }
+
+
 */
-
-
 
 // Insert node at specific position
 
