@@ -1,12 +1,16 @@
 #include <iostream>
 #include "Instance.hpp"
 #include "Sol.hpp"
+#include "Heuristic.hpp"
 #include <iterator>
 
 using namespace std;
 
 int main(){
 	
+	
+	
+	/*
 	//// Problem data
 	
 	std::string file_name = "INST_JO_NA_9_cpp.txt";
@@ -54,7 +58,6 @@ int main(){
 	
 	// S.toTXT(file_name);
 	
-	*/
 	
 	// S.printSol();
 	
@@ -71,7 +74,9 @@ int main(){
 	S.printSol();
 	
 	printDouble(S.Z);
-	 
+	*/
+	
+	
 	return 0;
 	
 }
