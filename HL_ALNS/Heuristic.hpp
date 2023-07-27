@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <string>
 #include "Sol.hpp"
 
 class Heuristic {
@@ -25,14 +26,24 @@ public:
 	
 	// Computational time of heuristic
 	double processing_time {};
-
-
-    // Método "apply" virtual
+	
+	// Auxiliar methods
+	
+	// Variation of insertion/removal of a node, in terms of time or costs
+	double deltaInsertion(std::string delta_type, Sol &S, int &node_index, int &route_index, int &insertion_index);
+	
+	double deltaRemoval(std::string delta_type, Sol &S, int &node_index, int &route_index, int &removal_index);
+	
+	
+	// Main methods
+	
+    // Main method for applying heuristic
     virtual Sol apply(Sol &S);
 
-    // Método "specificApply" puramente virtual
+    // Method for initialization of removal methods
     virtual int chooseNumberofNodes(Sol &S) = 0;
 	
+	// Specific method for each heuristic
 	virtual Sol specificApply(Sol &S)  = 0;
 
     virtual ~Heuristic() {} // Adicionamos um destrutor virtual
@@ -53,74 +64,6 @@ public:
     // Sobrescrita do método "specificApply" para a PartialRandomRemoval
     Sol specificApply(Sol &S) override;
 };
-
-
-
-
-/*
-class Heuristic {
-
-public:
-	
-	// Attributes - all heuristic objects have these
-	
-	// Heuristic score, updated during algorithm
-	double score {0};
-	
-	// Heuristic weight, that determines its probability of being chosen
-	double weight {0};
-	
-	// Number of iterations on last segment
-	int n_it {0};
-	
-	// Number of iterations in total
-	int n_it_total {0};
-	
-	// Computational time of heuristic
-	double processing_time {};
-	
-	// Constructor/Destructor
-	
-	Heuristic();
-	
-	~Heuristic();
-	
-	// apply method - all child classes have this
-	virtual void apply();
-
-// protected:
-    
-};
-
-class RemovalHeuristic : public Heuristic {
-	
-
-public:
-
-    RemovalHeuristic();
-
-    // Sobrescrita do método "apply" para o comportamento 1
-    void apply() override;
-};
-
-class InsertionHeuristic : public Heuristic {
-public:
-    InsertionHeuristic();
-
-    // Sobrescrita do método "apply" para o comportamento 2
-    void apply() override;
-};
-
-class PartialRandomRemoval : public RemovalHeuristic {
-	
-
-public:
-    PartialRandomRemoval();
-
-    // Sobrescrita do método "apply" para o comportamento 1
-    void apply() override;
-};
-*/
 
 
 #endif // HEURISTIC_HPP

@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 
+
 // Comparator function to sort pairs
 // according to second value
 bool cmp(std::pair<int, double>& a,
@@ -70,6 +71,13 @@ void printInt(std::vector<int> &input)
 	std::cout << std::endl;
 	
 };
+
+
+// double deltaInsertion(Sol &S, int &node_index, int &route_index, int &insertion_index){
+	
+	
+// }
+
 
 /*
 // For printing nodesPositions attribute:

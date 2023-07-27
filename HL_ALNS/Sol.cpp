@@ -126,7 +126,6 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		// Amount of load picked up - minimum between vehicle capacity and amount of goods in pickup node
 		double picked_up_load = std::min(inst.Q.at(route_index), G.at(next_pickup_node));
 		
-		
 		insertNodeAt(next_pickup_node, route_index, insertion_index, picked_up_load);
 		
 		// Inserting all possible delivery nodes
@@ -238,7 +237,6 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 			// Subtracting delivered load from available load variable
 			available_load -= delivered_load;
 			
-			
 		}
 		
 		// Checking if all routes are finished (regarding time)
@@ -309,8 +307,7 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		
 		int last_but_one_node = R.at(route_index).at(removal_index - 1);
 		
-		W.at(route_index) -= inst.t.at(node_index).at(last_but_one_node).at(route_index);
-		
+		W.at(route_index) -= inst.t.at(last_but_one_node).at(node_index).at(route_index);;
 		
 	} else {
 		
@@ -495,19 +492,8 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		
 		// "nodesPositions" code ends here
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 	}
-	
-	
-	
+
 }
 
 
@@ -591,9 +577,6 @@ void Sol::removeNodeCases(int &node_index){
 	}
 	
 }
-
-
-
 
 // Insert node at specific position
 
