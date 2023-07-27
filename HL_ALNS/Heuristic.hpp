@@ -8,7 +8,6 @@
 
 class Heuristic {
 public:
-
 	
 	// Attributes - all heuristic objects have these
 	
@@ -34,19 +33,20 @@ public:
 	
 	double deltaRemoval(std::string delta_type, Sol &S, int &node_index, int &route_index, int &removal_index);
 	
-	
 	// Main methods
 	
-    // Main method for applying heuristic
-    virtual Sol apply(Sol &S);
-
-    // Method for initialization of removal methods
-    virtual int chooseNumberofNodes(Sol &S) = 0;
+	// Main method for applying heuristic
+	virtual Sol apply(Sol &S);
+	
+	// Method for initialization of removal methods
+	virtual int chooseNumberofNodes(Sol &S) = 0;
 	
 	// Specific method for each heuristic
 	virtual Sol specificApply(Sol &S)  = 0;
-
-    virtual ~Heuristic() {} // Adicionamos um destrutor virtual
+	
+	/////
+	
+	virtual ~Heuristic() {} // Adicionamos um destrutor virtual
 
 protected:
     // Construtor protegido para evitar instanciar a classe Heuristic diretamente
@@ -64,6 +64,22 @@ public:
     // Sobrescrita do método "specificApply" para a PartialRandomRemoval
     Sol specificApply(Sol &S) override;
 };
+
+class ConcentricRemoval : public RemovalHeuristic {
+public:
+	
+	// Attribute - radius of removal, in terms of traveling times
+	double radius {};
+	
+	// Constructor:
+	ConcentricRemoval(double r){
+		radius = r; 
+	}
+	
+	// Sobrescrita do método "specificApply" para a PartialRandomRemoval
+	Sol specificApply(Sol &S) override;
+};
+
 
 
 #endif // HEURISTIC_HPP

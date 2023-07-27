@@ -5,7 +5,12 @@
 #include <algorithm>
 #include <numeric>
 
-// Implementação do método "apply" da classe base "Heuristic"
+//// Initializations
+
+
+
+//// Heuristic object implementation
+
 Sol Heuristic::apply(Sol &S){
     std::cout << "Comportamento base de Heuristic\n";
     // Coloque aqui o código base que deve ser comum a todas as classes derivadas
@@ -133,6 +138,10 @@ double Heuristic::deltaRemoval(std::string delta_type, Sol &S, int &node_index, 
 			
 			double new_arc_time = S.inst.t.at(first_node).at(second_node).at(route_index);
 			
+			std::cout << first_node << " " << second_node << std::endl;
+			
+			std::cout << first_old_arc_time << " " << second_old_arc_time << " " << new_arc_time << std::endl;
+			
 			delta = new_arc_time - (first_old_arc_time + second_old_arc_time);
 			
 		}
@@ -179,6 +188,7 @@ double Heuristic::deltaRemoval(std::string delta_type, Sol &S, int &node_index, 
 	
 }
 
+//// RemovalHeuristic objects implementation
 
 // Sobrescrita do método "specificApply" para a RemovalHeuristic
 int RemovalHeuristic::chooseNumberofNodes(Sol &S) {
@@ -243,3 +253,24 @@ Sol PartialRandomRemoval::specificApply(Sol &S) {
 	
 	return S;
 }
+
+// Sobrescrita do método "specificApply" para a PartialRandomRemoval
+Sol ConcentricRemoval::specificApply(Sol &S) {
+	
+	std::cout << "Concentric Removal: \n";
+	
+	int mi = RemovalHeuristic::chooseNumberofNodes(S);
+	
+	// Choosing random node
+	
+	
+	// Choosing subset of nodes in neighborhood of "node"
+	
+	
+	// While "mi" nodes haven't been removed or while there's still cases of nodes to be removed in neighborhood
+	
+	
+	return S;
+}
+
+//// InsertionHeuristic objects implementation

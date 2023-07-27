@@ -73,6 +73,9 @@ public:
 	// Traveling costs
 	std::vector<std::vector<std::vector<double>>> c {};
 	
+	// Traveling distances
+	// std::vector<std::vector<std::vector<double>>> c {};
+	
 	// Ordered list according to proximity of node i to j in N
 	std::vector<std::vector<int>> proximitiesN {};
 	

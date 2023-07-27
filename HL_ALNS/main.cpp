@@ -28,15 +28,34 @@ int main(){
 	
 	Sol S(inst, p, Gamma1, Gamma2);
 	
-	S.printSol();
-	printDouble(S.W);
+	// S.printSol();
+	// printDouble(S.W);
 	
-	PartialRandomRemoval prr {};
+	for (auto i: S.inst.N){
+		
+		for (auto j: S.inst.N){
+			
+			printDouble(S.inst.t.at(i).at(j));
+			
+		}
+		
+	}
 	
-	prr.apply(S);
 	
-	S.printSol();
-	printDouble(S.W);
+	
+	// PartialRandomRemoval prr {};
+	
+	// prr.apply(S);
+	
+	// S.printSol();
+	
+	// ConcentricRemoval cr(5);
+	
+	// cr.apply(S);
+	
+	
+	
+	// printDouble(S.W);
 	
 	
 	/*
