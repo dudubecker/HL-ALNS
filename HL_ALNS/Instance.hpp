@@ -74,7 +74,7 @@ public:
 	std::vector<std::vector<std::vector<double>>> c {};
 	
 	// Traveling distances
-	// std::vector<std::vector<std::vector<double>>> c {};
+	std::vector<std::vector<double>> dist {};
 	
 	// Ordered list according to proximity of node i to j in N
 	std::vector<std::vector<int>> proximitiesN {};

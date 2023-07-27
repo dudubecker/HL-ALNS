@@ -285,20 +285,19 @@ Instance::Instance(std::string &file_name, int &number_of_periods)
 	
 	c = std::vector<std::vector<std::vector<double>>> (counties.size(), std::vector<std::vector<double>>(counties.size(), std::vector<double>(m)));
 	
+	// Travel distances
+	
+	dist = std::vector<std::vector<double>> (counties.size(), std::vector<double>(counties.size()));
 	
 	for (unsigned i = 0; i < counties.size(); i++){
 		
 		for (unsigned j = 0; j < counties.size(); j++){
 			
+			double distance = distances_data[counties.at(i)][counties.at(j)];
+			
+			dist.at(i).at(j) = distance;
+			
 			for (auto k = 0; k < m; k++){
-				
-				double distance = distances_data[counties.at(i)][counties.at(j)];
-				
-				// if (i != j){
-					
-				// 	std::cout << distance << std::endl;
-					
-				// }
 				
 				double time = distance/V[k] + s[j];
 				

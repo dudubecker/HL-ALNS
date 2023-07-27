@@ -13,7 +13,7 @@ int main(){
 	
 	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	int number_of_periods = 4;
+	int number_of_periods = 3;
 	
 	// Randomness parameter
 	double p {4};
@@ -31,29 +31,24 @@ int main(){
 	// S.printSol();
 	// printDouble(S.W);
 	
-	for (auto i: S.inst.N){
-		
-		for (auto j: S.inst.N){
-			
-			printDouble(S.inst.t.at(i).at(j));
-			
-		}
-		
-	}
-	
-	
 	
 	// PartialRandomRemoval prr {};
 	
 	// prr.apply(S);
 	
-	// S.printSol();
+	S.printSol();
 	
-	// ConcentricRemoval cr(5);
+	ConcentricRemoval cr(45);
 	
-	// cr.apply(S);
+	cr.apply(S);
 	
+	S.printSol();
 	
+	// std::cout << "\n\n\n\n\n";
+	
+	// std::vector<int> nodes_vector {11, 8};
+	
+	// std::cout << S.containsAll(nodes_vector) << std::endl;
 	
 	// printDouble(S.W);
 	

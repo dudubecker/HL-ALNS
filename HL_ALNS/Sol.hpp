@@ -71,6 +71,11 @@ public:
 	// Insert P-D arc (specific route, position and demand)
 	// void insertArcAt(int &pickup_node_index, int &delivery_node_index, int &route_index, int &insertion_index, double &demand);
 	
+	// Returns true if solution contains all nodes in vector and false otherwise
+	bool containsAll(std::vector<int> &nodes_vector);
+	
+	// Returns true if solution contains at least one node in vector and false otherwise
+	bool containsAny(std::vector<int> &nodes_vector);
 	
 
 };

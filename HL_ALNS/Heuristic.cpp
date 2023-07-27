@@ -261,13 +261,64 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 	
 	int mi = RemovalHeuristic::chooseNumberofNodes(S);
 	
-	// Choosing random node
+	// Initial number of nodes in solution
+	int initial_number_of_nodes = std::accumulate(S.RSize.begin(), S.RSize.end(), 0);
 	
+	int current_number_of_nodes = initial_number_of_nodes;
 	
-	// Choosing subset of nodes in neighborhood of "node"
+	// Choosing random node in P U D to be considered the center node
+	// Vector with valid nodes to be removed (P U D)
+	std::vector<int> nodes = S.inst.P;
+	nodes.insert(nodes.end(), S.inst.D.begin(), S.inst.D.end());
 	
+	int amount_of_valid_nodes = nodes.size();
+	
+	// Node of reference
+	int center_node = nodes.at(rand()%amount_of_valid_nodes);
+	
+	// Choosing subset of nodes in neighborhood of "center_node"
+	
+	// Constructing neighborhood
+	std::vector<int> neighborhood_nodes = {};
+	
+	for (auto node: nodes){
+		
+		if (S.inst.dist.at(center_node).at(node) <= radius){
+			
+			neighborhood_nodes.push_back(node);
+			
+		}
+		
+	}
+	
+	int amount_of_neighborhood_nodes = neighborhood_nodes.size();
+	
+	std::cout << center_node << std::endl;
+	
+	printInt(neighborhood_nodes);
 	
 	// While "mi" nodes haven't been removed or while there's still cases of nodes to be removed in neighborhood
+	
+	while (((initial_number_of_nodes - current_number_of_nodes) < mi) and (S.containsAny(neighborhood_nodes))){
+		
+		// // Choosing random node
+		int random_index = rand()%amount_of_neighborhood_nodes;
+		
+		int random_node = neighborhood_nodes.at(random_index);
+		
+		// Removing node case
+		S.removeNodeCase(random_node);
+		
+		// Updating number of nodes in solution
+		current_number_of_nodes = std::accumulate(S.RSize.begin(), S.RSize.end(), 0);
+		
+	}
+	
+	std::cout << "mi = " << mi << std::endl;
+	
+	std::cout << "initial_number_of_nodes = " << initial_number_of_nodes << std::endl;
+	
+	std::cout << "current_number_of_nodes = " << current_number_of_nodes << std::endl;
 	
 	
 	return S;

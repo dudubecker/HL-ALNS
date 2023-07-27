@@ -543,8 +543,6 @@ void Sol::removeNodeCase(int &node_index){
 	
 }
 
-
-
 // Removes all cases
 void Sol::removeNodeCases(int &node_index){
 	
@@ -644,6 +642,59 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 	
 }
 
+// Checking if solution contains all node(s)
+bool Sol::containsAll(std::vector<int> &nodes_vector){
+	
+	bool all_nodes_in_solution = true;
+	
+	for (auto node_index: nodes_vector){
+		
+	// Node needs to have already been visited in solution for removal to be possible!
+	
+	// This is done by checking:
+	// if pickup node (Z == 9999), G needs to be smaller than d
+	// if delivery node (Z != 9999), Z needs to be greater than 1
+		
+		if (((Z.at(node_index) == 9999) and (G.at(node_index) < inst.d.at(node_index))) or ((Z.at(node_index) != 9999) and (Z.at(node_index) > 0.0001))){
+			;
+		} else {
+			
+			all_nodes_in_solution = false;
+			
+		}
+		
+	}
+	
+	return all_nodes_in_solution;
+	
+}
+
+bool Sol::containsAny(std::vector<int> &nodes_vector){
+	
+	bool any_node_in_solution = false;
+	
+	for (auto node_index: nodes_vector){
+		
+	// Node needs to have already been visited in solution for removal to be possible!
+	
+	// This is done by checking:
+	// if pickup node (Z == 9999), G needs to be smaller than d
+	// if delivery node (Z != 9999), Z needs to be greater than 1
+		
+		if (((Z.at(node_index) == 9999) and (G.at(node_index) < inst.d.at(node_index))) or ((Z.at(node_index) != 9999) and (Z.at(node_index) > 0.0001))){
+			any_node_in_solution = true;
+		} else {
+			
+			;
+			
+		}
+		
+	}
+	
+	return any_node_in_solution;
+	
+}
+
 
 //// Print/Output methods
 
@@ -711,7 +762,7 @@ void Sol::printSol(){
 	
 	for (int node; node < Z.size(); node++){
 	
-		if (Z.at(node) <= 1){
+		if (Z.at(node) <= 1.00001){
 			
 			std::cout << node << ": " << G.at(node) << " / " << std::abs(inst.d.at(node)) << " = " << Z.at(node) << "\n";
 			relative_met_demands.push_back(Z.at(node));
