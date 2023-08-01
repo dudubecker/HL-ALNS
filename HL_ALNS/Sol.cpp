@@ -280,7 +280,6 @@ Sol::~Sol()
 {
 }
 
-
 // Removing node by passing specific positions (Used by all other removal methods)
 
 void Sol::removeNodeAt(int &route_index, int &removal_index){
@@ -496,8 +495,6 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 
 }
 
-
-
 // Removes random case
 void Sol::removeNodeCase(int &node_index){
 	
@@ -694,7 +691,6 @@ bool Sol::containsAny(std::vector<int> &nodes_vector){
 	return any_node_in_solution;
 	
 }
-
 
 //// Print/Output methods
 

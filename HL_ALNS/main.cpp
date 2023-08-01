@@ -29,25 +29,48 @@ int main(){
 	Sol S(inst, p, Gamma1, Gamma2);
 	
 	S.printSol();
+	
+	printDouble(S.W);
+	
 	// printDouble(S.W);
 	
-	// PartialRandomRemoval prr {};
+	PartialRandomRemoval prr {};
 	
-	// prr.apply(S);
+	prr.apply(S);
+	
+	S.printSol();
+	
+	// printDouble(S.W);
+	
+	// ConcentricRemoval cr(200);
+	
+	// cr.apply(S);
 	
 	// S.printSol();
 	
-	ConcentricRemoval cr(70);
-	
-	cr.apply(S);
-	
-	S.printSol();
+	// printDouble(S.W);
 	
 	BasicGreedyInsertion bgi {};
 	
 	bgi.apply(S);
 	
+	S.printSol();
 	
+	printDouble(S.W);
+	
+	ConcentricRemoval cr(200);
+	
+	cr.apply(S);
+	
+	S.printSol();
+	
+	printDouble(S.W);
+	
+	bgi.apply(S);
+	
+	S.printSol();
+	
+	printDouble(S.W);
 	
 	
 	// std::cout << "\n\n\n\n\n";
