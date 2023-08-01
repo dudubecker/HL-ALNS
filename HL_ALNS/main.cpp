@@ -37,7 +37,7 @@ int main(){
 	
 	// S.printSol();
 	
-	ConcentricRemoval cr(45);
+	ConcentricRemoval cr(70);
 	
 	cr.apply(S);
 	
@@ -46,6 +46,9 @@ int main(){
 	BasicGreedyInsertion bgi {};
 	
 	bgi.apply(S);
+	
+	
+	
 	
 	// std::cout << "\n\n\n\n\n";
 	

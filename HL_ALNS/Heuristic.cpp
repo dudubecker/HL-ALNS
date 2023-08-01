@@ -328,6 +328,12 @@ void InsertionHeuristic::initializeMethod() {
 	
 	std::cout << "Initializing Insertion" << std::endl;
 	
+	// Replicable data
+	// srand(123);
+	
+	// True random data
+	srand(time(NULL));
+	
 }
 
 Sol BasicGreedyInsertion::specificApply(Sol &S) {
@@ -337,6 +343,121 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	InsertionHeuristic::initializeMethod();
 	
 	std::cout << "Basic Greedy Insertion" << std::endl;
+	
+	// While there are idle segments in solution:
+	
+	// Selecting client to be inserted
+	
+	// This is done by iterating in met demands vector only once
+	// For each value, a random noise between -5% and 5% (or other number) is added
+	// giving randomness to the search
+	
+	// It is faster than sorting vector everytime!
+	
+	double lowest_met_demand = 1;
+	
+	double lowest_met_demand_index = S.inst.D.at(0);
+	
+	double noise_value = 0.02;
+	
+	double random_noise = -noise_value + static_cast<double>(rand()) / RAND_MAX * (2*noise_value);
+	
+	double noise_met_demand {};
+	
+	for (auto &node_index: S.inst.D){
+		
+		random_noise = -noise_value + static_cast<double>(rand()) / RAND_MAX * (2*noise_value);
+		
+		// Applying random noise to evaluate met demand percentage
+		noise_met_demand = S.Z.at(node_index) + random_noise;
+		
+		if (noise_met_demand < lowest_met_demand){
+			
+			lowest_met_demand = noise_met_demand;
+			
+			lowest_met_demand_index = node_index;
+			
+		}
+		
+		
+	}
+	
+	// Vector with positions of insertion
+	
+	
+	// Splitting "S" into segments
+	
+	for (int route_index {0}; route_index < S.inst.m; route_index++){
+		
+		for (auto &node: S.R.at(route_index)){
+			
+			if ((S.Z.at(node) == 9999)){
+				
+				std::cout << "\n";
+				
+			}
+			
+			std::cout << node << " ";
+			
+			
+		}
+		
+		std::cout << "\n\n\n";
+		
+		
+	}
+	
+	/*
+	for (int route_index {0}; route_index < S.inst.m; route_index++){
+		
+		for (int i {0}; i < S.R.at(route_index).size(); i++){
+			
+			if ((S.Z.at(S.R.at(route_index).at(i)) == 9999)){
+				
+				std::cout << "\n";
+				
+			}
+			
+			std::cout << i << " ";
+			
+			
+		}
+		
+		std::cout << "\n\n\n";
+		
+		
+	}
+	
+	 */
+ 
+	// Delta for insertion
+	
+	// For each segment in solution
+	
+		// Checks if segment is idle
+		
+		// if segment is idle, all possible insertion positions are checked
+		
+		// Checking feasibility of insertion in terms of route length
+		
+		// If feasible, delta in position is checked
+		
+		// if delta is the lowest, positions and delta are updated
+		
+		
+	// Inserting client in positions with lowest delta
+	
+	
+	//for (auto vec: S.z){
+		
+	//	std::cout << std::accumulate(vec.begin(), vec.end(), 0) << std::endl;
+		
+	//}
+	
+	
+	// std::vector<int> vec = sortIndexes(S.Z);
+	
+	// printInt(vec);
 	
 	return S;
 	
