@@ -7,8 +7,6 @@
 
 //// Initializations
 
-
-
 //// Heuristic object implementation
 
 Sol Heuristic::apply(Sol &S){
@@ -191,7 +189,7 @@ double Heuristic::deltaRemoval(std::string delta_type, Sol &S, int &node_index, 
 //// RemovalHeuristic objects implementation
 
 // Sobrescrita do método "specificApply" para a RemovalHeuristic
-int RemovalHeuristic::chooseNumberofNodes(Sol &S) {
+int RemovalHeuristic::initializeMethod(Sol &S) {
 	
 	std::cout << "Removal heuristics base code\n";
 	
@@ -222,7 +220,7 @@ Sol PartialRandomRemoval::specificApply(Sol &S) {
 	
 	std::cout << "Partial Random Removal: \n";
 	
-	int mi = RemovalHeuristic::chooseNumberofNodes(S);
+	int mi = RemovalHeuristic::initializeMethod(S);
 	
 	// Initial number of nodes in solution
 	int initial_number_of_nodes = std::accumulate(S.RSize.begin(), S.RSize.end(), 0);
@@ -259,7 +257,7 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 	
 	std::cout << "Concentric Removal: \n";
 	
-	int mi = RemovalHeuristic::chooseNumberofNodes(S);
+	int mi = RemovalHeuristic::initializeMethod(S);
 	
 	// Initial number of nodes in solution
 	int initial_number_of_nodes = std::accumulate(S.RSize.begin(), S.RSize.end(), 0);
@@ -293,7 +291,7 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 	
 	int amount_of_neighborhood_nodes = neighborhood_nodes.size();
 	
-	std::cout << center_node << std::endl;
+	// std::cout << center_node << std::endl;
 	
 	printInt(neighborhood_nodes);
 	
@@ -314,14 +312,32 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 		
 	}
 	
-	std::cout << "mi = " << mi << std::endl;
+	// std::cout << "mi = " << mi << std::endl;
 	
-	std::cout << "initial_number_of_nodes = " << initial_number_of_nodes << std::endl;
+	// std::cout << "initial_number_of_nodes = " << initial_number_of_nodes << std::endl;
 	
-	std::cout << "current_number_of_nodes = " << current_number_of_nodes << std::endl;
+	// std::cout << "current_number_of_nodes = " << current_number_of_nodes << std::endl;
 	
 	
 	return S;
 }
 
 //// InsertionHeuristic objects implementation
+
+void InsertionHeuristic::initializeMethod() {
+	
+	std::cout << "Initializing Insertion" << std::endl;
+	
+}
+
+Sol BasicGreedyInsertion::specificApply(Sol &S) {
+	
+	// Initialization of insertion:
+	
+	InsertionHeuristic::initializeMethod();
+	
+	std::cout << "Basic Greedy Insertion" << std::endl;
+	
+	return S;
+	
+}

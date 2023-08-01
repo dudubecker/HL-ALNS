@@ -11,38 +11,41 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_JO_NA_9_cpp.txt";
+	std::string file_name = "INST_MA_RE_20_cpp.txt";
 	
-	int number_of_periods = 3;
+	int number_of_periods = 5;
 	
 	// Randomness parameter
 	double p {4};
 	
 	// Proximity weight
-	double Gamma1 {0.6};
+	double Gamma1 {0.3};
 	
 	// Met demand weight
-	double Gamma2 {0.4};
+	double Gamma2 {0.7};
 	
 	Instance inst(file_name, number_of_periods);
 	
 	Sol S(inst, p, Gamma1, Gamma2);
 	
-	// S.printSol();
+	S.printSol();
 	// printDouble(S.W);
-	
 	
 	// PartialRandomRemoval prr {};
 	
 	// prr.apply(S);
 	
-	S.printSol();
+	// S.printSol();
 	
 	ConcentricRemoval cr(45);
 	
 	cr.apply(S);
 	
 	S.printSol();
+	
+	BasicGreedyInsertion bgi {};
+	
+	bgi.apply(S);
 	
 	// std::cout << "\n\n\n\n\n";
 	

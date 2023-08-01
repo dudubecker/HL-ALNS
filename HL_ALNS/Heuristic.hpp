@@ -6,6 +6,8 @@
 #include <string>
 #include "Sol.hpp"
 
+// Heuristic main object
+
 class Heuristic {
 public:
 	
@@ -39,7 +41,10 @@ public:
 	virtual Sol apply(Sol &S);
 	
 	// Method for initialization of removal methods
-	virtual int chooseNumberofNodes(Sol &S) = 0;
+	virtual int initializeMethod(Sol &S) = 0;
+	
+	// Method for initialization of insertion methods
+	virtual void initializeMethod() = 0;
 	
 	// Specific method for each heuristic
 	virtual Sol specificApply(Sol &S)  = 0;
@@ -53,16 +58,25 @@ protected:
     Heuristic() {}
 };
 
+// Removal heuristic object
+
 class RemovalHeuristic : public Heuristic {
 public:
     // Sobrescrita do método "specificApply" para a RemovalHeuristic
-    int chooseNumberofNodes(Sol &S) override;
+    int initializeMethod(Sol &S) override;
+	
+	void initializeMethod() override {};
+	
 };
+
+// Removal heuristics inherited objects
 
 class PartialRandomRemoval : public RemovalHeuristic {
 public:
     // Sobrescrita do método "specificApply" para a PartialRandomRemoval
     Sol specificApply(Sol &S) override;
+	
+	
 };
 
 class ConcentricRemoval : public RemovalHeuristic {
@@ -74,11 +88,32 @@ public:
 	// Constructor:
 	ConcentricRemoval(double r){
 		radius = r; 
-	}
+	};
 	
 	// Sobrescrita do método "specificApply" para a PartialRandomRemoval
 	Sol specificApply(Sol &S) override;
 };
+
+// Insertion heuristic object
+
+
+class InsertionHeuristic : public Heuristic {
+public:
+	
+	// Sobrescrita do método "specificApply" para a RemovalHeuristic
+    int initializeMethod(Sol &S) override {};
+	
+	void initializeMethod() override;
+};
+
+
+// Insertion heuristics inherited objects
+class BasicGreedyInsertion : public InsertionHeuristic {
+public:
+    // Sobrescrita do método "specificApply" para a PartialRandomRemoval
+    Sol specificApply(Sol &S) override;
+};
+
 
 
 

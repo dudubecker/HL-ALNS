@@ -762,7 +762,7 @@ void Sol::printSol(){
 	
 	for (int node; node < Z.size(); node++){
 	
-		if (Z.at(node) <= 1.00001){
+		if (Z.at(node) <= 1.01){
 			
 			std::cout << node << ": " << G.at(node) << " / " << std::abs(inst.d.at(node)) << " = " << Z.at(node) << "\n";
 			relative_met_demands.push_back(Z.at(node));
