@@ -273,6 +273,22 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		
 	}
 	
+	// Excluding last nodes until all routes are feasible in period
+	
+	for (int route_index {0}; route_index < inst.m; route_index++){
+		
+		while (W.at(route_index) > routes_max_length){
+			
+			int last_node_position = R.at(route_index).size() - 1;
+			removeNodeAt(route_index, last_node_position);
+		}
+		
+	}
+	
+	
+	
+	
+	
 	
 };
 
@@ -532,8 +548,8 @@ void Sol::removeNodeCase(int &node_index){
 		
 	} else {
 		
-		std::cout << "BUG: Node not visited in solution" << std::endl;
-		
+		//std::cout << "BUG: Node not visited in solution" << std::endl;
+		;
 	}
 	
 	
@@ -567,8 +583,8 @@ void Sol::removeNodeCases(int &node_index){
 		
 	} else {
 		
-		std::cout << "BUG: Node not visited in solution" << std::endl;
-		
+		//std::cout << "BUG: Node not visited in solution" << std::endl;
+		;
 	}
 	
 }
@@ -750,9 +766,38 @@ void Sol::printSol(){
 		
 	}
 	
-	std::cout << total_met_demand << " / "  << total_demand << "\n\n";
+	std::cout << total_met_demand << " / "  << total_demand;
 	
-	std::cout << "Relative met demand at each delivery node: \n" << std::endl;
+	std::cout << "\n\nTraveling costs \n" << std::endl;
+	
+	double traveling_costs = {};
+	
+	for (int route_index {0}; route_index < R.size(); route_index++){
+		
+		double route_traveling_time = 0;
+		
+		for (int node_index {0}; node_index < R.at(route_index).size() - 1; node_index++){
+			
+			int first_arc_node = R.at(route_index).at(node_index);
+			
+			int second_arc_node = R.at(route_index).at(node_index  + 1);
+			
+			double arc_costs = inst.c.at(first_arc_node).at(second_arc_node).at(route_index);
+			
+			double arc_time = inst.t.at(first_arc_node).at(second_arc_node).at(route_index);
+			
+			traveling_costs += arc_costs;
+			route_traveling_time += arc_time;
+			
+		}
+		
+		std::cout << route_traveling_time << std::endl;
+		
+	}
+	
+	std::cout << "\n" << traveling_costs << std::endl;
+	
+	std::cout << "\nRelative met demand at each delivery node: \n" << std::endl;
 	
 	std::vector<double> relative_met_demands = {};
 	

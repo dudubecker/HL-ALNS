@@ -11,7 +11,8 @@
 //// Heuristic object implementation
 
 Sol Heuristic::apply(Sol &S){
-    std::cout << "Comportamento base de Heuristic\n";
+	
+    // std::cout << "Comportamento base de Heuristic\n";
     // Coloque aqui o código base que deve ser comum a todas as classes derivadas
 
     // Chamada para o método "specificApply" específico da classe derivada
@@ -192,7 +193,7 @@ double Heuristic::deltaRemoval(std::string delta_type, Sol &S, int &node_index, 
 // Sobrescrita do método "specificApply" para a RemovalHeuristic
 int RemovalHeuristic::initializeMethod(Sol &S) {
 	
-	std::cout << "Removal heuristics base code\n";
+	// std::cout << "Removal heuristics base code\n";
 	
 	// Replicable data
 	srand(121);
@@ -219,7 +220,7 @@ int RemovalHeuristic::initializeMethod(Sol &S) {
 Sol PartialRandomRemoval::specificApply(Sol &S) {
 	// Chamada para o método "specificApply" da classe base "RemovalHeuristic"
 	
-	std::cout << "Partial Random Removal: \n";
+	std::cout << "\n\nPartial Random Removal: \n";
 	
 	int mi = RemovalHeuristic::initializeMethod(S);
 	
@@ -256,7 +257,7 @@ Sol PartialRandomRemoval::specificApply(Sol &S) {
 // Sobrescrita do método "specificApply" para a PartialRandomRemoval
 Sol ConcentricRemoval::specificApply(Sol &S) {
 	
-	std::cout << "Concentric Removal: \n";
+	std::cout << "\n\nConcentric Removal: \n";
 	
 	int mi = RemovalHeuristic::initializeMethod(S);
 	
@@ -327,10 +328,10 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 
 void InsertionHeuristic::initializeMethod() {
 	
-	std::cout << "Initializing Insertion" << std::endl;
+	// std::cout << "Initializing Insertion" << std::endl;
 	
 	// Replicable data
-	srand(135);
+	srand(136);
 	
 	// True random data
 	// srand(time(NULL));
@@ -344,16 +345,26 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	
 	InsertionHeuristic::initializeMethod();
 	
-	std::cout << "Basic Greedy Insertion" << std::endl;
+	std::cout << "\n\nBasic Greedy Insertion" << std::endl;
 	
 	bool idle_segments {true};
 	
 	// Available nodes to be inserted: starts with all nodes in D
 	std::vector<int> available_nodes = S.inst.D;
 	
+	// Taking out fully served clients
+	for (auto node: available_nodes){
+		
+		if (S.Z.at(node) == 1){
+			
+			available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&node](int value) -> bool { return value == node; }), available_nodes.end());
+			
+		}
+		
+	}
+	
 	// While there are idle segments in solution:
 	while ((idle_segments) and (available_nodes.size() > 0)){
-		
 		
 		// Selecting client to be inserted
 		
@@ -531,7 +542,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 						
 						feasible = true;
 						
-						std::cout << "Posicao factivel encontrada para cliente " << insertion_node_index << std::endl;
+						// std::cout << "Posicao factivel encontrada para cliente " << insertion_node_index << std::endl;
 						
 						any_feasible_position = true;
 						
@@ -587,17 +598,16 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		// It's the minimum value between segment idle demand and client's current unmet demand (in absolute terms)
 		double demand = std::min(min_cost_idle_demand, ( std::abs(S.inst.d.at(insertion_node_index)) - S.G.at(insertion_node_index)));
 		
-		
+		// std::cout << demand << " " << insertion_node_index << std::endl;
 		
 		// std::cout <<  std::abs(S.inst.d.at(insertion_node_index)) - S.G.at(insertion_node_index) << std::endl;
 		
-		std::cout << insertion_node_index << " " << min_cost_positions.first << " " << min_cost_positions.second << " " << demand << std::endl;
+		// std::cout << insertion_node_index << " " << min_cost_positions.first << " " << min_cost_positions.second << " " << demand << std::endl;
 		
-		if (any_feasible_position){
+		if ((any_feasible_position) and (demand > 0)){
 			
 			// Inserting client in positions with lowest delta
 			S.insertNodeAt(insertion_node_index, min_cost_positions.first, min_cost_positions.second, demand);
-			
 			
 		// If no feasible positions in segment were found, node is not available anymore to be selected
 		} else {

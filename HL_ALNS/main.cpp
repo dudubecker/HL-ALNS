@@ -11,18 +11,18 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_MA_RE_20_cpp.txt";
+	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	int number_of_periods = 5;
+	int number_of_periods = 1;
 	
 	// Randomness parameter
 	double p {4};
 	
 	// Proximity weight
-	double Gamma1 {0.3};
+	double Gamma1 {0.6};
 	
 	// Met demand weight
-	double Gamma2 {0.7};
+	double Gamma2 {0.4};
 	
 	Instance inst(file_name, number_of_periods);
 	
@@ -31,20 +31,6 @@ int main(){
 	S.printSol();
 	
 	printDouble(S.W);
-	
-	// printDouble(S.W);
-	
-	PartialRandomRemoval prr {};
-	
-	prr.apply(S);
-	
-	S.printSol();
-	
-	// printDouble(S.W);
-	
-	// ConcentricRemoval cr(200);
-	
-	// cr.apply(S);
 	
 	// S.printSol();
 	
@@ -58,9 +44,9 @@ int main(){
 	
 	printDouble(S.W);
 	
-	ConcentricRemoval cr(200);
+	PartialRandomRemoval prr {};
 	
-	cr.apply(S);
+	prr.apply(S);
 	
 	S.printSol();
 	
@@ -72,59 +58,60 @@ int main(){
 	
 	printDouble(S.W);
 	
+	// Epsilon
 	
-	// std::cout << "\n\n\n\n\n";
+	double Z = 0;
 	
-	// std::vector<int> nodes_vector {11, 8};
+	for (int i; i < S.inst.m; i++){
 	
-	// std::cout << S.containsAll(nodes_vector) << std::endl;
+		for (auto value: S.z.at(i)){
+			
+			if (value < 0){
+				
+				Z += std::abs(value);
+				
+			}
+		}
+	}
+	
+	double D = 0;
+	
+	for (auto node: S.inst.D){
+		
+		D += std::abs(S.inst.d.at(node));
+		
+	}
+	
+	for (auto node: S.inst.D){
+		
+		double z_i = S.G.at(node);
+		
+		double d_i = std::abs(S.inst.d.at(node));
+		
+		double epsilon = std::abs((z_i/Z) - (d_i/D));
+		
+		std::cout << "Epsilon node " << node << ": " << epsilon*100 << "%" << std::endl;
+		
+		
+	}
+	
+	// printDouble(S.W);
+	
+	// ConcentricRemoval cr(200);
+	
+	// cr.apply(S);
+	
+	// S.printSol();
+	
+	// printDouble(S.W);
+	
+	// bgi.apply(S);
+	
+	// S.printSol();
 	
 	// printDouble(S.W);
 	
 	
-	/*
-	// For printing nodesPositions attribute:
-	for (auto node_index {0}; node_index < S.nodesPositions.size(); node_index++){
-		
-		std::cout << node_index << ": \n\n";
-		
-		for (auto route_index {0}; route_index < S.inst.m; route_index++){
-			
-			if (S.nodesPositions.at(node_index).at(route_index).size() > 0){
-				
-				std::cout << "Route " << route_index << ": ";
-				
-				printInt(S.nodesPositions.at(node_index).at(route_index));
-				
-			}
-			
-			
-		}
-		
-		std::cout << "\n";
-		
-	}
-
-	
-	// S.toTXT(file_name);
-	
-	
-	// S.printSol();
-	
-	// // S.removeNodeCase(node_index);
-	// S.removeNodeCase(node_index);
-	
-	// int route_index = 0;
-	// int removal_index = 1;
-	
-	int node_index = 2;
-	
-	S.removeNodeCases(node_index);
-	
-	S.printSol();
-	
-	printDouble(S.Z);
-	*/
 	
 	
 	return 0;
