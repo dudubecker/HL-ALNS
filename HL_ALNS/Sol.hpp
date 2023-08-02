@@ -36,6 +36,12 @@ public:
 	// Total lenght (in terms of time) of each route
 	std::vector<double> W {};
 	
+	// Total met demand in by solution
+	double totalZ {};
+	
+	// Total demand in by solution
+	double totalD {};
+	
 	// Initialization by passing instance object
 	Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2);
 	

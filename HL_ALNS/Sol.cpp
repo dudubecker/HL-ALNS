@@ -78,6 +78,15 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 	RSize.resize(inst.m);
 	std::fill(RSize.begin(), RSize.end(), 1);
 	
+	// total D attribute - used in epsilon calculations
+	for (auto &node: inst.D){
+		
+		totalD += std::abs(inst.d.at(node));
+		
+	}
+	
+	
+	
 	//// Construction heuristic main loop
 	
 	double routes_max_length = inst.T*inst.w_b.at(0);
@@ -471,6 +480,7 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		if (load < 0){
 			
 			Z.at(current_node) = G.at(current_node)/std::abs(inst.d.at(current_node));
+			totalZ -= std::abs(load);
 			
 		}
 		
@@ -659,13 +669,41 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 	} else {
 		
 		
+		///////// For fixing bug of consecutive nodes of same client in insertion!
+		if (insertion_index != RSize.at(route_index) - 1){
+			
+			if (node_index == R.at(route_index).at(insertion_index - 1)){
+				
+				
+				;
+				
+				
+			} else if (node_index == R.at(route_index).at(insertion_index + 1)){
+				
+				// std::cout << demand << " " << z.at(route_index).at(insertion_index + 1) << std::endl;
+				
+				// std::cout << "\n\n\n\n\n\n\n\n" << demand << "\n\n\n\n\n\n\n\n";
+				
+				// std::cout << "\n\n\n\n\n\n\n\n" << z.at(route_index).at(insertion_index) << "\n\n\n\n\n\n\n\n";
+				
+				demand = demand + std::abs(z.at(route_index).at(insertion_index));
+				removeNodeAt(route_index, insertion_index);
+				
+				
+				
+			}
+			
+		}
+		/////////
+		
+		
 		G.at(node_index) += demand;
+		totalZ += demand;
 		Z.at(node_index) += demand/std::abs(inst.d.at(node_index));
 		z.at(route_index).insert(z.at(route_index).begin() + insertion_index, -demand);
-		
 	}
 	
-
+	
 	
 	
 }
@@ -759,6 +797,7 @@ void Sol::printSol(){
 	
 	std::cout << "\n\nTotal met demand: \n" << std::endl;
 	
+	/*
 	double total_met_demand = {};
 		
 	for (int i; i < inst.m; i++){
@@ -772,16 +811,9 @@ void Sol::printSol(){
 			}
 		}
 	}
+	*/
 	
-	double total_demand = {};
-	
-	for (auto &node: inst.P){
-		
-		total_demand += inst.d.at(node);
-		
-	}
-	
-	std::cout << total_met_demand << " / "  << total_demand;
+	std::cout << totalZ << " / "  << totalD;
 	
 	std::cout << "\n\nTraveling costs \n" << std::endl;
 	

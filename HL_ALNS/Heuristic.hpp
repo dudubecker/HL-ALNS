@@ -35,6 +35,9 @@ public:
 	
 	double deltaRemoval(std::string delta_type, Sol &S, int &node_index, int &route_index, int &removal_index);
 	
+	double deltaEpsilon(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index);
+	
+	
 	// Main methods
 	
 	// Main method for applying heuristic

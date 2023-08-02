@@ -188,6 +188,78 @@ double Heuristic::deltaRemoval(std::string delta_type, Sol &S, int &node_index, 
 	
 }
 
+double Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index){
+	
+	// Available demand to be transferred
+	double available_demand = S.z.at(route_index).at(position_index);
+	
+	// Pace on which load is transferred from one client to other
+	double pace = 5;
+	
+	// Met demand for source node
+	double met_demand_source_node = S.G.at(source_node_index);
+	
+	// Met demand for receiver node
+	double met_demand_receiver_node = S.G.at(receiver_node_index);
+	
+	// Initial source epsilon
+	double epsilon_source_node = std::abs(     (met_demand_source_node/S.totalZ)  -  (std::abs(S.inst.d.at(source_node_index))/S.totalD)     );
+	
+	// Initial receiver epsilon
+	double epsilon_receiver_node = std::abs(     (met_demand_receiver_node/S.totalZ)  -  (std::abs(S.inst.d.at(receiver_node_index))/S.totalD)     );
+	
+	// Initial epsilon sum
+	double initial_epsilon_sum = epsilon_source_node + epsilon_receiver_node;
+	
+	// Current epsilon sum
+	double epsilon_sum = initial_epsilon_sum;
+	
+	// Minimum epsilon sum
+	double min_epsilon_sum = initial_epsilon_sum;
+	
+	// Transferred demand
+	double transferred_demand = 0;
+	
+	// Transferred demand of minimum epsilon
+	double min_epsilon_transferred_demand = 0;
+	
+	// While there is demand to be transferred
+	while (available_demand > 0){
+		
+		met_demand_source_node -= pace;
+		
+		met_demand_receiver_node += pace;
+		
+		epsilon_source_node = std::abs(     (met_demand_source_node/S.totalZ)  -  (std::abs(S.inst.d.at(source_node_index))/S.totalD)     );
+		
+		epsilon_receiver_node = std::abs(     (met_demand_receiver_node/S.totalZ)  -  (std::abs(S.inst.d.at(receiver_node_index))/S.totalD)     );
+		
+		epsilon_sum = epsilon_source_node + epsilon_receiver_node;
+		
+		if (epsilon_sum < min_epsilon_sum){
+			
+			min_epsilon_sum = epsilon_sum;
+			min_epsilon_transferred_demand = transferred_demand;
+			
+		}
+		
+		transferred_demand += pace;
+		available_demand -= pace;
+		
+	}
+	
+	
+	
+	
+	
+	
+	double delta {};
+	
+	return delta;
+	
+}
+
+
 //// RemovalHeuristic objects implementation
 
 // Sobrescrita do método "specificApply" para a RemovalHeuristic
@@ -295,7 +367,7 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 	
 	// std::cout << center_node << std::endl;
 	
-	printInt(neighborhood_nodes);
+	// printInt(neighborhood_nodes);
 	
 	// While "mi" nodes haven't been removed or while there's still cases of nodes to be removed in neighborhood
 	
@@ -368,46 +440,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	// While there are idle segments in solution:
 	while ((idle_segments) and (available_nodes.size() > 0)){
 		
-		// Selecting client to be inserted
-		
-		// This is done by iterating in met demands vector only once
-		// For each value, a random noise between -5% and 5% (or other number) is added
-		// giving randomness to the search
-		
-		// It is faster than sorting vector everytime!
-		
-		double lowest_met_demand = 1;
-		
-		double lowest_met_demand_index = available_nodes.at(0);
-		
-		double noise_value = 0.02;
-		
-		double random_noise = -noise_value + static_cast<double>(rand()) / RAND_MAX * (2*noise_value);
-		
-		double noise_met_demand {};
-		
-		for (auto &node_index: available_nodes){
-			
-			random_noise = -noise_value + static_cast<double>(rand()) / RAND_MAX * (2*noise_value);
-			
-			// Applying random noise to evaluate met demand percentage
-			noise_met_demand = S.Z.at(node_index) + random_noise;
-			
-			if (noise_met_demand < lowest_met_demand){
-				
-				lowest_met_demand = noise_met_demand;
-				
-				lowest_met_demand_index = node_index;
-				
-			}
-			
-			
-		}
-		
-		// Variable with lowest_met_demand_index (just for readability)
-		int insertion_node_index = lowest_met_demand_index;
-		
-		// The solution will now be segmented, and the "segments_map" variable
+		// The solution will now be segmented, and the "segments_vector" variable
 		// will store, for each route (key), all idle segments, by positions in route
 		
 		// This will make the code easier to understand, though a little bit less efficient
@@ -420,8 +453,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 			}
 			segment.clear();
 		}
-		
-		// std::vector<std::vector<std::vector<int>>> segments_vector(S.inst.m, std::vector<std::vector<int>>());
 		
 		// Variable that stores idle demand values in each segment
 		std::vector<std::vector<double>> segments_idle_demands_vector(S.inst.m, std::vector<double>());
@@ -504,8 +535,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		}
 		
 		
-		
-		// Checking for each idle segment the feasible insertions of client in node "lowest_met_demand_index"
+		// Checking for each idle segment the feasible insertions of each client
 		
 		// Route max length - maybe there's a better way for doing that!
 		double routes_max_length = S.inst.T*S.inst.w_b.at(0);
@@ -519,69 +549,88 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		// Corresponding idle demand of segment of minimum insertion costs
 		double min_cost_idle_demand = {};
 		
+		// Min costs node
+		int min_cost_node = {};
+		
 		// Pair with positions for insertion - First value is route, second is position
 		std::pair<int, int> min_cost_positions;
 		
 		// Boolean variable that controls if inserting the node in any position is feasible
 		bool any_feasible_position = false;
 		
-		for (int route_index {0}; route_index < S.inst.m; route_index++){
+		// Iterating -> delivery nodes -> routes -> segments
+		
+		for (auto &insertion_node: available_nodes){
 			
-			for (int segment_index {0}; segment_index < segments_vector.at(route_index).size(); segment_index++){
+			// Boolean variable that controls if, for a specific node, there's been found a feasible insertion position
+			bool feasible_position_node = false;
+			
+			for (int route_index {0}; route_index < S.inst.m; route_index++){
 				
-				// printInt(segments_vector.at(route_index).at(segment_index));
-				
-				// Checking all possible insertion positions at segment
-				
-				// The insertion positions will always start counting from the pickup node index
-				// So, if segment is [1,2], possible insertions will be in 2 and 3 positions!
-				
-				for (auto &position: segments_vector.at(route_index).at(segment_index)){
+				for (int segment_index {0}; segment_index < segments_vector.at(route_index).size(); segment_index++){
 					
-					int insertion_position = position + 1;
+					// printInt(segments_vector.at(route_index).at(segment_index));
 					
-					// std::cout << route_index << " " << insertion_position << std::endl;
+					// Checking all possible insertion positions at segment
 					
-					// Boolean to control feasibility of insertion
-					bool feasible = false;
+					// The insertion positions will always start counting from the pickup node index
+					// So, if segment is [1,2], possible insertions will be in 2 and 3 positions!
 					
-					// Time delta for insertion
-					double time_delta  = deltaInsertion("time", S, insertion_node_index, route_index, insertion_position);
-					
-					// Checking feasibility of position regarding route length
-					if ((S.W.at(route_index) + time_delta) < routes_max_length){
+					for (auto &position: segments_vector.at(route_index).at(segment_index)){
 						
-						feasible = true;
+						int insertion_position = position + 1;
 						
-						// std::cout << "Posicao factivel encontrada para cliente " << insertion_node_index << std::endl;
+						// std::cout << route_index << " " << insertion_position << std::endl;
 						
-						any_feasible_position = true;
+						// Boolean to control feasibility of insertion
+						bool feasible = false;
 						
-					}
-					
-					// If feasible, delta in position is checked
-					if (feasible){
+						// Time delta for insertion
+						double time_delta  = deltaInsertion("time", S, insertion_node, route_index, insertion_position);
 						
-						double cost_delta = deltaInsertion("cost", S, insertion_node_index, route_index, insertion_position);
+						// Checking feasibility of position regarding route length
+						if ((S.W.at(route_index) + time_delta) < routes_max_length){
+							
+							feasible = true;
+							
+							// std::cout << "Posicao factivel encontrada para cliente " << insertion_node_index << std::endl;
+							
+							any_feasible_position = true;
+							
+							feasible_position_node = true;
+							
+						}
 						
-						// Checking if this is the position with lowest cost
-						if (cost_delta < min_cost_delta){
+						// If feasible, delta in position is checked
+						if (feasible){
 							
-							// If delta is the lowest, positions and delta are updated
+							// Here, other types of scores can be calculated!
 							
+							cost_delta = deltaInsertion("cost", S, insertion_node, route_index, insertion_position);
 							
-							min_cost_delta = cost_delta;
-							min_cost_positions.first = route_index;
-							min_cost_positions.second = insertion_position;
-							
-							min_cost_idle_demand = segments_idle_demands_vector.at(route_index).at(segment_index);
-							
-							// std::cout << "\n" << cost_delta << std::endl;
-							
-							// std::cout << min_cost_positions.first << std::endl;
-							
-							// std::cout << min_cost_positions.second << "\n\n";
-							
+							// Checking if this is the position with lowest cost
+							if (cost_delta < min_cost_delta){
+								
+								// If delta is the lowest, positions and delta are updated
+								
+								
+								min_cost_delta = cost_delta;
+								
+								min_cost_node = insertion_node;
+								
+								min_cost_positions.first = route_index;
+								min_cost_positions.second = insertion_position;
+								
+								min_cost_idle_demand = segments_idle_demands_vector.at(route_index).at(segment_index);
+								
+								// std::cout << "\n" << cost_delta << std::endl;
+								
+								// std::cout << min_cost_positions.first << std::endl;
+								
+								// std::cout << min_cost_positions.second << "\n\n";
+								
+								
+							}
 							
 						}
 						
@@ -589,31 +638,39 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 					
 				}
 				
+				// std::cout << "\n";
 			}
 			
-			// std::cout << "\n";
+			if (!feasible_position_node){
+				
+				// std::cout << insertion_node << std::endl;
+				
+				available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&insertion_node](int value) -> bool { return value == insertion_node; }), available_nodes.end());
+				
+				// printInt(available_nodes);
+				
+			}
+			
 		}
 		
 		// Calculating demand assigned to node
 		
 		// It's the minimum value between segment idle demand and client's current unmet demand (in absolute terms)
-		double demand = std::min(min_cost_idle_demand, ( std::abs(S.inst.d.at(insertion_node_index)) - S.G.at(insertion_node_index)));
-		
-		// std::cout << demand << " " << insertion_node_index << std::endl;
-		
-		// std::cout <<  std::abs(S.inst.d.at(insertion_node_index)) - S.G.at(insertion_node_index) << std::endl;
-		
-		// std::cout << insertion_node_index << " " << min_cost_positions.first << " " << min_cost_positions.second << " " << demand << std::endl;
+		double demand = std::min(min_cost_idle_demand, ( std::abs(S.inst.d.at(min_cost_node)) - S.G.at(min_cost_node)));
 		
 		if ((any_feasible_position) and (demand > 0)){
 			
 			// Inserting client in positions with lowest delta
-			S.insertNodeAt(insertion_node_index, min_cost_positions.first, min_cost_positions.second, demand);
+			S.insertNodeAt(min_cost_node, min_cost_positions.first, min_cost_positions.second, demand);
 			
 		// If no feasible positions in segment were found, node is not available anymore to be selected
-		} else {
+		}
+		
+		
+		// Node is no longer available if its demand is fully covered
+		if (S.Z.at(min_cost_node) == 1){
 			
-			available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&insertion_node_index](int value) -> bool { return value == insertion_node_index; }), available_nodes.end());
+			available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&min_cost_node](int value) -> bool { return value == min_cost_node; }), available_nodes.end());
 			
 		}
 		
@@ -621,9 +678,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	
 	// Last part of initialization - If some segment could not have any feasible insertion, it is then removed
 	// This is done because in the next part of the insertion, no segment can be idle!
-	
-	
-	// S.printSol();
 	
 	for (auto route_index {0}; route_index < segments_vector.size(); route_index++){
 		
@@ -659,14 +713,9 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 	}
 	
-	// S.printSol();
-	
-	// S.printSol();
-	
-	// std::cout << segments_vector.size() << std::endl;
-	
-	
 	
 	return S;
 	
 }
+
+
