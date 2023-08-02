@@ -28,9 +28,14 @@ int main(){
 	
 	Sol S(inst, p, Gamma1, Gamma2);
 	
-	S.printSol();
+	// std::cout << S.inst.t.at(1).at(3).at(0) << std::endl;
 	
-	printDouble(S.W);
+	// std::cout << S.inst.t.at(3).at(2).at(0) << std::endl;
+	
+	// std::cout << S.inst.t.at(2).at(2).at(0) << std::endl;
+	
+	
+	S.printSol();
 	
 	// S.printSol();
 	
@@ -42,15 +47,11 @@ int main(){
 	
 	S.printSol();
 	
-	printDouble(S.W);
-	
 	PartialRandomRemoval prr {};
 	
 	prr.apply(S);
 	
 	S.printSol();
-	
-	printDouble(S.W);
 	
 	bgi.apply(S);
 	
@@ -60,6 +61,7 @@ int main(){
 	
 	// Epsilon
 	
+	/*
 	double Z = 0;
 	
 	for (int i; i < S.inst.m; i++){
@@ -111,6 +113,7 @@ int main(){
 	
 	// printDouble(S.W);
 	
+	*/
 	
 	
 	

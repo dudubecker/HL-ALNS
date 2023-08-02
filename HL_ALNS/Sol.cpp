@@ -329,6 +329,8 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		// If node to be removed is pickup node, then the whole segment is removed
 		if (Z.at(node_index) == 9999){
 			
+			// std::cout << "Segment to be removed" << std::endl;
+			
 			// Size of route
 			int route_size = R.at(route_index).size();
 			
@@ -373,17 +375,22 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 			// Travel time of old segment (for loop)
 			double old_segment_time = 0;
 			
+			// std::cout << "\n";
+			
 			for (int index {starting_index - 1}; index < final_index + 1 ;index++){
 				
 				int i = R.at(route_index).at(index);
 				
 				int j = R.at(route_index).at(index + 1);
 				
-				// std::cout << i << "-" << j << ": " << inst.t.at(i).at(j).at(route_index) << std::endl;
+				// std::cout << i << "-" << j << std::endl;
+				// inst.t.at(i).at(j).at(route_index) << std::endl;
 				
 				old_segment_time += inst.t.at(i).at(j).at(route_index);
 				
 			}
+			
+			// std::cout << "\n";
 			
 			// Travel time of new arc
 			
@@ -393,16 +400,22 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 			// Second node of new arc
 			int second_node = R.at(route_index).at(final_index + 1);
 			
+			// std::cout << "New arc: " << first_node << "-" << second_node << "\n" << std::endl;
+			
 			double new_arc_time = 0;
 			
 			if (!last_segment){
 				
-				double new_arc_time = inst.t.at(first_node).at(second_node).at(route_index);
+				new_arc_time = inst.t.at(first_node).at(second_node).at(route_index);
 				
 			}
 			
+			// std::cout << "New arc time: " << new_arc_time << std::endl;
+			// std::cout << "Old segment time: " << old_segment_time << std::endl;
+			
 			// Variation of time
 			double delta_time = new_arc_time - old_segment_time;
+			
 			
 			// Incrementing time attribute
 			W.at(route_index) += delta_time;
@@ -422,7 +435,6 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 			double second_old_arc_time = inst.t.at(node_index).at(second_node).at(route_index);
 			
 			double new_arc_time = inst.t.at(first_node).at(second_node).at(route_index);
-			
 			
 			double delta_time = new_arc_time - (first_old_arc_time + second_old_arc_time);
 			
@@ -544,6 +556,9 @@ void Sol::removeNodeCase(int &node_index){
 		
 		// Removing it from solution
 		removeNodeAt(random_route, random_occasion);
+		
+		// std::cout << node_index << " " << random_route << " " << random_occasion << " " << W.at(random_route) << std::endl;
+		
 		
 		
 	} else {

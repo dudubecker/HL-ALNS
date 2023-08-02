@@ -220,7 +220,7 @@ int RemovalHeuristic::initializeMethod(Sol &S) {
 Sol PartialRandomRemoval::specificApply(Sol &S) {
 	// Chamada para o método "specificApply" da classe base "RemovalHeuristic"
 	
-	std::cout << "\n\nPartial Random Removal: \n";
+	std::cout << "\n\nPartial Random Removal\n\n";
 	
 	int mi = RemovalHeuristic::initializeMethod(S);
 	
@@ -345,9 +345,11 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	
 	InsertionHeuristic::initializeMethod();
 	
-	std::cout << "\n\nBasic Greedy Insertion" << std::endl;
+	std::cout << "\n\nBasic Greedy Insertion\n\n" << std::endl;
 	
 	bool idle_segments {true};
+	
+	std::vector<std::vector<std::vector<int>>> segments_vector(S.inst.m, std::vector<std::vector<int>>());
 	
 	// Available nodes to be inserted: starts with all nodes in D
 	std::vector<int> available_nodes = S.inst.D;
@@ -409,7 +411,17 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		// will store, for each route (key), all idle segments, by positions in route
 		
 		// This will make the code easier to understand, though a little bit less efficient
-		std::vector<std::vector<std::vector<int>>> segments_vector(S.inst.m, std::vector<std::vector<int>>());
+		
+		// Clearing segments vector for iteration
+		
+		for (auto& segment : segments_vector){
+			for (auto& inner_segment : segment){
+				inner_segment.clear();
+			}
+			segment.clear();
+		}
+		
+		// std::vector<std::vector<std::vector<int>>> segments_vector(S.inst.m, std::vector<std::vector<int>>());
 		
 		// Variable that stores idle demand values in each segment
 		std::vector<std::vector<double>> segments_idle_demands_vector(S.inst.m, std::vector<double>());
@@ -583,16 +595,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 			// std::cout << "\n";
 		}
 		
-		// for (auto vec: segments_idle_demands_vector){
-			
-			// printDouble(vec);
-			
-			// std::cout << "\n";
-			
-		// }
-		
-		
-		
 		// Calculating demand assigned to node
 		
 		// It's the minimum value between segment idle demand and client's current unmet demand (in absolute terms)
@@ -617,6 +619,53 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		}
 		
 	}
+	
+	// Last part of initialization - If some segment could not have any feasible insertion, it is then removed
+	// This is done because in the next part of the insertion, no segment can be idle!
+	
+	
+	// S.printSol();
+	
+	for (auto route_index {0}; route_index < segments_vector.size(); route_index++){
+		
+		for (auto segment_index {0}; segment_index < segments_vector.at(route_index).size(); segment_index++){
+			
+			for (auto &removal_index: segments_vector.at(route_index).at(segment_index)){
+				
+				// Initial route size
+				int initial_route_size = S.RSize.at(route_index);
+				
+				// Excluding idle segment
+				S.removeNodeAt(route_index, removal_index);
+				
+				// Route size after removal
+				int final_route_size = S.RSize.at(route_index);
+				
+				// Segment size, which is equal to variation in route size
+				int segment_size = initial_route_size - final_route_size;
+				
+				// Updating position in segments_vector object, based on delta in route size
+				for (auto index_position {0}; index_position < segments_vector.at(route_index).at(segment_index).size(); index_position++){
+					
+					segments_vector.at(route_index).at(segment_index).at(index_position) -= segment_size;
+					
+				}
+				
+				
+			}
+			
+			
+			
+		}
+		
+	}
+	
+	// S.printSol();
+	
+	// S.printSol();
+	
+	// std::cout << segments_vector.size() << std::endl;
+	
 	
 	
 	return S;
