@@ -11,9 +11,9 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_JO_NA_9_cpp.txt";
+	std::string file_name = "INST_MA_RE_20_cpp.txt";
 	
-	int number_of_periods = 1;
+	int number_of_periods = 7;
 	
 	// Randomness parameter
 	double p {4};
@@ -27,13 +27,6 @@ int main(){
 	Instance inst(file_name, number_of_periods);
 	
 	Sol S(inst, p, Gamma1, Gamma2);
-	
-	// std::cout << S.inst.t.at(1).at(3).at(0) << std::endl;
-	
-	// std::cout << S.inst.t.at(3).at(2).at(0) << std::endl;
-	
-	// std::cout << S.inst.t.at(2).at(2).at(0) << std::endl;
-	
 	
 	S.printSol();
 	
@@ -57,11 +50,10 @@ int main(){
 	
 	S.printSol();
 	
-	printDouble(S.W);
+	std::cout << "\n";
 	
 	// Epsilon
 	
-	/*
 	double Z = 0;
 	
 	for (int i; i < S.inst.m; i++){
@@ -113,7 +105,6 @@ int main(){
 	
 	// printDouble(S.W);
 	
-	*/
 	
 	
 	

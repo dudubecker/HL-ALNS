@@ -426,7 +426,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		// Variable that stores idle demand values in each segment
 		std::vector<std::vector<double>> segments_idle_demands_vector(S.inst.m, std::vector<double>());
 		
-		
 		// Splitting "S" into segments
 		
 		idle_segments = false;
