@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <numeric>
 #include <utility>
+#include <cmath>
+#include <utils.h>
 
 //// Initializations
 
@@ -191,10 +193,10 @@ double Heuristic::deltaRemoval(std::string delta_type, Sol &S, int &node_index, 
 double Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index){
 	
 	// Available demand to be transferred
-	double available_demand = S.z.at(route_index).at(position_index);
+	double available_demand = std::abs( S.z.at(route_index).at(position_index));
 	
 	// Pace on which load is transferred from one client to other
-	double pace = 5;
+	double pace = 1;
 	
 	// Met demand for source node
 	double met_demand_source_node = S.G.at(source_node_index);
@@ -210,6 +212,7 @@ double Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_nod
 	
 	// Initial epsilon sum
 	double initial_epsilon_sum = epsilon_source_node + epsilon_receiver_node;
+	initial_epsilon_sum = roundToDecimalPlaces(initial_epsilon_sum, 5);
 	
 	// Current epsilon sum
 	double epsilon_sum = initial_epsilon_sum;
@@ -224,7 +227,33 @@ double Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_nod
 	double min_epsilon_transferred_demand = 0;
 	
 	// While there is demand to be transferred
-	while (available_demand > 0){
+	while (available_demand >= 0){
+		
+		if (epsilon_sum < min_epsilon_sum){
+			
+			min_epsilon_sum = epsilon_sum;
+			min_epsilon_transferred_demand = transferred_demand;
+			
+			// std::cout << "Both getting better" << std::endl;
+			
+			
+		} else if ((epsilon_sum == min_epsilon_sum) and (transferred_demand > 0)){
+			
+			// That means one epsilon is rising and the other is falling
+			
+			// std::cout << "One getting worst and the other getting better" << std::endl;
+			
+			// break;
+			
+		} else if (epsilon_sum > min_epsilon_sum){
+			
+			// That means the epsilons are getting worst
+			
+			// std::cout << "Both getting worst!" << std::endl;
+			
+			break;
+			
+		}
 		
 		met_demand_source_node -= pace;
 		
@@ -235,27 +264,34 @@ double Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_nod
 		epsilon_receiver_node = std::abs(     (met_demand_receiver_node/S.totalZ)  -  (std::abs(S.inst.d.at(receiver_node_index))/S.totalD)     );
 		
 		epsilon_sum = epsilon_source_node + epsilon_receiver_node;
-		
-		if (epsilon_sum < min_epsilon_sum){
-			
-			min_epsilon_sum = epsilon_sum;
-			min_epsilon_transferred_demand = transferred_demand;
-			
-		}
+		epsilon_sum = roundToDecimalPlaces(epsilon_sum, 5);
 		
 		transferred_demand += pace;
 		available_demand -= pace;
 		
 	}
 	
+	double delta_epsilon = min_epsilon_sum - initial_epsilon_sum;
 	
 	
+	// Case when since first pace the epsilons get worst: this is forbidden!
 	
+	if (transferred_demand == 1){
+		
+		delta_epsilon = 9999;
+		
+	}
 	
+	// std::cout << "min_epsilon_sum : " << min_epsilon_sum << std::endl;
 	
-	double delta {};
+	// std::cout << "initial_epsilon_sum : " << initial_epsilon_sum << std::endl;
 	
-	return delta;
+	// std::cout << "Delta epsilon: " << delta_epsilon << std::endl;
+	// std::cout << "Transferred demand from " << source_node_index << " to " << receiver_node_index << " for minimizing epsilon sum: " << min_epsilon_transferred_demand << std::endl;
+	
+	// std::cout << "Transferred demand from " << source_node_index << " to " << receiver_node_index << " : " << transferred_demand << std::endl;
+	
+	return delta_epsilon;
 	
 }
 
@@ -713,6 +749,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 	}
 	
+	// Second part of insertion
 	
 	return S;
 	

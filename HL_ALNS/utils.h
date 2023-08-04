@@ -24,6 +24,8 @@ void printDouble(std::vector<double> &input);
 
 void printInt(std::vector<int> &input);
 
+double roundToDecimalPlaces(double &value, int decimalPlaces);
+
 // Increment in costs through insertion of node_index at route_index at insertion_index
 // double deltaCostsInsertion(Sol &S, int &node_index, int &route_index, int &insertion_index);
 

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <cmath>
 
 
 // Comparator function to sort pairs
@@ -72,6 +73,10 @@ void printInt(std::vector<int> &input)
 	
 };
 
+double roundToDecimalPlaces(double &value, int decimalPlaces) {
+    double multiplier = std::pow(10.0, decimalPlaces);
+    return std::round(value * multiplier) / multiplier;
+}
 
 // double deltaInsertion(Sol &S, int &node_index, int &route_index, int &insertion_index){
 	

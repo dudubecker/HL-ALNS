@@ -19,10 +19,10 @@ int main(){
 	double p {4};
 	
 	// Proximity weight
-	double Gamma1 {0.6};
+	double Gamma1 {0.3};
 	
 	// Met demand weight
-	double Gamma2 {0.4};
+	double Gamma2 {0.7};
 	
 	Instance inst(file_name, number_of_periods);
 	
@@ -40,19 +40,32 @@ int main(){
 	
 	S.printSol();
 	
-	PartialRandomRemoval prr {};
+	// PartialRandomRemoval prr {};
 	
-	prr.apply(S);
+	// prr.apply(S);
 	
-	S.printSol();
+	// S.printSol();
 	
-	bgi.apply(S);
+	// bgi.apply(S);
 	
-	S.printSol();
+	// S.printSol();
 	
-	std::cout << "\n";
+	// std::cout << "\n";
+	
+	
+	int source_node_index = 9;
+	int receiver_node_index = 8;
+	
+	int route_index = 1;
+	
+	int position_index = 4;
+	
+	bgi.deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);;
+	
 	
 	// Epsilon
+	
+	/*
 	
 	double Z = 0;
 	
@@ -106,6 +119,7 @@ int main(){
 	// printDouble(S.W);
 	
 	
+	*/
 	
 	
 	return 0;
