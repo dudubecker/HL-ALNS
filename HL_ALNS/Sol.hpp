@@ -30,6 +30,9 @@ public:
 	// Relative met demand for each client
 	std::vector<double> Z {};
 	
+	// Epsilon operation for each client (9999 for depots/pickups)
+	std::vector<double> epsilon {};
+	
 	// Amount delivered for each visit
 	std::vector<std::vector<double>> z {};
 	
@@ -82,6 +85,8 @@ public:
 	
 	// Returns true if solution contains at least one node in vector and false otherwise
 	bool containsAny(std::vector<int> &nodes_vector);
+	
+	void updateEpsilon();
 	
 
 };

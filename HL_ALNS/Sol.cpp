@@ -37,9 +37,15 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		
 	}
 	
-	// Z vector with 0 met demands:
+	// Filling depot met demands with very large number
 	Z.resize(inst.counties.size());
 	std::fill(Z.begin(), Z.end(), 9999);
+	
+	for (auto &i: inst.D){
+		
+		Z.at(i) = 0;
+		
+	}
 	
 	// nodesPositions attribute (initializing with empty structures)
 	
@@ -53,13 +59,9 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 	nodesPositions.resize(inst.counties.size());
 	std::fill(nodesPositions.begin(), nodesPositions.end(), empty_2d_vec);
 	
-	// Filling depot met demands with very large number
 	
-	for (auto &i: inst.D){
-		
-		Z.at(i) = 0;
-		
-	}
+	
+
 	
 	// Amount of goods, at the beginning only defined in pickup nodes
 	
@@ -85,6 +87,9 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		
 	}
 	
+	// epsilon vector with 9999 epsilon values (depot and pickups):
+	epsilon.resize(inst.counties.size());
+	std::fill(epsilon.begin(), epsilon.end(), 9999);
 	
 	
 	//// Construction heuristic main loop
@@ -136,6 +141,19 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		double picked_up_load = std::min(inst.Q.at(route_index), G.at(next_pickup_node));
 		
 		insertNodeAt(next_pickup_node, route_index, insertion_index, picked_up_load);
+		
+		// If insertion is the first one, epsilon values can be initialized, as totalZ will be different than 0!
+		if (totalZ == picked_up_load){
+			
+			for (auto &i: inst.D){
+				
+		 		epsilon.at(i) = std::abs((G.at(i)/totalZ) - (std::abs(inst.d.at(i))/totalD));
+				
+		 	}
+			
+		}
+		
+		
 		
 		// Inserting all possible delivery nodes
 		
@@ -305,8 +323,7 @@ Sol::~Sol()
 {
 }
 
-// Removing node by passing specific positions (Used by all other removal methods)
-
+// Removes node by passing specific positions (Used by all other removal methods)
 void Sol::removeNodeAt(int &route_index, int &removal_index){
 	
 	// Corresponding node on removal position
@@ -476,13 +493,40 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		// Removing node to nodes counter attribute
 		RSize.at(route_index) -= 1;
 		
-		// Updating Z attribute - Only at delivery nodes
+		// Updating attributes - Only at delivery nodes
 		if (load < 0){
 			
 			Z.at(current_node) = G.at(current_node)/std::abs(inst.d.at(current_node));
+			
 			totalZ -= std::abs(load);
 			
+			
+			// double z_i = G.at(current_node);
+			
+			// double d_i = std::abs(inst.d.at(current_node));
+			
+			//epsilon.at(current_node) = std::abs((z_i/totalZ) - (d_i/totalD));
+			
+			//if ((epsilon.at(current_node) > 0.429416) and (epsilon.at(current_node) < 0.429420)){
+				
+			//	std::cout << "\n\n\n\n\n\n\n\n\n\n\n";
+				
+			//	std::cout << z_i << std::endl;
+				
+			//	std::cout << d_i << std::endl;
+				
+			//	std::cout << "\n\n\n\n\n\n\n\n\n\n\n";
+				
+			//}
+			
+			// double epsilon_value = std::abs((G.at(current_node)/totalZ) - (std::abs(inst.d.at(current_node))/totalD));
+			
+			// epsilon.at(current_node) = epsilon_value;
 		}
+		
+		
+		// Updating epsilon attribute
+		
 		
 		
 		
@@ -530,6 +574,8 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		// "nodesPositions" code ends here
 		
 	}
+	
+	updateEpsilon();
 
 }
 
@@ -614,8 +660,7 @@ void Sol::removeNodeCases(int &node_index){
 	
 }
 
-// Insert node at specific position
-
+// Inserts node at specific position
 void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, double &demand){
 	
 	// Time attribute - first one to be updated!
@@ -701,12 +746,36 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 		totalZ += demand;
 		Z.at(node_index) += demand/std::abs(inst.d.at(node_index));
 		z.at(route_index).insert(z.at(route_index).begin() + insertion_index, -demand);
+		
+		// double z_i = G.at(node_index);
+			
+		// double d_i = std::abs(inst.d.at(node_index));
+			
+		// epsilon.at(node_index) = std::abs((z_i/totalZ) - (d_i/totalD));
+		
+		
+		// epsilon.at(node_index) = std::abs((G.at(node_index)/totalZ) - (std::abs(inst.d.at(node_index))/totalD));
+		
+		
 	}
 	
-	
+	updateEpsilon();
 	
 	
 }
+
+
+// Inserts node at specific position
+void Sol::updateEpsilon(){
+	
+	for (auto &i: inst.D){
+		
+		epsilon.at(i) = std::abs((G.at(i)/totalZ) - (std::abs(inst.d.at(i))/totalD));
+		
+	}
+	
+}
+
 
 // Checking if solution contains all node(s)
 bool Sol::containsAll(std::vector<int> &nodes_vector){

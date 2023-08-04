@@ -38,8 +38,6 @@ int main(){
 	
 	bgi.apply(S);
 	
-	S.printSol();
-	
 	// PartialRandomRemoval prr {};
 	
 	// prr.apply(S);
@@ -53,19 +51,19 @@ int main(){
 	// std::cout << "\n";
 	
 	
-	int source_node_index = 9;
-	int receiver_node_index = 8;
+	//int source_node_index = 9;
+	//int receiver_node_index = 8;
 	
-	int route_index = 1;
+	//int route_index = 1;
 	
-	int position_index = 4;
+	//int position_index = 4;
 	
-	bgi.deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);;
+	// bgi.deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);;
 	
 	
 	// Epsilon
 	
-	/*
+	std::cout << "\n\n";
 	
 	double Z = 0;
 	
@@ -102,6 +100,22 @@ int main(){
 		
 	}
 	
+	std::cout << "\n\n";
+	
+	S.printSol();
+	
+	// S.updateEpsilon();
+	
+	printDouble(S.epsilon);
+	
+	printDouble(S.G);
+	
+	printDouble(S.inst.d);
+	
+	std::cout << S.totalZ << std::endl;
+	
+	std::cout << S.totalD << std::endl;
+	
 	// printDouble(S.W);
 	
 	// ConcentricRemoval cr(200);
@@ -118,8 +132,6 @@ int main(){
 	
 	// printDouble(S.W);
 	
-	
-	*/
 	
 	
 	return 0;
