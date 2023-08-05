@@ -41,7 +41,8 @@ double Heuristic::deltaInsertion(std::string delta_type, Sol &S, int &node_index
 	if (delta_type == "time"){
 		
 		if (last_position){
-		
+			
+			
 			int last_node_index = S.R.at(route_index).back();
 			
 			delta = S.inst.t.at(last_node_index).at(node_index).at(route_index);
@@ -68,6 +69,7 @@ double Heuristic::deltaInsertion(std::string delta_type, Sol &S, int &node_index
 	} else if (delta_type == "cost"){
 		
 		if (last_position){
+			
 			
 			int last_node_index = S.R.at(route_index).back();
 			
@@ -292,8 +294,11 @@ double Heuristic::deltaReplacement(std::string delta_type, Sol &S, int &node_ind
 	
 }
 
-double Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index){
+std::pair<double, double> Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index){
 
+	std::pair<double, double> return_pair = {};
+	
+	
 	
 	// Available demand to be transferred
 	double available_demand = std::abs( S.z.at(route_index).at(position_index));
@@ -334,6 +339,8 @@ double Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_nod
 		
 		if (epsilon_sum < min_epsilon_sum){
 			
+			// That means that both epsilons are getting better, so iterations should continue
+			
 			min_epsilon_sum = epsilon_sum;
 			min_epsilon_transferred_demand = transferred_demand;
 			
@@ -342,11 +349,14 @@ double Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_nod
 			
 		} else if ((epsilon_sum == min_epsilon_sum) and (transferred_demand > 0)){
 			
-			// That means one epsilon is rising and the other is falling
+			// That means one epsilon is rising and the other is falling - if after all iterations
+			// the epsilons don't start getting worst, it can be a replacement if feasible and if it reduces costs!
 			
 			// std::cout << "One getting worst and the other getting better" << std::endl;
 			
 			// break;
+			
+			;
 			
 		} else if (epsilon_sum > min_epsilon_sum){
 			
@@ -379,7 +389,7 @@ double Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_nod
 	
 	// Case when since first pace the epsilons get worst: this is forbidden!
 	
-	if (transferred_demand == 1){
+	if (transferred_demand == pace){
 		
 		delta_epsilon = 9999;
 		
@@ -390,14 +400,37 @@ double Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_nod
 	// std::cout << "initial_epsilon_sum : " << initial_epsilon_sum << std::endl;
 	
 	// std::cout << "Delta epsilon: " << delta_epsilon << std::endl;
-	// std::cout << "Transferred demand from " << source_node_index << " to " << receiver_node_index << " for minimizing epsilon sum: " << min_epsilon_transferred_demand << std::endl;
+	// std::cout << "transferred demand from " << source_node_index << " to " << receiver_node_index << " for minimizing epsilon sum: " << min_epsilon_transferred_demand << std::endl;
 	
 	// std::cout << "transfering " <<  transferred_demand << " demand from " << source_node_index << " to " << receiver_node_index << " : ";
 	
-	return delta_epsilon;
+	// First element of pair - delta epsilon of insertion/replacement
+	
+	return_pair.first = delta_epsilon;
+	
+	// Second element of pair - transferred demand for minimizing delta epsilon
+	
+	// Case when it's possible to enhance both epsilons until a certain point
+	if (delta_epsilon < 0){
+		
+		return_pair.second = min_epsilon_transferred_demand;
+	
+	// Case when it's possible to replace, if transfering all demand doesn't impact epsilon sum
+	} else if (delta_epsilon == 0){
+		
+		return_pair.second = (transferred_demand - 1);
+	
+	// Case when, since first transfering, epsilons get worst
+	} else if (delta_epsilon == 9999){
+		
+		return_pair.second = 0;
+		
+	}
+	
+	
+	return return_pair;
 	
 }
-
 
 //// RemovalHeuristic objects implementation
 
@@ -557,7 +590,9 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	InsertionHeuristic::initializeMethod();
 	
 	std::cout << "\n\nBasic Greedy Insertion\n\n" << std::endl;
-	
+
+	// First part of insertion - Getting rid of idle segments
+{
 	bool idle_segments {true};
 	
 	std::vector<std::vector<std::vector<int>>> segments_vector(S.inst.m, std::vector<std::vector<int>>());
@@ -851,49 +886,236 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		}
 		
 	}
+}
 	
 	// Second part of insertion - Giving feasibility to solution regarding epsilon value
 	
-	double global_epsilon = 0.1;
-	
 	// Available nodes to be inserted: starts with all nodes in D
-	available_nodes = S.inst.D;
+	std::vector<int> available_nodes = {};
 	
-	// Taking out fully served clients
-	for (auto node: available_nodes){
-		
-		if (S.Z.at(node) == 1){
-			
-			available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&node](int value) -> bool { return value == node; }), available_nodes.end());
-			
-		}
-		
-	}
+	double global_epsilon = 0.15;
 	
-	for (auto &receiver_node_index : available_nodes){
+	// Route max length - maybe there's a better way for doing that!
+	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
+	
+	// Max epsilon
+	double max_epsilon = *std::max_element(S.epsilon.begin(), S.epsilon.end());
+	
+	while (max_epsilon > global_epsilon){
 		
-		for (int route_index {0}; route_index < S.inst.m; route_index++){
+		// Available nodes to be inserted: starts with all nodes in D
+		
+		////// It would be more efficient if this was an attribute!
+		available_nodes = S.inst.D;
+	
+		// Taking out fully served clients
+		for (auto node: available_nodes){
 			
-			// Nodes can be inserted from position 2 of S, as position 0 is depot and position 1 is first pickup node
-			for (int position_index {2}; position_index < S.RSize.at(route_index); position_index++){
+			if (S.Z.at(node) == 1){
 				
-				int source_node_index = S.R.at(route_index).at(position_index);
-				
-				// If source_node_index is not pickup node
-				if (S.Z.at(source_node_index) != 9999){
-					
-					// std::cout << "Giving demand from " << source_node_index << " to " << receiver_node_index << " in route " << route_index << " at position " << position_index << std::endl;
-					// std::cout << "Delta epsilon by " << deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index) << "\n\n";
-					
-					
-				}
-				
+				available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&node](int value) -> bool { return value == node; }), available_nodes.end());
 				
 			}
 			
 		}
 		
+		// Minimum score found so far: great scores are negative scores!
+		double min_score = 9999;
+		
+		// Corresponding node of minimum score
+		double min_score_node = {};
+		
+		// Corresponding route of minimum score
+		double min_score_route = {};
+		
+		// Corresponding position of minimum score
+		double min_score_position = {};
+		
+		// Corresponding transferred demand of minimum score
+		double min_score_transferred_demand = {};
+		
+		// Boolean variable, that controls if best score corresponds to a replacement
+		bool replacement = false;
+		
+		// Iterating, for all available nodes for insertion, for all routes and positions
+		
+		for (auto &receiver_node_index : available_nodes){
+			
+			for (int route_index {0}; route_index < S.inst.m; route_index++){
+				
+				// Nodes can be inserted from position 2 of S, as position 0 is depot and position 1 is first pickup node
+				for (int position_index {2}; position_index < S.RSize.at(route_index); position_index++){
+					
+					int source_node_index = S.R.at(route_index).at(position_index);
+					
+					// If source_node_index is not pickup node
+					if ((S.Z.at(source_node_index) != 9999) and (source_node_index != receiver_node_index)){
+						
+						// Checking feasibilities and, if feasible, scores
+						int position_before = position_index;
+						int position_after = position_index + 1;
+						
+						double delta_epsilon, transferred_demand;
+						
+						// Feasibility for inserting node before source node
+						if (S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_before) < routes_max_length){
+							
+							// Calculating scores
+							
+							std::tie(delta_epsilon, transferred_demand) = deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);
+							
+							double delta_costs_insertion_before = deltaInsertion("cost", S, receiver_node_index, route_index, position_before);
+							double score_insertion_before = delta_epsilon*1000000 + delta_costs_insertion_before;
+							
+							if (score_insertion_before < min_score){
+								
+								// Updating values with corresponding data from iteration
+								min_score = score_insertion_before;
+								// Corresponding node of minimum score
+								min_score_node = receiver_node_index;
+								// Corresponding route of minimum score
+								min_score_route = route_index;
+								// Corresponding position of minimum score
+								min_score_position = position_before;
+								// Corresponding transferred demand of minimum score
+								min_score_transferred_demand = transferred_demand;
+								// Boolean variable, that controls if best score corresponds to a replacement
+								replacement = false;
+								
+							}
+							
+							
+						
+						// Feasibility for inserting node after source node
+						} else if (S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_after) < routes_max_length){
+							
+							// Calculating scores
+							
+							std::tie(delta_epsilon, transferred_demand) = deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);
+							
+							double delta_costs_insertion_after = deltaInsertion("cost", S, receiver_node_index, route_index, position_after);
+							
+							double score_insertion_after = delta_epsilon*1000000 + delta_costs_insertion_after;
+							
+							if (score_insertion_after < min_score){
+								
+								// Updating values with corresponding data from iteration
+								min_score = score_insertion_after;
+								// Corresponding node of minimum score
+								min_score_node = receiver_node_index;
+								// Corresponding route of minimum score
+								min_score_route = route_index;
+								// Corresponding position of minimum score
+								min_score_position = position_after;
+								// Corresponding transferred demand of minimum score
+								min_score_transferred_demand = transferred_demand;
+								// Boolean variable, that controls if best score corresponds to a replacement
+								replacement = false;
+								
+							}
+							
+						
+						// Feasibility for replacing source node for receiving node
+						} else if (S.W.at(route_index) + deltaReplacement("time", S, receiver_node_index, route_index, position_index) < routes_max_length){
+							
+							// Calculating scores
+							
+							std::tie(delta_epsilon, transferred_demand) = deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);
+							
+							double delta_costs_replacement = deltaReplacement("cost", S, receiver_node_index, route_index, position_index);
+							double score_replacement = delta_epsilon*1000000 + delta_costs_replacement;
+							
+							// Replacement has an additional constraint: I can only replace if transferring all demand doesn't impact epsilon sums!
+							if ((score_replacement < min_score) and (transferred_demand == std::abs(S.z.at(route_index).at(position_index)))){
+								
+								// Updating values with corresponding data from iteration
+								min_score = score_replacement;
+								// Corresponding node of minimum score
+								min_score_node = receiver_node_index;
+								// Corresponding route of minimum score
+								min_score_route = route_index;
+								// Corresponding position of minimum score
+								min_score_position = position_index;
+								// Corresponding transferred demand of minimum score
+								min_score_transferred_demand = transferred_demand;
+								// Boolean variable, that controls if best score corresponds to a replacement
+								replacement = true;
+								
+							}
+							
+							
+							
+							
+						}
+						
+						//double delta_epsilon, transferred_demand;
+						
+						//std::tie(delta_epsilon, transferred_demand) = deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);
+						
+						
+						// double delta_epsilon = deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);
+						//double delta_costs_insertion_before = deltaInsertion("cost", S, receiver_node_index, route_index, position_before);
+						//double delta_costs_insertion_after = deltaInsertion("cost", S, receiver_node_index, route_index, position_after);
+						//double delta_costs_replacement = deltaReplacement("cost", S, receiver_node_index, route_index, position_index);
+						
+						
+						//std::cout << "\nGiving demand from " << source_node_index << " to " << receiver_node_index << " in route " << route_index << " at position " << position_index << std::endl;
+						//std::cout << "Delta epsilon: " << delta_epsilon << "\n";
+						//std::cout << "Delta in costs by insertion before: " << delta_costs_insertion_before << "\n";
+						//std::cout << "Delta in costs by insertion after: " << delta_costs_insertion_after << "\n";
+						//std::cout << "Delta in costs by replacement: " << delta_costs_replacement << "\n";
+						//std::cout << "Score of insertion before: " << delta_epsilon*1000000 + delta_costs_insertion_before <<"\n";
+						//std::cout << "Score of insertion after: " << delta_epsilon*1000000 + delta_costs_insertion_after <<"\n";
+						//std::cout << "Score of replacement: " << delta_epsilon*1000000 + delta_costs_replacement <<"\n\n\n";
+					}
+					
+					
+				}
+				
+			}
+			
+			
+			
+		}
+		
+		
+		//
+		std::cout << "Minimum found score: " << min_score << std::endl;
+		
+		std::cout << "Corresponding node: " << min_score_node << std::endl;
+		// Corresponding route of minimum score
+		std::cout << "Corresponding route: " << min_score_route << std::endl;
+		// Corresponding position of minimum score
+		std::cout << "Corresponding position at route: " << min_score_position  << std::endl;
+		// Corresponding transferred demand of minimum score
+		std::cout << "Corresponding demand to be transferred: " << min_score_transferred_demand << std::endl;
+		// Boolean variable, that controls if best score corresponds to a replacement
+		std::cout << "Is it a replacement? -> " << replacement << std::endl;
+		
+		
+		
+		max_epsilon = *std::max_element(S.epsilon.begin(), S.epsilon.end());
+		
+		std::string a;
+		
+		std::cin >> a;
+		
+		break;
 	}
+		
+		
+		
+		
+		
+
+		
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	return S;

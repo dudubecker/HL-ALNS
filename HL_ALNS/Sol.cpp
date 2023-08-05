@@ -89,7 +89,7 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 	
 	// epsilon vector with 9999 epsilon values (depot and pickups):
 	epsilon.resize(inst.counties.size());
-	std::fill(epsilon.begin(), epsilon.end(), 9999);
+	std::fill(epsilon.begin(), epsilon.end(), -9999);
 	
 	
 	//// Construction heuristic main loop

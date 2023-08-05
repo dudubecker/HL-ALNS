@@ -37,7 +37,7 @@ public:
 	
 	double deltaReplacement(std::string delta_type, Sol &S, int &node_index, int &route_index, int &position_index);
 	
-	double deltaEpsilon(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index);
+	std::pair<double, double> deltaEpsilon(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index);
 	
 	
 	// Main methods

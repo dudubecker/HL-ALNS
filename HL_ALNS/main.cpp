@@ -50,88 +50,42 @@ int main(){
 	
 	// std::cout << "\n";
 	
+	S.printSol();
 	
-	//int source_node_index = 9;
-	//int receiver_node_index = 8;
+	/*
+	int node_index = 2;
+	int route_index = 2;
+	int insertion_index = 11;
+	double demand = 600;
 	
-	//int route_index = 1;
-	
-	//int position_index = 4;
-	
-	// bgi.deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);;
-	
-	
-	// Epsilon
-	
-	std::cout << "\n\n";
-	
-	double Z = 0;
-	
-	for (int i; i < S.inst.m; i++){
-	
-		for (auto value: S.z.at(i)){
-			
-			if (value < 0){
-				
-				Z += std::abs(value);
-				
-			}
-		}
-	}
-	
-	double D = 0;
-	
-	for (auto node: S.inst.D){
-		
-		D += std::abs(S.inst.d.at(node));
-		
-	}
-	
-	for (auto node: S.inst.D){
-		
-		double z_i = S.G.at(node);
-		
-		double d_i = std::abs(S.inst.d.at(node));
-		
-		double epsilon = std::abs((z_i/Z) - (d_i/D));
-		
-		std::cout << "Epsilon node " << node << ": " << epsilon*100 << "%" << std::endl;
-		
-		
-	}
-	
-	std::cout << "\n\n";
+	S.insertNodeAt(node_index, route_index, insertion_index, demand);
 	
 	S.printSol();
 	
-	// S.updateEpsilon();
+	node_index = 22;
+	route_index = 2;
+	insertion_index = 12;
+	demand = 450;
 	
-	printDouble(S.epsilon);
 	
-	printDouble(S.G);
+	S.insertNodeAt(node_index, route_index, insertion_index, demand);
 	
-	printDouble(S.inst.d);
+	S.printSol();
+	*/
 	
-	std::cout << S.totalZ << std::endl;
 	
-	std::cout << S.totalD << std::endl;
+	int cont = 0;
+	for (auto &epsilon: S.epsilon){
+		
+		if (epsilon > -9999){
+			
+			std::cout << cont << ": " << epsilon*100 << "%\n";
+			
+		}
+		cont += 1;
+	}
 	
-	// printDouble(S.W);
-	
-	// ConcentricRemoval cr(200);
-	
-	// cr.apply(S);
-	
-	// S.printSol();
-	
-	// printDouble(S.W);
-	
-	// bgi.apply(S);
-	
-	// S.printSol();
-	
-	// printDouble(S.W);
-	
+	//std::cout << *std::max_element(S.epsilon.begin(), S.epsilon.end()) << std::endl;
 	
 	
 	return 0;
