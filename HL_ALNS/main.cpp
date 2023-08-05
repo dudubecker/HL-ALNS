@@ -28,7 +28,7 @@ int main(){
 	
 	Sol S(inst, p, Gamma1, Gamma2);
 	
-	S.printSol();
+	// S.printSol();
 	
 	// S.printSol();
 	
@@ -42,7 +42,34 @@ int main(){
 	
 	// prr.apply(S);
 	
-	// S.printSol();
+	S.printSol();
+	
+	int cont = 0;
+	for (auto &epsilon: S.epsilon){
+		
+		if (epsilon > -9999){
+			
+			std::cout << cont << ": " << epsilon*100 << "%\n";
+			
+		}
+		cont += 1;
+	}
+	
+	// std::cout << "3 to 19:" << S.inst.t.at(3).at(19).at(0) << std::endl;
+	// 
+	// std::cout << "3 to 17:" << S.inst.t.at(3).at(17).at(0) << std::endl;
+	
+	
+	
+	// int receiver_node_index = 17;
+	// int route_index = 1;
+	// int replacement_position_index = 17;
+	// int insertion_position_index = 18;
+	
+	// std::cout << "Delta replacement - 3-19 for 3-17 :" << bgi.deltaReplacement("time", S, receiver_node_index, route_index, replacement_position_index) << std::endl;
+	
+	// std::cout << "Delta insertion - 3-19 to 3-19-17 :" << bgi.deltaInsertion("time", S, receiver_node_index, route_index, insertion_position_index) << std::endl;
+	
 	
 	// bgi.apply(S);
 	
@@ -50,7 +77,7 @@ int main(){
 	
 	// std::cout << "\n";
 	
-	S.printSol();
+	// S.printSol();
 	
 	/*
 	int node_index = 2;
@@ -74,16 +101,16 @@ int main(){
 	*/
 	
 	
-	int cont = 0;
-	for (auto &epsilon: S.epsilon){
+	//int cont = 0;
+	//for (auto &epsilon: S.epsilon){
 		
-		if (epsilon > -9999){
+	//	if (epsilon > -9999){
 			
-			std::cout << cont << ": " << epsilon*100 << "%\n";
+	//		std::cout << cont << ": " << epsilon*100 << "%\n";
 			
-		}
-		cont += 1;
-	}
+	//	}
+	//	cont += 1;
+	//}
 	
 	//std::cout << *std::max_element(S.epsilon.begin(), S.epsilon.end()) << std::endl;
 	

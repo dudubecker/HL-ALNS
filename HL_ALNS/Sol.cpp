@@ -572,12 +572,12 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		}
 		
 		// "nodesPositions" code ends here
-		
+	
 	}
 	
 	updateEpsilon();
-
 }
+
 
 // Removes random case
 void Sol::removeNodeCase(int &node_index){
@@ -660,6 +660,20 @@ void Sol::removeNodeCases(int &node_index){
 	
 }
 
+// Replace node at specific route and position, used in insertion methods
+void Sol::replaceNodeAt(int &node_index, int &route_index, int &replace_index){
+	
+	// Demand in position
+	double demand = std::abs(z.at(route_index).at(replace_index));
+	
+	// Removing old node in position
+	removeNodeAt(route_index, replace_index);
+	
+	// Inserting new node in position, with corresponding demand
+	insertNodeAt(node_index, route_index, replace_index, demand);
+	
+}
+
 // Inserts node at specific position
 void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, double &demand){
 	
@@ -720,7 +734,13 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 			if (node_index == R.at(route_index).at(insertion_index - 1)){
 				
 				
-				;
+				std::cout << "\n\n\n HERE IS THE EXCEPTION!!! \n\n\n";
+				
+				// demand = demand + std::abs(z.at(route_index).at(insertion_index));
+				
+				// int equal_node_position = insertion_index - 1;
+				
+				// removeNodeAt(route_index, equal_node_position);
 				
 				
 			} else if (node_index == R.at(route_index).at(insertion_index + 1)){
@@ -764,6 +784,78 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 	
 }
 
+// Performs a split insertion
+void Sol::splitInsertion(std::string how ,int &receiver_node_index, int &route_index, int &insertion_index, double &splitted_demand){
+	
+	// Splits demand with node before "insertion_index"
+	if (how == "before"){
+		
+		// Total demand splitted between the two nodes
+		double total_demand = std::abs(z.at(route_index).at(insertion_index));
+		
+		// Source node
+		int source_node_index = R.at(route_index).at(insertion_index);
+		
+		
+		// Removing source node
+		removeNodeAt(route_index, insertion_index);
+		
+		// Inserting receiver node
+		insertNodeAt(receiver_node_index, route_index, insertion_index, splitted_demand);
+		
+		int source_node_new_position = insertion_index + 1;
+		double source_node_new_demand = total_demand - splitted_demand;
+		
+		// Inserting source node after receiver node
+		insertNodeAt(source_node_index, route_index, source_node_new_position, source_node_new_demand);
+		
+	// Splits demand with node after "insertion_index"
+	} else if (how == "after"){
+		
+		// Total demand splitted between the two nodes
+		double total_demand = std::abs(z.at(route_index).at(insertion_index - 1));
+		
+		// Source node
+		int source_node_index = R.at(route_index).at(insertion_index - 1);
+		
+		// Source node position in route
+		int source_node_position = insertion_index - 1;
+		
+		// Removing source node
+		removeNodeAt(route_index, source_node_position);
+		
+		// Inserting receiver node in source node original position
+		insertNodeAt(receiver_node_index, route_index, source_node_position, splitted_demand);
+		
+		double source_node_new_demand = total_demand - splitted_demand;
+		
+		// Inserting source node before receiver node
+		insertNodeAt(source_node_index, route_index, source_node_position, source_node_new_demand);
+		
+		
+		
+		
+		// Removing source node
+		// removeNodeAt(route_index, insertion_index);
+		
+		// Inserting receiver node
+		// insertNodeAt(receiver_node_index, route_index, insertion_index, splitted_demand);
+		
+		// int source_node_new_position = insertion_index - 1;
+		// double source_node_new_demand = total_demand - splitted_demand;
+		
+		// Inserting source node before receiver node
+		// insertNodeAt(source_node_index, route_index, source_node_new_position, source_node_new_demand);
+		
+		
+	} else {
+		
+		std::cout << "Not a valid type!" << std::endl;
+		
+	}
+	
+	
+}
 
 // Inserts node at specific position
 void Sol::updateEpsilon(){

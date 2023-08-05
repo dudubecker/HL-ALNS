@@ -73,9 +73,17 @@ public:
 	// Remove all node cases in S
 	void removeNodeCases(int &node_index);
 	
+	// Replace node at specific route and position, used in insertion methods
+	void replaceNodeAt(int &node_index, int &route_index, int &insertion_index);
+	
 	// Insert node (specific route, position and demand)
 	// Obs -> "demand" argument is always positive! (This needs to be established)
 	void insertNodeAt(int &node_index, int &route_index, int &insertion_index, double &demand);
+	
+	// Split insertion -> splits demand from "source_node" to "receiver_node", inserting in right positions
+	void splitInsertion(std::string how ,int &node_index, int &route_index, int &insertion_index, double &demand);
+	
+	
 	
 	// Insert P-D arc (specific route, position and demand)
 	// void insertArcAt(int &pickup_node_index, int &delivery_node_index, int &route_index, int &insertion_index, double &demand);
