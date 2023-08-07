@@ -617,6 +617,8 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	// While there are idle segments in solution:
 	while ((idle_segments) and (available_nodes.size() > 0)){
 		
+		std::cout << available_nodes.size() << std::endl;
+		
 		// The solution will now be segmented, and the "segments_vector" variable
 		// will store, for each route (key), all idle segments, by positions in route
 		
@@ -770,7 +772,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 							
 							feasible = true;
 							
-							// std::cout << "Posicao factivel encontrada para cliente " << insertion_node_index << std::endl;
+							// std::cout << "Posicao factivel encontrada para cliente " << insertion_node << std::endl;
 							
 							any_feasible_position = true;
 							
@@ -814,18 +816,16 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 					}
 					
 				}
-				
-				// std::cout << "\n";
 			}
 			
+			// If no feasible positions in segment were found, node is not available anymore to be selected
 			if (!feasible_position_node){
-				
-				// std::cout << insertion_node << std::endl;
-				
+			
+			// std::cout << insertion_node << std::endl;
+			
 				available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&insertion_node](int value) -> bool { return value == insertion_node; }), available_nodes.end());
-				
-				// printInt(available_nodes);
-				
+			
+			// printInt(available_nodes);
 			}
 			
 		}
@@ -835,17 +835,17 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		// It's the minimum value between segment idle demand and client's current unmet demand (in absolute terms)
 		double demand = std::min(min_cost_idle_demand, ( std::abs(S.inst.d.at(min_cost_node)) - S.G.at(min_cost_node)));
 		
+		// std::cout << min_cost_node  << " " << min_cost_idle_demand << " " << std::abs(S.inst.d.at(min_cost_node)) - S.G.at(min_cost_node) << std::endl;
+		
 		if ((any_feasible_position) and (demand > 0)){
 			
 			// Inserting client in positions with lowest delta
 			S.insertNodeAt(min_cost_node, min_cost_positions.first, min_cost_positions.second, demand);
 			
-		// If no feasible positions in segment were found, node is not available anymore to be selected
 		}
 		
-		
 		// Node is no longer available if its demand is fully covered
-		if (S.Z.at(min_cost_node) == 1){
+		if (S.Z.at(min_cost_node) > 0.999){
 			
 			available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&min_cost_node](int value) -> bool { return value == min_cost_node; }), available_nodes.end());
 			
@@ -891,13 +891,16 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	}
 }
 	
+	
 	// Second part of insertion - Giving feasibility to solution regarding epsilon value
+	
+	
 	
 	
 	// Available nodes to be inserted: starts with all nodes in D
 	std::vector<int> available_nodes = {};
 	
-	double global_epsilon = 0.08;
+	double global_epsilon = 0.01;
 	
 	// Route max length - maybe there's a better way for doing that!
 	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
@@ -938,6 +941,8 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 			
 		}
 		
+		
+		
 		// Minimum score found so far: great scores are negative scores!
 		double min_score = 9999;
 		
@@ -963,6 +968,8 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		bool replacement = false;
 		
 		// Iterating, for all available nodes for insertion, for all routes and positions
+		
+		
 		
 		for (auto &receiver_node_index : available_nodes){
 			
@@ -1022,8 +1029,8 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 						}
 						
 						// Feasibility for inserting node after source node
-						//if (S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_after) < routes_max_length){
-						if ((S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_after) < routes_max_length) and (S.Z.at(position_after) != 9999)){
+						if ((S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_after) < routes_max_length) and (position_after <= S.RSize.at(route_index))){
+						//if ((S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_after) < routes_max_length) and (S.Z.at(position_after) != 9999)){
 						
 							// std::cout << "Feasible insertion after found!" << std::endl;
 							
@@ -1103,7 +1110,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		}
 		
 		
-		
 		//
 		std::cout << "Minimum found score: " << min_score << std::endl;
 		
@@ -1159,21 +1165,10 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		std::cin >> a;
 		
+		S.printSol();
+		
 		// break;
 	}
-		
-		
-		
-		
-		
-
-		
-	
-	
-	
-	
-	
-	
 	
 	
 	

@@ -983,25 +983,9 @@ void Sol::printSol(){
 	
 	std::cout << "\n\nTotal met demand: \n" << std::endl;
 	
-	/*
-	double total_met_demand = {};
-		
-	for (int i; i < inst.m; i++){
-	
-		for (auto value: z.at(i)){
-			
-			if (value < 0){
-				
-				total_met_demand += std::abs(value);
-				
-			}
-		}
-	}
-	*/
-	
 	std::cout << totalZ << " / "  << totalD;
 	
-	std::cout << "\n\nTraveling costs \n" << std::endl;
+	std::cout << "\n\nTraveling times of routes: \n" << std::endl;
 	
 	double traveling_costs = {};
 	
@@ -1024,11 +1008,11 @@ void Sol::printSol(){
 			
 		}
 		
-		std::cout << route_traveling_time << std::endl;
+		std::cout << "Route " << route_index << ": " << route_traveling_time << std::endl;
 		
 	}
 	
-	std::cout << "\n" << traveling_costs << std::endl;
+	std::cout << "\n\nTraveling costs: " << traveling_costs << std::endl;
 	
 	std::cout << "\nRelative met demand at each delivery node: \n" << std::endl;
 	
@@ -1046,7 +1030,25 @@ void Sol::printSol(){
 	
 	double sum = std::accumulate(std::begin(relative_met_demands), std::end(relative_met_demands), 0.0);
 	double m =  sum / relative_met_demands.size();
-
+	
+	std::cout << "\nMean of met demands: " << m << std::endl;
+	
+	std::cout << "\nMinimum met demand: " << *std::min_element(relative_met_demands.begin(), relative_met_demands.end()) << std::endl;
+	
+	// Counting number of totally unmet demands
+	
+	int unmet_demand_count = 0;
+    for (double met_demand : relative_met_demands) {
+	
+		if (met_demand == 0) {
+			
+			unmet_demand_count++;
+		}
+	}
+	
+	std::cout << "\nNumber of totally unmet demands: " << unmet_demand_count << std::endl;
+	
+	
 	double accum = 0.0;
 	std::for_each (std::begin(relative_met_demands), std::end(relative_met_demands), [&](const double d) {
 		accum += (d - m) * (d - m);
@@ -1054,9 +1056,38 @@ void Sol::printSol(){
 
 	double stdev = std::sqrt(accum / (relative_met_demands.size()-1));
 	
-	std::cout << "\n\nStandard deviation of met demands: " << stdev << "\n\n" << std::endl;
+	std::cout << "\nStandard deviation of met demands: " << stdev << "\n\n" << std::endl;
+	
+	std::cout << "\nEpsilons: \n" << std::endl;
 	
 	
+	int cont = 0;
+	for (auto &e: epsilon){
+		
+		if (e > -9999){
+			
+			std::cout << cont << ": " << e*100 << "%\n";
+			
+		}
+		cont += 1;
+		
+	}
+	
+	double sum_epsilon = 0;
+	int size = 0;
+	for (double num : epsilon) {
+		
+		if (num >= 0){
+			sum_epsilon += num;
+			size += 1;
+		}
+        
+    }
+	
+	double mean_epsilon =  sum_epsilon / size;
+	
+	std::cout << "\nMean of epsilons: " << mean_epsilon*100 << "%" << std::endl;
+	std::cout << "\nMax epsilon: " <<  *std::max_element(epsilon.begin(), epsilon.end())*100 << "%\n" << std::endl;
 }
 
 void Sol::toTXT(std::string &file_name){
@@ -1091,51 +1122,18 @@ void Sol::toTXT(std::string &file_name){
 		// Writing collected/delivered demand at each visit
 		// Writing routes data
 		for (auto &route: z){
-		
-			fw << "[ ";
+			
 			
 			for (auto &node: route){
 				
 				fw << node << " ";
 			}
 			
-			fw << "]\n";
+			fw << "\n";
 			
 		}
 		
 		fw << "\n\n";
-		
-		// Writing total met demand data
-		
-		double total_met_demand = {};
-		
-		for (int i; i < inst.m; i++){
-		
-			for (auto value: z.at(i)){
-				
-				if (value < 0){
-					
-					total_met_demand += std::abs(value);
-					
-				}
-			}
-		}
-		
-		fw << total_met_demand <<"\n\n";
-		
-		
-		// Writing met demands
-		
-		for (int node; node < Z.size(); node++){
-		
-			if (Z.at(node) <= 1){
-				
-				fw << node << " " << Z.at(node) << "\n";
-				
-			}
-			
-		}
-		
 		
 	}
 	else std::cout << "Problem with opening file";
