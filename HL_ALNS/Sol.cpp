@@ -11,6 +11,9 @@
 
 Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 	
+	
+	std::cout << "\n\nConstructed solution: \n\n";
+	
 	// Replicable data
 	srand(120);
 	
@@ -677,6 +680,9 @@ void Sol::replaceNodeAt(int &node_index, int &route_index, int &replace_index){
 // Inserts node at specific position
 void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, double &demand){
 	
+	// Boolean to control exception 1 - Inserted node is equal to left node
+	bool exception1 = false;
+	
 	// Time attribute - first one to be updated!
 	
 	// Process is different if insertion position is the last one!
@@ -738,9 +744,6 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 				
 				// demand = demand + std::abs(z.at(route_index).at(insertion_index));
 				
-				// int equal_node_position = insertion_index - 1;
-				
-				// removeNodeAt(route_index, equal_node_position);
 				
 				
 			} else if (node_index == R.at(route_index).at(insertion_index + 1)){
@@ -751,12 +754,30 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 				
 				// std::cout << "\n\n\n\n\n\n\n\n" << z.at(route_index).at(insertion_index) << "\n\n\n\n\n\n\n\n";
 				
+				// std::cout << "\n\n\n HERE IS THE EXCEPTION!!! \n\n\n";
+				
 				demand = demand + std::abs(z.at(route_index).at(insertion_index));
 				removeNodeAt(route_index, insertion_index);
 				
 				
 				
 			}
+			
+		} else {
+			
+			if (node_index == R.at(route_index).at(insertion_index - 1)){
+				
+				
+		 		std::cout << "\n\n\n HERE IS THE EXCEPTION 1!!! \n\n\n";
+				
+				demand = demand + std::abs(z.at(route_index).at(insertion_index - 1));
+				
+				exception1 = true;
+				
+			}
+			
+			
+			
 			
 		}
 		/////////
@@ -767,17 +788,21 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 		Z.at(node_index) += demand/std::abs(inst.d.at(node_index));
 		z.at(route_index).insert(z.at(route_index).begin() + insertion_index, -demand);
 		
-		// double z_i = G.at(node_index);
-			
-		// double d_i = std::abs(inst.d.at(node_index));
-			
-		// epsilon.at(node_index) = std::abs((z_i/totalZ) - (d_i/totalD));
-		
-		
-		// epsilon.at(node_index) = std::abs((G.at(node_index)/totalZ) - (std::abs(inst.d.at(node_index))/totalD));
 		
 		
 	}
+	
+	
+	
+	// Left node is equal to inserted node
+	if (exception1){
+		
+		int equal_node_position = insertion_index - 1;
+		
+		removeNodeAt(route_index, equal_node_position);
+		
+	}
+	
 	
 	updateEpsilon();
 	

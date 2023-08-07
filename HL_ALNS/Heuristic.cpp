@@ -1022,8 +1022,9 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 						}
 						
 						// Feasibility for inserting node after source node
-						if (S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_after) < routes_max_length){
-							
+						//if (S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_after) < routes_max_length){
+						if ((S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_after) < routes_max_length) and (S.Z.at(position_after) != 9999)){
+						
 							// std::cout << "Feasible insertion after found!" << std::endl;
 							
 							// Calculating scores
@@ -1043,8 +1044,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 								// Corresponding route of minimum score
 								min_score_route = route_index;
 								// Corresponding position of minimum score
-								// min_score_position = position_after;
-								
+								min_score_position = position_after;
 								// Corresponding transferred demand of minimum score
 								min_score_transferred_demand = transferred_demand;
 								// Boolean variables

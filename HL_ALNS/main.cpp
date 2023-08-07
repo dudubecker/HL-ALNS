@@ -28,21 +28,26 @@ int main(){
 	
 	Sol S(inst, p, Gamma1, Gamma2);
 	
-	// S.printSol();
+	S.printSol();
 	
 	// S.printSol();
 	
 	// printDouble(S.W);
 	
+	// BasicGreedyInsertion bgi {};
+	
+	// bgi.apply(S);
+	
+	PartialRandomRemoval prr {};
+	
+	prr.apply(S);
+	
+	S.printSol();
+	
 	BasicGreedyInsertion bgi {};
 	
 	bgi.apply(S);
 	
-	// PartialRandomRemoval prr {};
-	
-	// prr.apply(S);
-	
-	S.printSol();
 	
 	int cont = 0;
 	for (auto &epsilon: S.epsilon){
@@ -55,10 +60,18 @@ int main(){
 		cont += 1;
 	}
 	
-	// std::cout << "3 to 19:" << S.inst.t.at(3).at(19).at(0) << std::endl;
-	// 
-	// std::cout << "3 to 17:" << S.inst.t.at(3).at(17).at(0) << std::endl;
 	
+	
+	
+	
+	
+	
+	
+	// std::cout << "14 to 22:" << S.inst.t.at(14).at(22).at(0) << std::endl;
+	// 
+	// std::cout << "14 to 2:" << S.inst.t.at(14).at(2).at(0) << std::endl;
+	
+	// std::cout << "22 to 2:" << S.inst.t.at(22).at(2).at(0) << std::endl;
 	
 	
 	// int receiver_node_index = 17;
