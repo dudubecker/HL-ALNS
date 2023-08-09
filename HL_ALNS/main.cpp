@@ -42,7 +42,7 @@ int main(){
 	
 	S.printSol();
 	
-	S.toTXT(file_name);
+	// printInt(S.unmet_demand_clients);
 	
 	return 0;
 	

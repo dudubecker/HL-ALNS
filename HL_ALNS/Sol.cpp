@@ -75,6 +75,9 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		
 	}
 	
+	// Clients with unmet demand - starts as all clients in D
+	unmet_demand_clients = inst.D;
+	
 	// W vector, with routes lengths in terms of time
 	W.resize(inst.m);
 	std::fill(W.begin(), W.end(), 0);
@@ -499,38 +502,22 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		// Updating attributes - Only at delivery nodes
 		if (load < 0){
 			
+			
+			// Including client in unmet demand, if it was previously fully served
+			if (Z.at(current_node) > 0.999){
+				
+				unmet_demand_clients.push_back(current_node);
+				
+			}
+			
 			Z.at(current_node) = G.at(current_node)/std::abs(inst.d.at(current_node));
 			
 			totalZ -= std::abs(load);
 			
 			
-			// double z_i = G.at(current_node);
 			
-			// double d_i = std::abs(inst.d.at(current_node));
 			
-			//epsilon.at(current_node) = std::abs((z_i/totalZ) - (d_i/totalD));
-			
-			//if ((epsilon.at(current_node) > 0.429416) and (epsilon.at(current_node) < 0.429420)){
-				
-			//	std::cout << "\n\n\n\n\n\n\n\n\n\n\n";
-				
-			//	std::cout << z_i << std::endl;
-				
-			//	std::cout << d_i << std::endl;
-				
-			//	std::cout << "\n\n\n\n\n\n\n\n\n\n\n";
-				
-			//}
-			
-			// double epsilon_value = std::abs((G.at(current_node)/totalZ) - (std::abs(inst.d.at(current_node))/totalD));
-			
-			// epsilon.at(current_node) = epsilon_value;
 		}
-		
-		
-		// Updating epsilon attribute
-		
-		
 		
 		
 		// "nodesPositions" code starts here
@@ -740,13 +727,16 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 			if (node_index == R.at(route_index).at(insertion_index - 1)){
 				
 				
-				std::cout << "\n\n\n HERE IS THE EXCEPTION!!! \n\n\n";
+				std::cout << "\n\n\n HERE IS THE EXCEPTION 0!!! \n\n\n";
 				
 				// demand = demand + std::abs(z.at(route_index).at(insertion_index));
 				
 				
 				
 			} else if (node_index == R.at(route_index).at(insertion_index + 1)){
+				
+				
+				std::cout << "\n\n\n HERE IS THE EXCEPTION 2!!! \n\n\n";
 				
 				// std::cout << demand << " " << z.at(route_index).at(insertion_index + 1) << std::endl;
 				
@@ -788,7 +778,11 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 		Z.at(node_index) += demand/std::abs(inst.d.at(node_index));
 		z.at(route_index).insert(z.at(route_index).begin() + insertion_index, -demand);
 		
-		
+		if (Z.at(node_index) > 0.999){
+			
+			unmet_demand_clients.erase(std::remove_if(unmet_demand_clients.begin(), unmet_demand_clients.end(), [&node_index](int value) -> bool { return value == node_index; }), unmet_demand_clients.end());
+			
+		}
 		
 	}
 	
@@ -808,6 +802,21 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 	
 	
 }
+
+void Sol::insertArcAt(int &pickup_node_index, int &delivery_node_index, int &route_index, int &insertion_index, double &demand){
+	
+	// Indexes of insertion
+	int pickup_insertion_index = insertion_index;
+	int delivery_insertion_index = insertion_index + 1;
+	
+	// Inserting pickup node
+	insertNodeAt(pickup_node_index, route_index, pickup_insertion_index, demand);
+	
+	// Inserting delivery node, after pickup node
+	insertNodeAt(delivery_node_index, route_index, delivery_insertion_index, demand);
+	
+}
+
 
 // Performs a split insertion
 void Sol::splitInsertion(std::string how ,int receiver_node_index, int route_index, int insertion_index, double splitted_demand){

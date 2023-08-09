@@ -30,14 +30,23 @@ public:
 	
 	// Auxiliar methods
 	
-	// Variation of insertion/removal of a node, in terms of time or costs
+	// Variation of insertion of a node, in terms of time or costs
 	double deltaInsertion(std::string delta_type, Sol &S, int &node_index, int &route_index, int &insertion_index);
 	
+	// Variation of insertion of an arc, in terms of time, costs or epsilon
+	double deltaInsertionArc(std::string delta_type, Sol &S, int &first_arc_node_index, int &second_arc_node_index , int &route_index, int &insertion_index);
+	
+	// Variation of removal of a node, in terms of time or costs
 	double deltaRemoval(std::string delta_type, Sol &S, int &node_index, int &route_index, int &removal_index);
 	
+	// Variation of replacement of a node, in terms of time or costs
 	double deltaReplacement(std::string delta_type, Sol &S, int &node_index, int &route_index, int &position_index);
 	
+	// Variation of epsilon through transfering demand from source to receiver nodes
 	std::pair<double, double> deltaEpsilon(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index);
+	
+	// Variation of epsilon through inserting an arc with "delivery_node_index"
+	double deltaEpsilonArc(Sol &S, int &delivery_node_index, double &demand);
 	
 	
 	// Main methods

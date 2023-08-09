@@ -25,6 +25,8 @@ Sol Heuristic::apply(Sol &S){
 	
 }
 
+// Delta methods - insertion, removal (of individual nodes and arcs), replacement, both regarding times or costs
+
 double Heuristic::deltaInsertion(std::string delta_type, Sol &S, int &node_index, int &route_index, int &insertion_index){
 	
 	double delta {};
@@ -100,6 +102,87 @@ double Heuristic::deltaInsertion(std::string delta_type, Sol &S, int &node_index
 	}
 	
 	// In this case, delta is a positive number!
+	return delta;
+	
+}
+
+double Heuristic::deltaInsertionArc(std::string delta_type, Sol &S, int &first_arc_node_index, int &second_arc_node_index , int &route_index, int &insertion_index){
+	
+	// Returned variable "delta"
+	double delta = {};
+	
+	// Checking if it's last position
+	
+	bool last_position = false;
+	
+	if (insertion_index == (S.RSize.at(route_index))){
+		
+		last_position = true;
+		
+	}
+	
+	if (delta_type == "time"){
+		
+		double inserted_arc_time = S.inst.t.at(first_arc_node_index).at(second_arc_node_index).at(route_index);
+		
+		if (last_position){
+			
+			int node_before = S.R.at(route_index).at(insertion_index - 1);
+			
+			double first_arc_time = S.inst.t.at(node_before).at(first_arc_node_index).at(route_index);
+			
+			delta = first_arc_time + inserted_arc_time;
+			
+		} else {
+			
+			int node_before = S.R.at(route_index).at(insertion_index - 1);
+			
+			int node_after = S.R.at(route_index).at(insertion_index);
+			
+			double first_arc_time = S.inst.t.at(node_before).at(first_arc_node_index).at(route_index);
+			
+			double second_arc_time = S.inst.t.at(second_arc_node_index).at(node_after).at(route_index);
+			
+			double old_arc_time = S.inst.t.at(node_before).at(node_after).at(route_index);
+			
+			delta = first_arc_time + inserted_arc_time + second_arc_time - old_arc_time;
+			
+		}
+		
+	} else if (delta_type == "costs"){
+		
+		double inserted_arc_cost = S.inst.c.at(first_arc_node_index).at(second_arc_node_index).at(route_index);
+		
+		if (last_position){
+			
+			int node_before = S.R.at(route_index).at(insertion_index - 1);
+			
+			double first_arc_cost = S.inst.c.at(node_before).at(first_arc_node_index).at(route_index);
+			
+			delta = first_arc_cost + inserted_arc_cost;
+			
+		} else {
+			
+			int node_before = S.R.at(route_index).at(insertion_index - 1);
+			
+			int node_after = S.R.at(route_index).at(insertion_index);
+			
+			double first_arc_cost = S.inst.c.at(node_before).at(first_arc_node_index).at(route_index);
+			
+			double second_arc_cost = S.inst.c.at(second_arc_node_index).at(node_after).at(route_index);
+			
+			double old_arc_cost = S.inst.c.at(node_before).at(node_after).at(route_index);
+			
+			delta = first_arc_cost + inserted_arc_cost + second_arc_cost - old_arc_cost;
+			
+		}
+		
+	} else {
+		
+		std::cout << "Not a valid type for 'delta_type' parameter!" << std::endl;
+		
+	}
+	
 	return delta;
 	
 }
@@ -432,6 +515,21 @@ std::pair<double, double> Heuristic::deltaEpsilon(Sol &S, int &source_node_index
 	
 }
 
+double Heuristic::deltaEpsilonArc(Sol &S, int &delivery_node_index, double &demand){
+	
+	double previous_epsilon = S.epsilon.at(delivery_node_index);
+	
+	double previous_met_demand = S.G.at(delivery_node_index);
+	
+	double new_met_demand = previous_met_demand + demand;
+	
+	double new_epsilon = std::abs((new_met_demand/S.totalZ) - (std::abs(S.inst.d.at(delivery_node_index))/S.totalD));
+	
+	return new_epsilon;
+	
+}
+
+
 //// RemovalHeuristic objects implementation
 
 // Sobrescrita do método "specificApply" para a RemovalHeuristic
@@ -590,9 +688,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	InsertionHeuristic::initializeMethod();
 	
 	std::cout << "\n\nBasic Greedy Insertion\n\n" << std::endl;
-	
-
-	
 
 	// First part of insertion - Getting rid of idle segments
 {
@@ -897,7 +992,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	// Available nodes to be inserted: starts with all nodes in D
 	std::vector<int> available_nodes = {};
 	
-	double global_epsilon = 0.01;
+	double global_epsilon = 0.014;
 	
 	// Threshold for min best score
 	double min_best_score = -5000;
@@ -911,36 +1006,11 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	while ((max_epsilon > global_epsilon)){
 		
 		S.printSol();
-		int cont = 0;
-		for (auto &epsilon: S.epsilon){
-			
-			if (epsilon > -9999){
-				
-				std::cout << cont << ": " << epsilon*100 << "%\n";
-				
-			}
-			cont += 1;
-		}
-		
-		printDouble(S.Z);
-		
 		
 		// Available nodes to be inserted: starts with all nodes in D
 		
 		////// It would be more efficient if this was an attribute!
-		available_nodes = S.inst.D;
-	
-		// Taking out fully served clients
-		for (auto node: available_nodes){
-			
-			if (S.Z.at(node) == 1){
-				
-				available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&node](int value) -> bool { return value == node; }), available_nodes.end());
-				
-			}
-			
-		}
-		
+		available_nodes = S.unmet_demand_clients;
 		
 		// Minimum score found so far: great scores are negative scores!
 		double min_score = 9999;
@@ -1112,6 +1182,49 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		}
 		
 		
+		// Other phase of insertion method - finding out scores for inserting P-D arcs!
+		
+		for (auto &node: S.unmet_demand_clients){
+			
+			for (auto &pickup_node: S.inst.P){
+				
+				if (S.G.at(pickup_node) > 0){
+					
+					std::cout << "Possible arc: " << pickup_node << "-" << node << ", with " << S.G.at(pickup_node) << " available demand." <<std::endl;
+					
+					// With arc, all possible insertion positions are searched
+					// An arc cannot be inserted at the middle of a segment!
+					for (auto route_index {0}; route_index < S.inst.m; route_index++){
+						
+						// Starts in one because of depot node
+						for (auto arc_insertion_position {1}; arc_insertion_position < S.RSize.at(route_index); arc_insertion_position++){
+							
+							int node_at_position = S.R.at(route_index).at(arc_insertion_position);
+							
+							// If node in position is pickup node, it means that it is the beginning of a segment.
+							// Thus, arcs can only be inserted at these positions
+							if (S.Z.at(node_at_position) == 9999){
+								
+								std::cout << "Arc can be inserted in route " << route_index << " at position " << arc_insertion_position << std::endl;
+								
+							}
+							
+							
+						}
+						
+					}
+					
+				}
+				
+				std::cout << "\n\n";
+				
+			}
+			
+		}
+		
+		
+		
+		
 		// Checking if mininum found score is better than threshold
 		if (min_best_score < min_score){
 			
@@ -1119,7 +1232,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 			
 		}
 		
-		std::cout << "Minimum found score: " << min_score << std::endl;
+		std::cout << "\n\nMinimum found score: " << min_score << std::endl;
 		
 		std::cout << "Corresponding node: " << min_score_node << std::endl;
 		// Corresponding route of minimum score
@@ -1158,9 +1271,9 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		std::cin >> a;
 		
-		S.printSol();
+		// S.printSol();
 		
-		// break;
+		break;
 	}
 	
 	

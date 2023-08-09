@@ -45,6 +45,9 @@ public:
 	// Total demand in by solution
 	double totalD {};
 	
+	// Clients with unmet demand
+	std::vector<int> unmet_demand_clients {};
+	
 	// Initialization by passing instance object
 	Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2);
 	
@@ -80,13 +83,14 @@ public:
 	// Obs -> "demand" argument is always positive! (This needs to be established)
 	void insertNodeAt(int &node_index, int &route_index, int &insertion_index, double &demand);
 	
+	// Insert P-D arc (specific route, position and demand)
+	void insertArcAt(int &pickup_node_index, int &delivery_node_index, int &route_index, int &insertion_index, double &demand);
+	
+	
 	// Split insertion -> splits demand from "source_node" to "receiver_node", inserting in right positions
 	void splitInsertion(std::string how ,int node_index, int route_index, int insertion_index, double demand);
 	
 	
-	
-	// Insert P-D arc (specific route, position and demand)
-	// void insertArcAt(int &pickup_node_index, int &delivery_node_index, int &route_index, int &insertion_index, double &demand);
 	
 	// Returns true if solution contains all nodes in vector and false otherwise
 	bool containsAll(std::vector<int> &nodes_vector);
