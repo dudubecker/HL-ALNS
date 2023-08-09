@@ -803,7 +803,7 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 	
 }
 
-void Sol::insertArcAt(int &pickup_node_index, int &delivery_node_index, int &route_index, int &insertion_index, double &demand){
+void Sol::insertArcAt(int pickup_node_index, int delivery_node_index, int route_index, int insertion_index, double demand){
 	
 	// Indexes of insertion
 	int pickup_insertion_index = insertion_index;
@@ -816,7 +816,6 @@ void Sol::insertArcAt(int &pickup_node_index, int &delivery_node_index, int &rou
 	insertNodeAt(delivery_node_index, route_index, delivery_insertion_index, demand);
 	
 }
-
 
 // Performs a split insertion
 void Sol::splitInsertion(std::string how ,int receiver_node_index, int route_index, int insertion_index, double splitted_demand){

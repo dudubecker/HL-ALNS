@@ -84,8 +84,7 @@ public:
 	void insertNodeAt(int &node_index, int &route_index, int &insertion_index, double &demand);
 	
 	// Insert P-D arc (specific route, position and demand)
-	void insertArcAt(int &pickup_node_index, int &delivery_node_index, int &route_index, int &insertion_index, double &demand);
-	
+	void insertArcAt(int pickup_node_index, int delivery_node_index, int route_index, int insertion_index, double demand);
 	
 	// Split insertion -> splits demand from "source_node" to "receiver_node", inserting in right positions
 	void splitInsertion(std::string how ,int node_index, int route_index, int insertion_index, double demand);

@@ -13,7 +13,7 @@ int main(){
 	
 	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	int number_of_periods = 4;
+	int number_of_periods = 3;
 	
 	// Randomness parameter
 	double p {4};
@@ -41,6 +41,7 @@ int main(){
 	bgi.apply(S);
 	
 	S.printSol();
+	
 	
 	// printInt(S.unmet_demand_clients);
 	

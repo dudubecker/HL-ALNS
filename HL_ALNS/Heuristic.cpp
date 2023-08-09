@@ -517,15 +517,19 @@ std::pair<double, double> Heuristic::deltaEpsilon(Sol &S, int &source_node_index
 
 double Heuristic::deltaEpsilonArc(Sol &S, int &delivery_node_index, double &demand){
 	
-	double previous_epsilon = S.epsilon.at(delivery_node_index);
+	double old_epsilon = S.epsilon.at(delivery_node_index);
 	
-	double previous_met_demand = S.G.at(delivery_node_index);
+	double old_met_demand = S.G.at(delivery_node_index);
 	
-	double new_met_demand = previous_met_demand + demand;
+	double new_met_demand = old_met_demand + demand;
 	
 	double new_epsilon = std::abs((new_met_demand/S.totalZ) - (std::abs(S.inst.d.at(delivery_node_index))/S.totalD));
 	
-	return new_epsilon;
+	// double delta_epsilon = old_epsilon - new_epsilon;
+	
+	double delta_epsilon = new_epsilon - old_epsilon;
+	
+	return delta_epsilon;
 	
 }
 
@@ -992,10 +996,10 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	// Available nodes to be inserted: starts with all nodes in D
 	std::vector<int> available_nodes = {};
 	
-	double global_epsilon = 0.014;
+	double global_epsilon = 0.05;
 	
 	// Threshold for min best score
-	double min_best_score = -5000;
+	double min_best_score = -100;
 	
 	// Route max length - maybe there's a better way for doing that!
 	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
@@ -1015,14 +1019,19 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		// Minimum score found so far: great scores are negative scores!
 		double min_score = 9999;
 		
-		// Corresponding node of minimum score
-		double min_score_node = {};
+		// Corresponding node of minimum score, for insertion after, before and replacement
+		int min_score_node = {};
+		
+		// Corresponding nodes for arc insertion - Pickup and Delivery nodes
+		int min_score_pickup_node = {};
+		
+		int min_score_delivery_node = {};
 		
 		// Corresponding route of minimum score
-		double min_score_route = {};
+		int min_score_route = {};
 		
 		// Corresponding position of minimum score
-		double min_score_position = {};
+		int min_score_position = {};
 		
 		// Corresponding transferred demand of minimum score
 		double min_score_transferred_demand = {};
@@ -1035,6 +1044,9 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		// Boolean variable, that controls if best score corresponds to a replacement
 		bool replacement = false;
+		
+		// Boolean variable, that controls if best score corresponds to a P-D insertion
+		bool arc_insertion = false;
 		
 		// Iterating, for all available nodes for insertion, for all routes and positions
 		
@@ -1051,11 +1063,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 					// the receiver_node_index, but the node before source_node_index is equal to receiver_node_index!
 					
 					int node_before_source = S.R.at(route_index).at(position_index - 1);
-					
-					// std::cout << "Route: " << route_index << std::endl;
-					// std::cout << "Position: " << position_index << std::endl;
-					// std::cout << "Receiver node: " << receiver_node_index << std::endl;
-					// std::cout << "Source node: " << source_node_index << std::endl;
 					
 					// If source_node_index is not pickup node
 					if ((S.Z.at(source_node_index) != 9999) and (source_node_index != receiver_node_index)){
@@ -1094,6 +1101,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 								replacement = false;
 								insertion_after = false;
 								insertion_before = true;
+								arc_insertion = false;
 								
 							}
 							
@@ -1130,6 +1138,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 								replacement = false;
 								insertion_after = true;
 								insertion_before = false;
+								arc_insertion = false;
 								
 							}
 							
@@ -1171,6 +1180,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 								replacement = true;
 								insertion_after = false;
 								insertion_before = false;
+								arc_insertion = false;
 								
 							}
 						}
@@ -1184,13 +1194,13 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		// Other phase of insertion method - finding out scores for inserting P-D arcs!
 		
-		for (auto &node: S.unmet_demand_clients){
+		for (auto &delivery_node: S.unmet_demand_clients){
 			
 			for (auto &pickup_node: S.inst.P){
 				
 				if (S.G.at(pickup_node) > 0){
 					
-					std::cout << "Possible arc: " << pickup_node << "-" << node << ", with " << S.G.at(pickup_node) << " available demand." <<std::endl;
+					// std::cout << "Possible arc: " << pickup_node << "-" << node << ", with " << S.G.at(pickup_node) << " available demand." <<std::endl;
 					
 					// With arc, all possible insertion positions are searched
 					// An arc cannot be inserted at the middle of a segment!
@@ -1205,7 +1215,53 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 							// Thus, arcs can only be inserted at these positions
 							if (S.Z.at(node_at_position) == 9999){
 								
-								std::cout << "Arc can be inserted in route " << route_index << " at position " << arc_insertion_position << std::endl;
+								if (S.W.at(route_index) + deltaInsertionArc("time", S, pickup_node, delivery_node, route_index, arc_insertion_position) < routes_max_length){
+									
+									
+									// std::cout << "Arc " << pickup_node << "-" << delivery_node << " can be inserted in route " << route_index << " at position " << arc_insertion_position << std::endl;
+									
+									double delta_costs = deltaInsertionArc("costs", S, pickup_node, delivery_node, route_index, arc_insertion_position);
+									
+									// Available demand in arc: minimum value between pickup node current capacity and vehicle capacity
+									double available_demand = std::min(S.inst.Q.at(route_index), S.G.at(pickup_node));
+									
+									double delta_epsilon = deltaEpsilonArc(S, delivery_node, available_demand);
+									
+									// std::cout << "Delta in costs: " << delta_costs << std::endl;
+									
+									// std::cout << "Delta in epsilon: " << delta_epsilon << std::endl;
+									
+									double score = delta_epsilon*1000000 + delta_costs;
+									
+									// std::cout << "Score of this insertion: " << score << "\n\n";
+									
+									// If arc insertion corresponds to minimum score found in search
+									if (score < min_score){
+										
+										// Updating values with corresponding data from iteration
+										min_score = score;
+										// Corresponding pickup node of minimum score
+										min_score_pickup_node = pickup_node;
+										// Corresponding pickup node of minimum score
+										min_score_delivery_node = delivery_node;
+										// Corresponding route of minimum score
+										min_score_route = route_index;
+										// Corresponding position of minimum score
+										min_score_position = arc_insertion_position;
+										// Corresponding transferred demand of minimum score
+										min_score_transferred_demand = available_demand;
+										// Boolean variables
+										replacement = false;
+										insertion_after = false;
+										insertion_before = false;
+										arc_insertion = true;
+									
+									
+									}
+									
+									
+								}
+								
 								
 							}
 							
@@ -1216,14 +1272,11 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 					
 				}
 				
-				std::cout << "\n\n";
+				// std::cout << "\n\n";
 				
 			}
 			
 		}
-		
-		
-		
 		
 		// Checking if mininum found score is better than threshold
 		if (min_best_score < min_score){
@@ -1234,7 +1287,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		std::cout << "\n\nMinimum found score: " << min_score << std::endl;
 		
-		std::cout << "Corresponding node: " << min_score_node << std::endl;
+		// std::cout << "Corresponding node: " << min_score_node << std::endl;
 		// Corresponding route of minimum score
 		std::cout << "Corresponding route: " << min_score_route << std::endl;
 		// Corresponding position of minimum score
@@ -1245,8 +1298,9 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		std::cout << "Corresponding demand to be transferred: " << min_score_transferred_demand << std::endl;
 		// Boolean variable, that controls if best score corresponds to a replacement
 		std::cout << "Is it a replacement? -> " << replacement << std::endl;
-		std::cout << "Is it a insertion_before? -> " << insertion_before << std::endl;
-		std::cout << "Is it a insertion_after? -> " << insertion_after << std::endl;
+		std::cout << "Is it an insertion_before? -> " << insertion_before << std::endl;
+		std::cout << "Is it an insertion_after? -> " << insertion_after << std::endl;
+		std::cout << "Is it an arc_insertion? -> " << arc_insertion << std::endl;
 		
 		// Making changes in Solution object
 		
@@ -1262,6 +1316,10 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 			S.replaceNodeAt(min_score_node, min_score_route, min_score_position);
 			
+		} else if (arc_insertion){
+			
+			S.insertArcAt(min_score_pickup_node, min_score_delivery_node, min_score_route, min_score_position, min_score_transferred_demand);
+			
 		}
 		
 		
@@ -1273,10 +1331,135 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		// S.printSol();
 		
-		break;
+		// break;
 	}
 	
 	
+	
+	// Last phase
+	
+	std::cout << "\n\nBeginning last phase\n\n" << std::endl;
+	
+	bool feasible_positions = true;
+	
+	
+	while (feasible_positions){
+		
+		// Updating values with corresponding data from iteration
+		double min_score = 9999;
+		// Corresponding pickup node of minimum score
+		int min_score_pickup_node = {};
+		// Corresponding pickup node of minimum score
+		int min_score_delivery_node = {};
+		// Corresponding route of minimum score
+		int min_score_route = {};
+		// Corresponding position of minimum score
+		int min_score_position = {};
+		// Corresponding transferred demand of minimum score
+		double min_score_transferred_demand = {};
+		
+		feasible_positions = false;
+		
+		for (auto &delivery_node: S.unmet_demand_clients){
+			
+			for (auto &pickup_node: S.inst.P){
+				
+				if (S.G.at(pickup_node) > 0){
+					
+					// With arc, all possible insertion positions are searched
+					// An arc cannot be inserted at the middle of a segment!
+					for (auto route_index {0}; route_index < S.inst.m; route_index++){
+						
+						// Starts in one because of depot node
+						for (auto arc_insertion_position {1}; arc_insertion_position < S.RSize.at(route_index); arc_insertion_position++){
+							
+							int node_at_position = S.R.at(route_index).at(arc_insertion_position);
+							
+							// If node in position is pickup node, it means that it is the beginning of a segment.
+							// Thus, arcs can only be inserted at these positions
+							if (S.Z.at(node_at_position) == 9999){
+								
+								if (S.W.at(route_index) + deltaInsertionArc("time", S, pickup_node, delivery_node, route_index, arc_insertion_position) < routes_max_length){
+									
+									// Boolean variable
+									// feasible_positions = true;
+									
+									// std::cout << "Arc " << pickup_node << "-" << delivery_node << " can be inserted in route " << route_index << " at position " << arc_insertion_position << std::endl;
+									
+									double delta_costs = deltaInsertionArc("costs", S, pickup_node, delivery_node, route_index, arc_insertion_position);
+									
+									// Available demand in arc: minimum value between pickup node current capacity and vehicle capacity
+									double available_demand = std::min(S.inst.Q.at(route_index), S.G.at(pickup_node));
+									
+									double delta_epsilon = deltaEpsilonArc(S, delivery_node, available_demand);
+									
+									// std::cout << "Delta in costs: " << delta_costs << std::endl;
+									
+									// std::cout << "Delta in epsilon: " << delta_epsilon << std::endl;
+									
+									double score = delta_epsilon*1000000 + delta_costs;
+									
+									// std::cout << "Score of this insertion: " << score << "\n\n";
+									
+									// If arc insertion corresponds to minimum score found in search
+									if (score < min_score){
+										
+										// Updating values with corresponding data from iteration
+										min_score = score;
+										// Corresponding pickup node of minimum score
+										min_score_pickup_node = pickup_node;
+										// Corresponding pickup node of minimum score
+										min_score_delivery_node = delivery_node;
+										// Corresponding route of minimum score
+										min_score_route = route_index;
+										// Corresponding position of minimum score
+										min_score_position = arc_insertion_position;
+										// Corresponding transferred demand of minimum score
+										min_score_transferred_demand = available_demand;
+										// Boolean variable
+										feasible_positions = true;
+										
+									}
+									
+									
+								}
+								
+								
+							}
+							
+							
+						}
+						
+					}
+					
+				}
+				
+				// std::cout << "\n\n";
+				
+			}
+			
+		}
+		
+		if (feasible_positions){
+			
+			S.printSol();
+			
+			std::cout << "Inserting arc " << min_score_pickup_node << "-" << min_score_delivery_node << " in route " << min_score_route << " at position " << min_score_position << " with score " << min_score <<std::endl;
+			
+			std::string a;
+			
+			std::cin >> a;
+			
+			S.insertArcAt(min_score_pickup_node, min_score_delivery_node, min_score_route, min_score_position, min_score_transferred_demand);
+			
+		} else {
+			
+			break;
+			
+		}
+		
+		
+	}
 	
 	return S;
 	
