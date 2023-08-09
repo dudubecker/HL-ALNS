@@ -664,7 +664,7 @@ void Sol::removeNodeCases(int &node_index){
 }
 
 // Replace node at specific route and position, used in insertion methods
-void Sol::replaceNodeAt(int &node_index, int &route_index, int &replace_index){
+void Sol::replaceNodeAt(int node_index, int route_index, int replace_index){
 	
 	// Demand in position
 	double demand = std::abs(z.at(route_index).at(replace_index));
@@ -810,7 +810,7 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 }
 
 // Performs a split insertion
-void Sol::splitInsertion(std::string how ,int &receiver_node_index, int &route_index, int &insertion_index, double &splitted_demand){
+void Sol::splitInsertion(std::string how ,int receiver_node_index, int route_index, int insertion_index, double splitted_demand){
 	
 	// Splits demand with node before "insertion_index"
 	if (how == "before"){

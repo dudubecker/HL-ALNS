@@ -74,14 +74,14 @@ public:
 	void removeNodeCases(int &node_index);
 	
 	// Replace node at specific route and position, used in insertion methods
-	void replaceNodeAt(int &node_index, int &route_index, int &insertion_index);
+	void replaceNodeAt(int node_index, int route_index, int insertion_index);
 	
 	// Insert node (specific route, position and demand)
 	// Obs -> "demand" argument is always positive! (This needs to be established)
 	void insertNodeAt(int &node_index, int &route_index, int &insertion_index, double &demand);
 	
 	// Split insertion -> splits demand from "source_node" to "receiver_node", inserting in right positions
-	void splitInsertion(std::string how ,int &node_index, int &route_index, int &insertion_index, double &demand);
+	void splitInsertion(std::string how ,int node_index, int route_index, int insertion_index, double demand);
 	
 	
 	

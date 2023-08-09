@@ -11,18 +11,18 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_CR_IM_IR_JO_MA_MA_NA_RE_TE_82_cpp.txt";
+	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	int number_of_periods = 15;
+	int number_of_periods = 4;
 	
 	// Randomness parameter
 	double p {4};
 	
 	// Proximity weight
-	double Gamma1 {0.3};
+	double Gamma1 {0.5};
 	
 	// Met demand weight
-	double Gamma2 {0.7};
+	double Gamma2 {0.5};
 	
 	Instance inst(file_name, number_of_periods);
 	
@@ -30,20 +30,19 @@ int main(){
 	
 	S.printSol();
 	
-	// PartialRandomRemoval prr {};
+	PartialRandomRemoval prr {};
 	
-	// prr.apply(S);
+	prr.apply(S);
 	
-	// S.printSol();
+	//S.printSol(); 
 	
-	// BasicGreedyInsertion bgi {};
+	BasicGreedyInsertion bgi {};
 	
-	// bgi.apply(S);
+	bgi.apply(S);
 	
-	// S.printSol();
+	S.printSol();
 	
 	S.toTXT(file_name);
-	
 	
 	return 0;
 	

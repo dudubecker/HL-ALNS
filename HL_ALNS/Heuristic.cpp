@@ -894,13 +894,13 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	
 	// Second part of insertion - Giving feasibility to solution regarding epsilon value
 	
-	
-	
-	
 	// Available nodes to be inserted: starts with all nodes in D
 	std::vector<int> available_nodes = {};
 	
 	double global_epsilon = 0.01;
+	
+	// Threshold for min best score
+	double min_best_score = -5000;
 	
 	// Route max length - maybe there's a better way for doing that!
 	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
@@ -908,7 +908,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	// Max epsilon
 	double max_epsilon = *std::max_element(S.epsilon.begin(), S.epsilon.end());
 	
-	while (max_epsilon > global_epsilon){
+	while ((max_epsilon > global_epsilon)){
 		
 		S.printSol();
 		int cont = 0;
@@ -942,7 +942,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		}
 		
 		
-		
 		// Minimum score found so far: great scores are negative scores!
 		double min_score = 9999;
 		
@@ -969,8 +968,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		// Iterating, for all available nodes for insertion, for all routes and positions
 		
-		
-		
 		for (auto &receiver_node_index : available_nodes){
 			
 			for (int route_index {0}; route_index < S.inst.m; route_index++){
@@ -979,6 +976,11 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 				for (int position_index {2}; position_index < S.RSize.at(route_index); position_index++){
 					
 					int source_node_index = S.R.at(route_index).at(position_index);
+					
+					// Node before source_node_index -> this is used to treat the case when the source_node_index is different than 
+					// the receiver_node_index, but the node before source_node_index is equal to receiver_node_index!
+					
+					int node_before_source = S.R.at(route_index).at(position_index - 1);
 					
 					// std::cout << "Route: " << route_index << std::endl;
 					// std::cout << "Position: " << position_index << std::endl;
@@ -995,7 +997,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 						double delta_epsilon, transferred_demand;
 						
 						// Feasibility for inserting node before source node
-						if (S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_before) < routes_max_length){
+						if ((S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_before) < routes_max_length) and (receiver_node_index != node_before_source)){
 							
 							// std::cout << "Feasible insertion before found!" << std::endl;
 							
@@ -1110,7 +1112,13 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		}
 		
 		
-		//
+		// Checking if mininum found score is better than threshold
+		if (min_best_score < min_score){
+			
+			break;
+			
+		}
+		
 		std::cout << "Minimum found score: " << min_score << std::endl;
 		
 		std::cout << "Corresponding node: " << min_score_node << std::endl;
@@ -1131,30 +1139,15 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		if (insertion_before){
 			
-			int insertion_before_node = min_score_node;
-			int insertion_before_route = min_score_route;
-			int insertion_before_position = min_score_position;
-			double insertion_before_demand = min_score_transferred_demand;
-			
-			S.splitInsertion("before", insertion_before_node, insertion_before_route, insertion_before_position, insertion_before_demand);
+			S.splitInsertion("before", min_score_node, min_score_route, min_score_position, min_score_transferred_demand);
 			
 		} else if (insertion_after){
 			
-			int insertion_after_node = min_score_node;
-			int insertion_after_route = min_score_route;
-			int insertion_after_position = min_score_position;
-			double insertion_after_demand = min_score_transferred_demand;
-			
-			S.splitInsertion("after", insertion_after_node, insertion_after_route, insertion_after_position, insertion_after_demand);
+			S.splitInsertion("after", min_score_node, min_score_route, min_score_position, min_score_transferred_demand);
 			
 		} else if (replacement){
-		// if (replacement){
-			
-			int replacement_node = min_score_node;
-			int replacement_route = min_score_route;
-			int replacement_position = min_score_position;
-			
-			S.replaceNodeAt(replacement_node, replacement_route, replacement_position);
+		
+			S.replaceNodeAt(min_score_node, min_score_route, min_score_position);
 			
 		}
 		
