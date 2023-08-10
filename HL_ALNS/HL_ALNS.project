@@ -93,6 +93,7 @@
     </Configuration>
   </Settings>
   <VirtualDirectory Name="src">
+    <File Name="HeuristicDelta.cpp"/>
     <File Name="Heuristic.cpp"/>
     <File Name="Heuristic.hpp"/>
     <File Name="utils.cpp"/>

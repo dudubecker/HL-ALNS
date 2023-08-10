@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=User
-Date                   :=09/08/2023
+Date                   :=10/08/2023
 CodeLitePath           :="C:/Program Files/CodeLite"
 LinkerName             :="C:/Program Files/mingw-w64/mingw64/bin/g++.exe"
 SharedObjectLinkerName :="C:/Program Files/mingw-w64/mingw64/bin/g++.exe" -shared -fPIC
@@ -62,7 +62,7 @@ AS       := "C:/Program Files/mingw-w64/mingw64/bin/as.exe"
 ## User defined environment variables
 ##
 CodeLiteDir:=C:\Program Files\CodeLite
-Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/Heuristic.cpp$(ObjectSuffix) $(IntermediateDirectory)/Sol.cpp$(ObjectSuffix) $(IntermediateDirectory)/utils.cpp$(ObjectSuffix) $(IntermediateDirectory)/Instance.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/HeuristicDelta.cpp$(ObjectSuffix) $(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/Heuristic.cpp$(ObjectSuffix) $(IntermediateDirectory)/Sol.cpp$(ObjectSuffix) $(IntermediateDirectory)/utils.cpp$(ObjectSuffix) $(IntermediateDirectory)/Instance.cpp$(ObjectSuffix) 
 
 
 
@@ -93,6 +93,12 @@ PreBuild:
 ##
 ## Objects
 ##
+$(IntermediateDirectory)/HeuristicDelta.cpp$(ObjectSuffix): HeuristicDelta.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HeuristicDelta.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/HeuristicDelta.cpp$(DependSuffix) -MM HeuristicDelta.cpp
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/User/Desktop/IC/BEPE/HL_ALNS/HL_ALNS/HeuristicDelta.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HeuristicDelta.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HeuristicDelta.cpp$(PreprocessSuffix): HeuristicDelta.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HeuristicDelta.cpp$(PreprocessSuffix) HeuristicDelta.cpp
+
 $(IntermediateDirectory)/main.cpp$(ObjectSuffix): main.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/main.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/main.cpp$(DependSuffix) -MM main.cpp
 	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/User/Desktop/IC/BEPE/HL_ALNS/HL_ALNS/main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IncludePath)

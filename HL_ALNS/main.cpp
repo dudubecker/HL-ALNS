@@ -13,7 +13,7 @@ int main(){
 	
 	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	int number_of_periods = 3;
+	int number_of_periods = 2;
 	
 	// Randomness parameter
 	double p {4};
@@ -30,17 +30,20 @@ int main(){
 	
 	S.printSol();
 	
-	PartialRandomRemoval prr {};
+	WorstRemoval wr {};
+	wr.apply(S);
 	
-	prr.apply(S);
+	// PartialRandomRemoval prr {};
+	
+	// prr.apply(S);
 	
 	//S.printSol(); 
 	
-	BasicGreedyInsertion bgi {};
+	// BasicGreedyInsertion bgi {};
 	
-	bgi.apply(S);
+	// bgi.apply(S);
 	
-	S.printSol();
+	// S.printSol();
 	
 	
 	// printInt(S.unmet_demand_clients);

@@ -25,514 +25,7 @@ Sol Heuristic::apply(Sol &S){
 	
 }
 
-// Delta methods - insertion, removal (of individual nodes and arcs), replacement, both regarding times or costs
-
-double Heuristic::deltaInsertion(std::string delta_type, Sol &S, int &node_index, int &route_index, int &insertion_index){
-	
-	double delta {};
-	
-	bool last_position = false;
-	
-	if (insertion_index == (S.RSize.at(route_index))){
-		
-		last_position = true;
-		
-	}
-	
-	
-	if (delta_type == "time"){
-		
-		if (last_position){
-			
-			
-			int last_node_index = S.R.at(route_index).back();
-			
-			delta = S.inst.t.at(last_node_index).at(node_index).at(route_index);
-			
-		
-		// If it's not last position, arcs difference needs to be taken into account
-		} else {
-			
-			int old_arc_first_node = S.R.at(route_index).at(insertion_index - 1);
-			
-			int old_arc_second_node = S.R.at(route_index).at(insertion_index);
-			
-			double old_arc_time = S.inst.t.at(old_arc_first_node).at(old_arc_second_node).at(route_index);
-			
-			double first_new_arc_time = S.inst.t.at(old_arc_first_node).at(node_index).at(route_index);
-			
-			double second_new_arc_time = S.inst.t.at(node_index).at(old_arc_second_node).at(route_index);
-			
-			delta = (first_new_arc_time + second_new_arc_time) - old_arc_time;
-			
-		}
-		
-		
-	} else if (delta_type == "cost"){
-		
-		if (last_position){
-			
-			
-			int last_node_index = S.R.at(route_index).back();
-			
-			delta = S.inst.c.at(last_node_index).at(node_index).at(route_index);
-			
-		
-		// If it's not last position, arcs difference needs to be taken into account
-		} else {
-			
-			int old_arc_first_node = S.R.at(route_index).at(insertion_index - 1);
-			
-			int old_arc_second_node = S.R.at(route_index).at(insertion_index);
-			
-			double old_arc_cost = S.inst.c.at(old_arc_first_node).at(old_arc_second_node).at(route_index);
-			
-			double first_new_arc_cost = S.inst.c.at(old_arc_first_node).at(node_index).at(route_index);
-			
-			double second_new_arc_cost = S.inst.c.at(node_index).at(old_arc_second_node).at(route_index);
-			
-			delta = (first_new_arc_cost + second_new_arc_cost) - old_arc_cost;
-			
-		}
-		
-	} else {
-		
-		std::cout << "Not a valid type for 'deltaInsertion' function" << std::endl;
-		
-	}
-	
-	// In this case, delta is a positive number!
-	return delta;
-	
-}
-
-double Heuristic::deltaInsertionArc(std::string delta_type, Sol &S, int &first_arc_node_index, int &second_arc_node_index , int &route_index, int &insertion_index){
-	
-	// Returned variable "delta"
-	double delta = {};
-	
-	// Checking if it's last position
-	
-	bool last_position = false;
-	
-	if (insertion_index == (S.RSize.at(route_index))){
-		
-		last_position = true;
-		
-	}
-	
-	if (delta_type == "time"){
-		
-		double inserted_arc_time = S.inst.t.at(first_arc_node_index).at(second_arc_node_index).at(route_index);
-		
-		if (last_position){
-			
-			int node_before = S.R.at(route_index).at(insertion_index - 1);
-			
-			double first_arc_time = S.inst.t.at(node_before).at(first_arc_node_index).at(route_index);
-			
-			delta = first_arc_time + inserted_arc_time;
-			
-		} else {
-			
-			int node_before = S.R.at(route_index).at(insertion_index - 1);
-			
-			int node_after = S.R.at(route_index).at(insertion_index);
-			
-			double first_arc_time = S.inst.t.at(node_before).at(first_arc_node_index).at(route_index);
-			
-			double second_arc_time = S.inst.t.at(second_arc_node_index).at(node_after).at(route_index);
-			
-			double old_arc_time = S.inst.t.at(node_before).at(node_after).at(route_index);
-			
-			delta = first_arc_time + inserted_arc_time + second_arc_time - old_arc_time;
-			
-		}
-		
-	} else if (delta_type == "costs"){
-		
-		double inserted_arc_cost = S.inst.c.at(first_arc_node_index).at(second_arc_node_index).at(route_index);
-		
-		if (last_position){
-			
-			int node_before = S.R.at(route_index).at(insertion_index - 1);
-			
-			double first_arc_cost = S.inst.c.at(node_before).at(first_arc_node_index).at(route_index);
-			
-			delta = first_arc_cost + inserted_arc_cost;
-			
-		} else {
-			
-			int node_before = S.R.at(route_index).at(insertion_index - 1);
-			
-			int node_after = S.R.at(route_index).at(insertion_index);
-			
-			double first_arc_cost = S.inst.c.at(node_before).at(first_arc_node_index).at(route_index);
-			
-			double second_arc_cost = S.inst.c.at(second_arc_node_index).at(node_after).at(route_index);
-			
-			double old_arc_cost = S.inst.c.at(node_before).at(node_after).at(route_index);
-			
-			delta = first_arc_cost + inserted_arc_cost + second_arc_cost - old_arc_cost;
-			
-		}
-		
-	} else {
-		
-		std::cout << "Not a valid type for 'delta_type' parameter!" << std::endl;
-		
-	}
-	
-	return delta;
-	
-}
-
-double Heuristic::deltaRemoval(std::string delta_type, Sol &S, int &node_index, int &route_index, int &removal_index){
-	
-	double delta {};
-	
-	// Treating case when removal position is the last in the route - arc difference calculation is not the same!
-	
-	bool last_node = false;
-	
-	if (removal_index == (S.RSize.at(route_index) - 1)){
-		
-		last_node = true;
-		
-	}
-	
-	if (delta_type == "time"){
-		
-		// If removal position is the last one
-		if (last_node){
-			
-			int last_but_one_node = S.R.at(route_index).at(removal_index - 1);
-			
-			delta = S.inst.t.at(last_but_one_node).at(node_index).at(route_index);
-		
-		// If removal position is in the middle of the route
-		} else {
-			
-			// Arc time travel difference
-			
-			int first_node = S.R.at(route_index).at(removal_index - 1);
-			
-			int second_node = S.R.at(route_index).at(removal_index + 1);
-			
-			double first_old_arc_time = S.inst.t.at(first_node).at(node_index).at(route_index);
-			
-			double second_old_arc_time = S.inst.t.at(node_index).at(second_node).at(route_index);
-			
-			double new_arc_time = S.inst.t.at(first_node).at(second_node).at(route_index);
-			
-			std::cout << first_node << " " << second_node << std::endl;
-			
-			std::cout << first_old_arc_time << " " << second_old_arc_time << " " << new_arc_time << std::endl;
-			
-			delta = new_arc_time - (first_old_arc_time + second_old_arc_time);
-			
-		}
-		
-		
-	} else if (delta_type == "cost"){
-		
-		
-		// If removal position is the last one
-		if (last_node){
-			
-			int last_but_one_node = S.R.at(route_index).at(removal_index - 1);
-			
-			delta = S.inst.c.at(last_but_one_node).at(node_index).at(route_index);
-		
-		// If removal position is in the middle of the route
-		} else {
-			
-			// Arc time travel difference
-			
-			int first_node = S.R.at(route_index).at(removal_index - 1);
-			
-			int second_node = S.R.at(route_index).at(removal_index + 1);
-			
-			double first_old_arc_cost = S.inst.c.at(first_node).at(node_index).at(route_index);
-			
-			double second_old_arc_cost = S.inst.c.at(node_index).at(second_node).at(route_index);
-			
-			double new_arc_cost = S.inst.c.at(first_node).at(second_node).at(route_index);
-			
-			delta = new_arc_cost - (first_old_arc_cost + second_old_arc_cost);
-			
-		}
-		
-		
-	} else {
-		
-		std::cout << "Not a valid type for 'deltaRemoval' function" << std::endl;
-		
-	}
-	
-	// Obs: delta will be a negative value!
-	return delta;
-	
-}
-
-double Heuristic::deltaReplacement(std::string delta_type, Sol &S, int &node_index, int &route_index, int &position_index){
-	
-	double delta {};
-	
-	// Treating case when removal position is the last in the route - arc difference calculation is not the same!
-	
-	bool last_node = false;
-	
-	if (position_index == (S.RSize.at(route_index) - 1)){
-		
-		last_node = true;
-		
-	}
-	
-	if (delta_type == "time"){
-		
-		// If replacement position is the last one
-		if (last_node){
-			
-			int last_node_index = S.R.at(route_index).at(position_index);
-			
-			int last_but_one_node_index = S.R.at(route_index).at(position_index - 1);
-			
-			double old_arc_time = S.inst.t.at(last_but_one_node_index).at(last_node_index).at(route_index);
-			
-			double new_arc_time = S.inst.t.at(last_but_one_node_index).at(node_index).at(route_index);
-			
-			delta = new_arc_time - old_arc_time;
-			
-		// If replacement position is in the middle of the route
-		} else {
-			
-			int node_replaced = S.R.at(route_index).at(position_index);
-			
-			int node_before = S.R.at(route_index).at(position_index - 1);
-			
-			int node_after = S.R.at(route_index).at(position_index + 1);
-			
-			double first_old_arc_time = S.inst.t.at(node_before).at(node_replaced).at(route_index);
-			
-			double second_old_arc_time = S.inst.t.at(node_replaced).at(node_after).at(route_index);
-			
-			double first_new_arc_time = S.inst.t.at(node_before).at(node_index).at(route_index);
-			
-			double second_new_arc_time = S.inst.t.at(node_index).at(node_after).at(route_index);
-			
-			delta =  (first_new_arc_time + second_new_arc_time) - (first_old_arc_time + second_old_arc_time);
-			
-		}
-		
-		
-	} else if (delta_type == "cost"){
-		
-		
-		// If replacement position is the last one
-		if (last_node){
-			
-			int last_node_index = S.R.at(route_index).at(position_index);
-			
-			int last_but_one_node_index = S.R.at(route_index).at(position_index - 1);
-			
-			double old_arc_cost = S.inst.c.at(last_but_one_node_index).at(last_node_index).at(route_index);
-			
-			double new_arc_cost = S.inst.c.at(last_but_one_node_index).at(node_index).at(route_index);
-			
-			delta =  new_arc_cost - old_arc_cost;
-			
-			
-		// If replacement position is in the middle of the route
-		} else {
-			
-			int node_replaced = S.R.at(route_index).at(position_index);
-			
-			int node_before = S.R.at(route_index).at(position_index - 1);
-			
-			int node_after = S.R.at(route_index).at(position_index + 1);
-			
-			double first_old_arc_cost = S.inst.t.at(node_before).at(node_replaced).at(route_index);
-			
-			double second_old_arc_cost = S.inst.t.at(node_replaced).at(node_after).at(route_index);
-			
-			double first_new_arc_cost = S.inst.t.at(node_before).at(node_index).at(route_index);
-			
-			double second_new_arc_cost = S.inst.t.at(node_index).at(node_after).at(route_index);
-			
-			delta = (first_new_arc_cost + second_new_arc_cost) - (first_old_arc_cost + second_old_arc_cost);
-			
-		}
-		
-		
-	} else {
-		
-		std::cout << "Not a valid type for 'deltaReplacement' function" << std::endl;
-		
-	}
-	
-	// Obs: delta can be either negative or positive!
-	
-	return delta;
-	
-}
-
-std::pair<double, double> Heuristic::deltaEpsilon(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index){
-
-	std::pair<double, double> return_pair = {};
-	
-	
-	
-	// Available demand to be transferred
-	double available_demand = std::abs( S.z.at(route_index).at(position_index));
-	
-	// Pace on which load is transferred from one client to other
-	double pace = 1;
-	
-	// Met demand for source node
-	double met_demand_source_node = S.G.at(source_node_index);
-	
-	// Met demand for receiver node
-	double met_demand_receiver_node = S.G.at(receiver_node_index);
-	
-	// Initial source epsilon
-	double epsilon_source_node = std::abs(     (met_demand_source_node/S.totalZ)  -  (std::abs(S.inst.d.at(source_node_index))/S.totalD)     );
-	
-	// Initial receiver epsilon
-	double epsilon_receiver_node = std::abs(     (met_demand_receiver_node/S.totalZ)  -  (std::abs(S.inst.d.at(receiver_node_index))/S.totalD)     );
-	
-	// Initial epsilon sum
-	double initial_epsilon_sum = epsilon_source_node + epsilon_receiver_node;
-	initial_epsilon_sum = roundToDecimalPlaces(initial_epsilon_sum, 5);
-	
-	// Current epsilon sum
-	double epsilon_sum = initial_epsilon_sum;
-	
-	// Minimum epsilon sum
-	double min_epsilon_sum = initial_epsilon_sum;
-	
-	// Transferred demand
-	double transferred_demand = 0;
-	
-	// Transferred demand of minimum epsilon
-	double min_epsilon_transferred_demand = 0;
-	
-	// While there is demand to be transferred
-	while (available_demand >= 0){
-		
-		if (epsilon_sum < min_epsilon_sum){
-			
-			// That means that both epsilons are getting better, so iterations should continue
-			
-			min_epsilon_sum = epsilon_sum;
-			min_epsilon_transferred_demand = transferred_demand;
-			
-			// std::cout << "Both getting better" << std::endl;
-			
-			
-		} else if ((epsilon_sum == min_epsilon_sum) and (transferred_demand > 0)){
-			
-			// That means one epsilon is rising and the other is falling - if after all iterations
-			// the epsilons don't start getting worst, it can be a replacement if feasible and if it reduces costs!
-			
-			// std::cout << "One getting worst and the other getting better" << std::endl;
-			
-			// break;
-			
-			;
-			
-		} else if (epsilon_sum > min_epsilon_sum){
-			
-			// That means the epsilons are getting worst
-			
-			// std::cout << "Both getting worst!" << std::endl;
-			
-			break;
-			
-		}
-		
-		met_demand_source_node -= pace;
-		
-		met_demand_receiver_node += pace;
-		
-		epsilon_source_node = std::abs(     (met_demand_source_node/S.totalZ)  -  (std::abs(S.inst.d.at(source_node_index))/S.totalD)     );
-		
-		epsilon_receiver_node = std::abs(     (met_demand_receiver_node/S.totalZ)  -  (std::abs(S.inst.d.at(receiver_node_index))/S.totalD)     );
-		
-		epsilon_sum = epsilon_source_node + epsilon_receiver_node;
-		epsilon_sum = roundToDecimalPlaces(epsilon_sum, 5);
-		
-		transferred_demand += pace;
-		available_demand -= pace;
-		
-	}
-	
-	double delta_epsilon = min_epsilon_sum - initial_epsilon_sum;
-	
-	
-	// Case when since first pace the epsilons get worst: this is forbidden!
-	
-	if (transferred_demand == pace){
-		
-		delta_epsilon = 9999;
-		
-	}
-	
-	// std::cout << "min_epsilon_sum : " << min_epsilon_sum << std::endl;
-	
-	// std::cout << "initial_epsilon_sum : " << initial_epsilon_sum << std::endl;
-	
-	// std::cout << "Delta epsilon: " << delta_epsilon << std::endl;
-	// std::cout << "transferred demand from " << source_node_index << " to " << receiver_node_index << " for minimizing epsilon sum: " << min_epsilon_transferred_demand << std::endl;
-	
-	// std::cout << "transfering " <<  transferred_demand << " demand from " << source_node_index << " to " << receiver_node_index << " : ";
-	
-	// First element of pair - delta epsilon of insertion/replacement
-	
-	return_pair.first = delta_epsilon;
-	
-	// Second element of pair - transferred demand for minimizing delta epsilon
-	
-	// Case when it's possible to enhance both epsilons until a certain point
-	if (delta_epsilon < 0){
-		
-		return_pair.second = min_epsilon_transferred_demand;
-	
-	// Case when it's possible to replace, if transfering all demand doesn't impact epsilon sum
-	} else if (delta_epsilon == 0){
-		
-		return_pair.second = (transferred_demand - 1);
-	
-	// Case when, since first transfering, epsilons get worst
-	} else if (delta_epsilon == 9999){
-		
-		return_pair.second = 0;
-		
-	}
-	
-	
-	return return_pair;
-	
-}
-
-double Heuristic::deltaEpsilonArc(Sol &S, int &delivery_node_index, double &demand){
-	
-	double old_epsilon = S.epsilon.at(delivery_node_index);
-	
-	double old_met_demand = S.G.at(delivery_node_index);
-	
-	double new_met_demand = old_met_demand + demand;
-	
-	double new_epsilon = std::abs((new_met_demand/S.totalZ) - (std::abs(S.inst.d.at(delivery_node_index))/S.totalD));
-	
-	// double delta_epsilon = old_epsilon - new_epsilon;
-	
-	double delta_epsilon = new_epsilon - old_epsilon;
-	
-	return delta_epsilon;
-	
-}
-
+// Delta methods - insertion, removal (of individual nodes, arcs and segments), replacement, regarding time, cost and epsilon
 
 //// RemovalHeuristic objects implementation
 
@@ -666,6 +159,125 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 	
 	// std::cout << "current_number_of_nodes = " << current_number_of_nodes << std::endl;
 	
+	
+	return S;
+}
+
+// Sobrescrita do método "specificApply" para a PartialRandomRemoval
+Sol WorstRemoval::specificApply(Sol &S) {
+	
+	std::cout << "\n\nWorst Removal: \n";
+	
+	int mi = RemovalHeuristic::initializeMethod(S);
+	
+	// Counter for removed nodes in solution
+	int amount_of_removed_nodes = 0;
+	
+	while (amount_of_removed_nodes < mi){
+		
+		double random_number = {};
+		random_number = ((double) rand() / (RAND_MAX));
+		
+		// Chance of a segment being selected instead of a node
+		
+		double segment_removal_chance = 0.99999;
+		
+		
+		// Removing node
+		if (random_number > segment_removal_chance){
+		/*
+			
+			// Evaluating delta in costs and epsilon for removing delivery node
+			
+			double min_score = 9999;
+			
+			int min_score_node = {};
+			
+			int min_score_route = {};
+			
+			int min_score_position = {};
+			
+			for (auto route_index {0}; route_index < S.inst.m; route_index++){
+				
+				for (auto node_position {0}; node_position < S.RSize.at(route_index); node_position++){
+					
+					
+					int node = S.R.at(route_index).at(node_position);
+					
+					// Node needs to be delivery node
+					if (S.Z.at(node) != 9999){
+						
+						double delta_costs = 
+						double delta_epsilon = ;
+						
+						double score = ;
+						
+						if (score < min_score){
+							
+							min_score = score;
+							
+							min_score_node = node;
+							
+							min_score_route = route_index;
+							
+							min_score_position = node_position;
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+			*/
+			
+		// Removing segment
+		} else {
+			
+			// Segment size (2 or 3)
+			int segment_size = 2 + rand()%2;
+			
+			// Evaluating delta in costs and epsilon for removing segment
+			
+			// Naming all segments in solution
+			for (auto route_index {0}; route_index < S.inst.m; route_index++){
+				
+				std::cout << "\n";
+				
+				for (auto node_position {1}; node_position < S.RSize.at(route_index); node_position++){
+					
+					int node = S.R.at(route_index).at(node_position);
+					
+					// If pickup node
+					if (S.Z.at(node) == 9999){
+						
+						std::cout << "\n";
+						
+					}
+					
+					
+					std::cout << node << " ";
+					
+					
+					
+				}
+				
+			}
+			
+			
+			
+		}
+		
+		
+		
+		
+		
+		break;
+		
+		amount_of_removed_nodes += 1;
+		
+	}
 	
 	return S;
 }
@@ -811,7 +423,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 			break;
 			
 		}
-		
 		
 		// Checking for each idle segment the feasible insertions of each client
 		
@@ -1080,7 +691,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 							
 							// Calculating scores
 							
-							std::tie(delta_epsilon, transferred_demand) = deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);
+							std::tie(delta_epsilon, transferred_demand) = deltaEpsilonInsertion(S, source_node_index, receiver_node_index, route_index, position_index);
 							
 							double delta_costs_insertion_before = deltaInsertion("cost", S, receiver_node_index, route_index, position_before);
 							double score_insertion_before = delta_epsilon*1000000 + delta_costs_insertion_before;
@@ -1116,7 +727,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 							
 							// Calculating scores
 							
-							std::tie(delta_epsilon, transferred_demand) = deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);
+							std::tie(delta_epsilon, transferred_demand) = deltaEpsilonInsertion(S, source_node_index, receiver_node_index, route_index, position_index);
 							
 							double delta_costs_insertion_after = deltaInsertion("cost", S, receiver_node_index, route_index, position_after);
 							
@@ -1154,7 +765,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 							
 							// Calculating scores
 							
-							std::tie(delta_epsilon, transferred_demand) = deltaEpsilon(S, source_node_index, receiver_node_index, route_index, position_index);
+							std::tie(delta_epsilon, transferred_demand) = deltaEpsilonInsertion(S, source_node_index, receiver_node_index, route_index, position_index);
 							
 							double delta_costs_replacement = deltaReplacement("cost", S, receiver_node_index, route_index, position_index);
 							double score_replacement = delta_epsilon*1000000 + delta_costs_replacement;
@@ -1225,7 +836,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 									// Available demand in arc: minimum value between pickup node current capacity and vehicle capacity
 									double available_demand = std::min(S.inst.Q.at(route_index), S.G.at(pickup_node));
 									
-									double delta_epsilon = deltaEpsilonArc(S, delivery_node, available_demand);
+									double delta_epsilon = deltaEpsilonInsertionArc(S, delivery_node, available_demand);
 									
 									// std::cout << "Delta in costs: " << delta_costs << std::endl;
 									
@@ -1391,7 +1002,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 									// Available demand in arc: minimum value between pickup node current capacity and vehicle capacity
 									double available_demand = std::min(S.inst.Q.at(route_index), S.G.at(pickup_node));
 									
-									double delta_epsilon = deltaEpsilonArc(S, delivery_node, available_demand);
+									double delta_epsilon = deltaEpsilonInsertionArc(S, delivery_node, available_demand);
 									
 									// std::cout << "Delta in costs: " << delta_costs << std::endl;
 									

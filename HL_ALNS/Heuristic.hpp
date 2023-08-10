@@ -36,17 +36,26 @@ public:
 	// Variation of insertion of an arc, in terms of time, costs or epsilon
 	double deltaInsertionArc(std::string delta_type, Sol &S, int &first_arc_node_index, int &second_arc_node_index , int &route_index, int &insertion_index);
 	
+	// Variation of epsilon by transfering demand from source to receiver nodes
+	std::pair<double, double> deltaEpsilonInsertion(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index);
+	
+	// Variation of epsilon by inserting an arc with "delivery_node_index"
+	double deltaEpsilonInsertionArc(Sol &S, int &delivery_node_index, double &demand);
+	
 	// Variation of removal of a node, in terms of time or costs
 	double deltaRemoval(std::string delta_type, Sol &S, int &node_index, int &route_index, int &removal_index);
 	
+	// Variation of removal of a full segment, in terms of time or costs
+	double deltaRemovalSegment(std::string delta_type, Sol &S, int &pickup_node_index, int &route_index, int &removal_index);
+	
+	// Variation of epsilon by removing a delivery node in positions
+	double deltaEpsilonRemoval(Sol &S, int &node_index, int &route_index, int &removal_index);
+	
+	// Variation of epsilon by removing a full segment, whose pickup node is in "removal_index"
+	double deltaEpsilonRemovalSegment(Sol &S, int &pickup_node_index, int &route_index, int &removal_index);
+	
 	// Variation of replacement of a node, in terms of time or costs
 	double deltaReplacement(std::string delta_type, Sol &S, int &node_index, int &route_index, int &position_index);
-	
-	// Variation of epsilon through transfering demand from source to receiver nodes
-	std::pair<double, double> deltaEpsilon(Sol &S, int &source_node_index, int &receiver_node_index, int &route_index, int &position_index);
-	
-	// Variation of epsilon through inserting an arc with "delivery_node_index"
-	double deltaEpsilonArc(Sol &S, int &delivery_node_index, double &demand);
 	
 	
 	// Main methods
@@ -86,6 +95,14 @@ public:
 // Removal heuristics inherited objects
 
 class PartialRandomRemoval : public RemovalHeuristic {
+public:
+    // Sobrescrita do método "specificApply" para a PartialRandomRemoval
+    Sol specificApply(Sol &S) override;
+	
+	
+};
+
+class WorstRemoval : public RemovalHeuristic {
 public:
     // Sobrescrita do método "specificApply" para a PartialRandomRemoval
     Sol specificApply(Sol &S) override;
