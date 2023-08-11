@@ -406,6 +406,182 @@ double Heuristic::deltaRemoval(std::string delta_type, Sol &S, int &node_index, 
 
 double Heuristic::deltaRemovalSegment(std::string delta_type, Sol &S, int &pickup_node_index, int &route_index, int &removal_index){
 	
+	// Variable to be returned
+	double delta = {};
+	
+	// Checking if segment is the last segment
+	bool last_segment = true;
+	
+	// Segment size
+	int segment_size = 0;
+	
+	// Determining if it's last segment and its size
+	
+	for (auto node_position {removal_index}; node_position < S.RSize.at(route_index); node_position++){
+		
+		int node = S.R.at(route_index).at(node_position);
+		
+		if ((S.Z.at(node) == 9999) and (node_position > removal_index)){
+			
+			last_segment = false;
+			
+			break;
+			
+		}
+		
+		segment_size += 1;
+		
+	}
+	
+	// Time delta
+	if (delta_type == "time"){
+		
+		if (last_segment){
+			
+			// Node before segment
+			int node_before = S.R.at(route_index).at(removal_index - 1);
+			
+			// Old arc time
+			double old_arc_time = S.inst.t.at(node_before).at(pickup_node_index).at(route_index);
+			
+			// Segment time
+			double segment_time = 0;
+			
+			for (auto node_position {removal_index};node_position < removal_index + segment_size - 1; node_position++){
+				
+				int first_arc_node = S.R.at(route_index).at(node_position);
+				
+				int second_arc_node = S.R.at(route_index).at(node_position + 1);
+				
+				// std::cout << first_arc_node << "-" << second_arc_node << std::endl;
+				
+				double arc_time = S.inst.t.at(first_arc_node).at(second_arc_node).at(route_index);
+				
+				segment_time += arc_time;
+				
+			}
+			
+			// Finally, determining delta
+			delta = - (old_arc_time + segment_time);
+			
+		} else {
+			
+			// Node before segment
+			int node_before = S.R.at(route_index).at(removal_index - 1);
+			
+			// Node after segment
+			int node_after = S.R.at(route_index).at(removal_index + segment_size);
+			
+			// Segment time
+			double segment_time = 0;
+			
+			for (auto node_position {removal_index};node_position < removal_index + segment_size - 1; node_position++){
+				
+				int first_arc_node = S.R.at(route_index).at(node_position);
+				
+				int second_arc_node = S.R.at(route_index).at(node_position + 1);
+				
+				double arc_time = S.inst.t.at(first_arc_node).at(second_arc_node).at(route_index);
+				
+				segment_time += arc_time;
+				
+			}
+			
+			// First old arc time
+			double first_old_arc_time = S.inst.t.at(node_before).at(pickup_node_index).at(route_index);
+			
+			// Second old arc time
+			int last_node_segment = S.R.at(route_index).at(removal_index + segment_size - 1);
+			double second_old_arc_time = S.inst.t.at(last_node_segment).at(node_after).at(route_index);
+			
+			
+			// New arc time
+			double new_arc_time = S.inst.t.at(node_before).at(node_after).at(route_index);
+			
+			
+			// Finally, determining delta
+			delta = new_arc_time - (first_old_arc_time + second_old_arc_time + segment_time);
+			
+		}
+		
+	} else if (delta_type == "cost"){
+		
+		if (last_segment){
+			
+			// Node before segment
+			int node_before = S.R.at(route_index).at(removal_index - 1);
+			
+			// Old arc cost
+			double old_arc_cost = S.inst.c.at(node_before).at(pickup_node_index).at(route_index);
+			
+			// Segment cost
+			double segment_cost = 0;
+			
+			for (auto node_position {removal_index};node_position < removal_index + segment_size - 1; node_position++){
+				
+				int first_arc_node = S.R.at(route_index).at(node_position);
+				
+				int second_arc_node = S.R.at(route_index).at(node_position + 1);
+				
+				// std::cout << first_arc_node << "-" << second_arc_node << std::endl;
+				
+				double arc_cost = S.inst.c.at(first_arc_node).at(second_arc_node).at(route_index);
+				
+				segment_cost += arc_cost;
+				
+			}
+			
+			// Finally, determining delta
+			delta = - (old_arc_cost + segment_cost);
+			
+		} else {
+			
+			// Node before segment
+			int node_before = S.R.at(route_index).at(removal_index - 1);
+			
+			// Node after segment
+			int node_after = S.R.at(route_index).at(removal_index + segment_size);
+			
+			// Segment cost
+			double segment_cost = 0;
+			
+			for (auto node_position {removal_index};node_position < removal_index + segment_size - 1; node_position++){
+				
+				int first_arc_node = S.R.at(route_index).at(node_position);
+				
+				int second_arc_node = S.R.at(route_index).at(node_position + 1);
+				
+				double arc_cost = S.inst.c.at(first_arc_node).at(second_arc_node).at(route_index);
+				
+				segment_cost += arc_cost;
+				
+			}
+			
+			// First old arc cost
+			double first_old_arc_cost = S.inst.c.at(node_before).at(pickup_node_index).at(route_index);
+			
+			// Second old arc cost
+			int last_node_segment = S.R.at(route_index).at(removal_index + segment_size - 1);
+			double second_old_arc_cost = S.inst.c.at(last_node_segment).at(node_after).at(route_index);
+			
+			
+			// New arc cost
+			double new_arc_cost = S.inst.c.at(node_before).at(node_after).at(route_index);
+			
+			
+			// Finally, determining delta
+			delta = new_arc_cost - (first_old_arc_cost + second_old_arc_cost + segment_cost);
+			
+		}
+		
+	} else {
+		
+		std::cout << "Not a valid delta_type for deltaRemovalSegment method!" << std::endl;
+		
+	}
+	
+	
+	return delta;
 	
 }
 
@@ -427,6 +603,8 @@ double Heuristic::deltaEpsilonRemoval(Sol &S, int &node_index, int &route_index,
 }
 
 double Heuristic::deltaEpsilonRemovalSegment(Sol &S, int &pickup_node_index, int &route_index, int &removal_index){
+	
+	return 0;
 	
 }
 

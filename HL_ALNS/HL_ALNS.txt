@@ -1,1 +1,1 @@
-Release/HeuristicDelta.cpp.o Release/main.cpp.o Release/Heuristic.cpp.o Release/Sol.cpp.o Release/utils.cpp.o Release/Instance.cpp.o   
+Release/main.cpp.o Release/Heuristic.cpp.o Release/Sol.cpp.o Release/HeuristicDelta.cpp.o Release/utils.cpp.o Release/Instance.cpp.o   

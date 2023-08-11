@@ -31,6 +31,7 @@ int main(){
 	S.printSol();
 	
 	WorstRemoval wr {};
+	
 	wr.apply(S);
 	
 	// PartialRandomRemoval prr {};

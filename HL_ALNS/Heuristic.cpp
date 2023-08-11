@@ -180,12 +180,11 @@ Sol WorstRemoval::specificApply(Sol &S) {
 		
 		// Chance of a segment being selected instead of a node
 		
-		double segment_removal_chance = 0.99999;
-		
+		double segment_removal_chance = 0;
 		
 		// Removing node
 		if (random_number > segment_removal_chance){
-		/*
+		
 			
 			// Evaluating delta in costs and epsilon for removing delivery node
 			
@@ -207,10 +206,15 @@ Sol WorstRemoval::specificApply(Sol &S) {
 					// Node needs to be delivery node
 					if (S.Z.at(node) != 9999){
 						
-						double delta_costs = 
-						double delta_epsilon = ;
 						
-						double score = ;
+						double delta_costs = deltaRemoval("cost", S, node, route_index, node_position);
+						// double delta_epsilon = deltaEpsilonRemoval(S, node, route_index, node_position);
+						
+						// std::cout << "Node: " << node << ", Route: " << route_index << ", position: " << node_position << std::endl;
+						// std::cout << "Delta in costs: " << delta_costs << std::endl;
+						// std::cout << "Delta in epsilon: " << delta_epsilon << "\n\n";
+						
+						double score = delta_costs;
 						
 						if (score < min_score){
 							
@@ -223,45 +227,69 @@ Sol WorstRemoval::specificApply(Sol &S) {
 							min_score_position = node_position;
 							
 						}
-						
+					
 					}
+					
 					
 				}
 				
 			}
 			
-			*/
+			
+			std::cout << "\n\nRemoved node: " << min_score_node << ", Route: " << min_score_route << ", position: " << min_score_position << ", and delta: " << min_score << "\n\n";
+			
+			// Old length of route
+			int route_old_length = S.RSize.at(min_score_route);
+			
+			// Removing node from solution
+			S.removeNodeAt(min_score_route, min_score_position);
+			
+			// New length of route
+			
+			int route_new_length = S.RSize.at(min_score_route);
+			
+			// Number of removed nodes
+			int removed_nodes = route_old_length - route_new_length;
+			
+			// Incrementing counter
+			amount_of_removed_nodes += removed_nodes;
 			
 		// Removing segment
 		} else {
 			
 			// Segment size (2 or 3)
-			int segment_size = 2 + rand()%2;
+			int segment_sizes = 2 + rand()%2;
 			
 			// Evaluating delta in costs and epsilon for removing segment
 			
+			// Variable to count segment sizes
+			double segment_size = 0;
+			
 			// Naming all segments in solution
 			for (auto route_index {0}; route_index < S.inst.m; route_index++){
-				
-				std::cout << "\n";
 				
 				for (auto node_position {1}; node_position < S.RSize.at(route_index); node_position++){
 					
 					int node = S.R.at(route_index).at(node_position);
 					
 					// If pickup node
-					if (S.Z.at(node) == 9999){
+					if ((S.Z.at(node) == 9999)){
 						
+						std::cout << " segment size: " << segment_size;
 						std::cout << "\n";
+						segment_size = 0;
+						
 						
 					}
 					
 					
 					std::cout << node << " ";
 					
+					segment_size += 1;
 					
 					
 				}
+				
 				
 			}
 			
@@ -273,9 +301,11 @@ Sol WorstRemoval::specificApply(Sol &S) {
 		
 		
 		
-		break;
+		S.printSol();
 		
-		amount_of_removed_nodes += 1;
+		std::string a;
+		
+		std::cin >> a;
 		
 	}
 	
@@ -610,7 +640,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	double global_epsilon = 0.05;
 	
 	// Threshold for min best score
-	double min_best_score = -100;
+	double min_best_score = -15000;
 	
 	// Route max length - maybe there's a better way for doing that!
 	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
