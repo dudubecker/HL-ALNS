@@ -35,7 +35,7 @@ int RemovalHeuristic::initializeMethod(Sol &S) {
 	// std::cout << "Removal heuristics base code\n";
 	
 	// Replicable data
-	srand(121);
+	srand(119);
 	
 	// True random data
 	// srand(time(NULL));
@@ -180,13 +180,15 @@ Sol WorstRemoval::specificApply(Sol &S) {
 		
 		// Chance of a segment being selected instead of a node
 		
-		double segment_removal_chance = 0;
+		double segment_removal_chance = 0.7;
+		
 		
 		// Removing node
 		if (random_number > segment_removal_chance){
-		
 			
 			// Evaluating delta in costs and epsilon for removing delivery node
+			
+			std::cout << "\n\n\nREMOVING NODE\n\n\n";
 			
 			double min_score = 9999;
 			
@@ -257,55 +259,152 @@ Sol WorstRemoval::specificApply(Sol &S) {
 		// Removing segment
 		} else {
 			
-			// Segment size (2 or 3)
-			int segment_sizes = 2 + rand()%2;
+			std::cout << "\n\n\nREMOVING SEGMENT\n\n\n";
+			
+			double min_score = 9999;
+			
+			int min_score_segment_first_node = {};
+			
+			int min_score_route = {};
+			
+			int min_score_position = {};
+			
+			// Segment size for being removed (2 or 3)
+			int segment_removal_size = 2 + rand()%2;
 			
 			// Evaluating delta in costs and epsilon for removing segment
 			
-			// Variable to count segment sizes
-			double segment_size = 0;
+			// Segment vector
+			std::vector<int> segment {};
 			
-			// Naming all segments in solution
+			// Segment size
+			int segment_size = 0;
+			
+			// Naming all segments in solution, an checking their deltas
 			for (auto route_index {0}; route_index < S.inst.m; route_index++){
+				
+				segment = {};
+				segment_size = 0;
 				
 				for (auto node_position {1}; node_position < S.RSize.at(route_index); node_position++){
 					
 					int node = S.R.at(route_index).at(node_position);
 					
-					// If pickup node
-					if ((S.Z.at(node) == 9999)){
+					// If not last segment
+					if ((S.Z.at(node) == 9999) and (node_position > 1)){
 						
-						std::cout << " segment size: " << segment_size;
-						std::cout << "\n";
+						// std::cout << "First node (pickup): " << segment.at(0) << std::endl;
+						// std::cout << "Route: " << route_index << std::endl;
+						// std::cout << "Position: " << node_position - segment_size << std::endl;
+						
+						// Checking score for segment, if it meets the size
+						if (segment_size == segment_removal_size){
+							
+							int pickup_node_index = segment.at(0);
+							
+							// Different for last case!!
+							int removal_index = node_position - segment_size;
+							
+							double delta_costs_segment = deltaRemovalSegment("cost", S, pickup_node_index, route_index, removal_index);
+							
+							double score = delta_costs_segment;
+							
+							// std::cout << score << "\n\n";
+							
+							if (score < min_score){
+								
+								min_score = score;
+								
+								min_score_segment_first_node = pickup_node_index;
+								
+								min_score_route = route_index;
+								
+								min_score_position = removal_index;
+								
+							}
+						}
+						
+						segment = {};
 						segment_size = 0;
+						
+					}
+					
+					// Last segment, in this code, need to be treated separetely
+					if (node_position == S.RSize.at(route_index) - 1){
+						
+						segment.push_back(S.R.at(route_index).at(node_position));
+						segment_size += 1;
+						
+						// std::cout << "First node (pickup): " << segment.at(0) << std::endl;
+						// std::cout << "Route: " << route_index << std::endl;
+						// std::cout << "Position: " << node_position - segment_size + 1 << "\n\n";
+						
+						// Checking score for segment, if it meets the size
+						if (segment_size == segment_removal_size){
+							
+							int pickup_node_index = segment.at(0);
+							
+							// Different for last case!!
+							int removal_index = node_position - segment_size + 1;
+							
+							double delta_costs_segment = deltaRemovalSegment("cost", S, pickup_node_index, route_index, removal_index);
+							
+							double score = delta_costs_segment;
+							
+							// std::cout << score << "\n\n";
+							
+							if (score < min_score){
+								
+								min_score = score;
+								
+								min_score_segment_first_node = pickup_node_index;
+								
+								min_score_route = route_index;
+								
+								min_score_position = removal_index;
+								
+							}
+						}
+						
 						
 						
 					}
 					
-					
-					std::cout << node << " ";
-					
+					segment.push_back(node);
 					segment_size += 1;
-					
 					
 				}
 				
 				
 			}
 			
+			std::cout << "\n\nRemoved node: " << min_score_segment_first_node << ", Route: " << min_score_route << ", position: " << min_score_position << ", and delta: " << min_score << "\n\n";
+			
+			// Old length of route
+			int route_old_length = S.RSize.at(min_score_route);
+			
+			// Removing minimum score segment
+			S.removeNodeAt(min_score_route, min_score_position);
+			
+			// New length of route
+			int route_new_length = S.RSize.at(min_score_route);
+			
+			// Number of removed nodes
+			int removed_nodes = route_old_length - route_new_length;
+			
+			// Incrementing counter
+			amount_of_removed_nodes += removed_nodes;
 			
 			
 		}
 		
 		
+		// S.printSol();
 		
+		// std::string a;
 		
+		// std::cin >> a;
 		
-		S.printSol();
-		
-		std::string a;
-		
-		std::cin >> a;
 		
 	}
 	
@@ -640,7 +739,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	double global_epsilon = 0.05;
 	
 	// Threshold for min best score
-	double min_best_score = -15000;
+	double min_best_score = -3000;
 	
 	// Route max length - maybe there's a better way for doing that!
 	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
@@ -966,9 +1065,9 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		max_epsilon = *std::max_element(S.epsilon.begin(), S.epsilon.end());
 		
-		std::string a;
+		// std::string a;
 		
-		std::cin >> a;
+		// std::cin >> a;
 		
 		// S.printSol();
 		
@@ -1087,9 +1186,9 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 			
 			std::cout << "Inserting arc " << min_score_pickup_node << "-" << min_score_delivery_node << " in route " << min_score_route << " at position " << min_score_position << " with score " << min_score <<std::endl;
 			
-			std::string a;
+			// std::string a;
 			
-			std::cin >> a;
+			// std::cin >> a;
 			
 			S.insertArcAt(min_score_pickup_node, min_score_delivery_node, min_score_route, min_score_position, min_score_transferred_demand);
 			

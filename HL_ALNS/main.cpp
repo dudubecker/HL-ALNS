@@ -11,9 +11,9 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_JO_NA_9_cpp.txt";
+	std::string file_name = "INST_CR_IM_IR_JO_MA_MA_NA_RE_TE_82_cpp.txt";
 	
-	int number_of_periods = 2;
+	int number_of_periods = 15;
 	
 	// Randomness parameter
 	double p {4};
@@ -32,20 +32,25 @@ int main(){
 	
 	WorstRemoval wr {};
 	
-	wr.apply(S);
+	PartialRandomRemoval prr {};
 	
-	// PartialRandomRemoval prr {};
+	BasicGreedyInsertion bgi {};
 	
-	// prr.apply(S);
 	
-	//S.printSol(); 
-	
-	// BasicGreedyInsertion bgi {};
-	
-	// bgi.apply(S);
-	
-	// S.printSol();
-	
+	/*
+	for (auto i {0}; i < 1; i++){
+		
+		wr.apply(S);
+		
+		bgi.apply(S);
+		
+		prr.apply(S);
+		
+		bgi.apply(S);
+		
+		
+	}
+	*/
 	
 	// printInt(S.unmet_demand_clients);
 	
