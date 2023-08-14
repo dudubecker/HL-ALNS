@@ -572,11 +572,18 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 
 void Sol::removeRandomNode(){
 	
-	;
+	// Getting random route
+	int random_route = rand()%inst.m;
+		
+	// Getting random position at route, not including position 0!
+	int random_position = 1 + rand()%(RSize.at(random_route) - 1);
+	// int random_position = 1 + rand()%(RSize(random_route) - 2);
+	
+	removeNodeAt(random_route, random_position);
 	
 }
 
-/*
+
 // Removes random case
 void Sol::removeNodeCase(int &node_index){
 	
@@ -592,90 +599,42 @@ void Sol::removeNodeCase(int &node_index){
 		int random_route = rand()%inst.m;
 		
 		// Getting random position at route, not including position 0!
+		int random_position = 1 + rand()%(RSize.at(random_route) - 1);
 		
-		// Node need to be on route 
+		// Node in route
+		int node = R.at(random_route).at(random_position);
 		
-		
-		int it = 0;
-		
-		while ((nodesPositions.at(node_index).at(random_route).size() == 0) and (it < 100)){
-		
-		// while ((nodesPositions.at(node_index).at(random_route).size() == 0)){
+		while (node != node_index){
 			
-			// std::cout << nodesPositions.at(node_index).at(random_route).size() << std::endl;
+			// Getting random route
 			random_route = rand()%inst.m;
 			
-			it += 1;
+			// Getting random position at route, not including position 0!
+			random_position = 1 + rand()%(RSize.at(random_route) - 1);
+			
+			// Node in route
+			node = R.at(random_route).at(random_position);
+			
 		}
 		
-			
-		// Getting random position
-		
-		if (it < 100){
-		
-		int number_of_occurrences = nodesPositions.at(node_index).at(random_route).size();
-		
-		int random_occasion = nodesPositions.at(node_index).at(random_route).at(rand()%number_of_occurrences);
-		
-		// std::cout << "\n\n\n\n" << random_route << " " <<  node_index << " " << random_occasion << "\n\n\n\n" << std::endl;
+		// The search process occurs randomly until the node in position is equal to the desired node
 		
 		// Removing it from solution
-		removeNodeAt(random_route, random_occasion);
+		removeNodeAt(random_route, random_position);
 		
 		// std::cout << node_index << " " << random_route << " " << random_occasion << " " << W.at(random_route) << std::endl;
-		}
-		
-		
 		
 		
 	} else {
 		
-		std::cout << "BUG: Node not visited in solution" << std::endl;
+		std::cout << "Node not visited in solution" << std::endl;
 		
 	}
 	
 	
 	
 }
-*/
 
-
-// Removes all cases
-
-/*
-void Sol::removeNodeCases(int &node_index){
-	
-	// Node needs to have already been visited in solution for removal to be possible!
-	
-	if (((Z.at(node_index) == 9999) and (G.at(node_index) < inst.d.at(node_index))) or ((Z.at(node_index) != 9999) and (Z.at(node_index) > 0))){
-		
-		for (auto route_index {0}; route_index < inst.m ; route_index++){
-			
-			int available_positions = nodesPositions.at(node_index).at(route_index).size();
-			
-			while (available_positions > 0){
-				
-				int removal_position = nodesPositions.at(node_index).at(route_index).at(0);
-				
-				removeNodeAt(route_index, removal_position);
-				
-				available_positions -= 1;
-				
-			}
-			
-		}
-		
-		
-		
-	} else {
-		
-		//std::cout << "BUG: Node not visited in solution" << std::endl;
-		;
-	}
-	
-}
-
-*/
 
 
 // Replace node at specific route and position, used in insertion methods

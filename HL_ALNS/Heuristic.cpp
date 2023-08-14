@@ -68,46 +68,14 @@ Sol PartialRandomRemoval::specificApply(Sol &S) {
 	
 	int current_number_of_nodes = initial_number_of_nodes;
 	
-	/*
-	// Vector with valid nodes to be removed (P U D)
-	std::vector<int> nodes = S.inst.P;
-	nodes.insert(nodes.end(), S.inst.D.begin(), S.inst.D.end());
-	
-	std::cout << "Mi : " << mi << std::endl;
-	
-	int amount_of_valid_nodes = nodes.size();
-	
-	
 	while ((initial_number_of_nodes - current_number_of_nodes) < mi){
 		
-		// std::cout << initial_number_of_nodes << std::endl;
-		// std::cout << current_number_of_nodes << std::endl;
-		
-		// Choosing random node
-		int random_index = rand()%amount_of_valid_nodes;
-		
-		int random_node = nodes.at(random_index);
-		
-		
-		// std::cout << "Node: " << random_node << "\n\n";
-		
-		// std::cout << "Solution before: \n";
-		
-		// S.printSol();
-		
-		// Removing node case
-		S.removeNodeCase(random_node);
-		
-		// std::cout << "Solution after: \n";
-		
-		// S.printSol();
+		S.removeRandomNode();
 		
 		// Updating number of nodes in solution
 		current_number_of_nodes = std::accumulate(S.RSize.begin(), S.RSize.end(), 0);
 		
 	}
-	
-	*/
 	
 	
 	return S;
@@ -158,7 +126,6 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 	
 	// While "mi" nodes haven't been removed or while there's still cases of nodes to be removed in neighborhood
 	
-	/*
 	
 	while (((initial_number_of_nodes - current_number_of_nodes) < mi) and (S.containsAny(neighborhood_nodes))){
 		
@@ -181,7 +148,6 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 	
 	// std::cout << "current_number_of_nodes = " << current_number_of_nodes << std::endl;
 	
-	*/
 	
 	return S;
 }

@@ -13,7 +13,6 @@ int main(){
 	
 	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	
 	int number_of_periods = 4;
 	
 	// Randomness parameter
@@ -31,7 +30,6 @@ int main(){
 	
 	S.printSol();
 	
-	/*
 	
 	WorstRemoval wr {};
 	
@@ -41,7 +39,7 @@ int main(){
 	
 	Sol BKS = S;
 	
-	for (auto i {0}; i < 5; i++){
+	for (auto i {0}; i < 10; i++){
 		
 		
 		prr.apply(S);
@@ -64,16 +62,15 @@ int main(){
 	}
 	
 	
-	// BKS.printSol();
+	BKS.printSol();
 	
-	S.printSol();
+	// S.printSol();
 	
 	// S.toTXT(file_name);
 	
 	// printInt(S.unmet_demand_clients);
 	
-	 * 
-	 * */
+	
 	 
 	return 0;
 	
