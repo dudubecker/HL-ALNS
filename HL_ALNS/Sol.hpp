@@ -73,6 +73,9 @@ public:
 	// Remove one case of node (at any random position)
 	void removeNodeCase(int &node_index);
 	
+	// Remove random node and position
+	void removeRandomNode();
+	
 	// Remove all node cases in S
 	void removeNodeCases(int &node_index);
 	

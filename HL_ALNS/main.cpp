@@ -11,18 +11,19 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_CR_IM_IR_JO_MA_MA_NA_RE_TE_82_cpp.txt";
+	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	int number_of_periods = 15;
+	
+	int number_of_periods = 4;
 	
 	// Randomness parameter
 	double p {4};
 	
 	// Proximity weight
-	double Gamma1 {0.5};
+	double Gamma1 {0.6};
 	
 	// Met demand weight
-	double Gamma2 {0.5};
+	double Gamma2 {0.4};
 	
 	Instance inst(file_name, number_of_periods);
 	
@@ -30,30 +31,50 @@ int main(){
 	
 	S.printSol();
 	
+	/*
+	
 	WorstRemoval wr {};
 	
 	PartialRandomRemoval prr {};
 	
 	BasicGreedyInsertion bgi {};
 	
+	Sol BKS = S;
 	
-	/*
-	for (auto i {0}; i < 1; i++){
+	for (auto i {0}; i < 5; i++){
 		
-		wr.apply(S);
-		
-		bgi.apply(S);
 		
 		prr.apply(S);
 		
 		bgi.apply(S);
 		
+		// wr.apply(S);
+		
+		// bgi.apply(S);
+		
+		if (S.totalZ > BKS.totalZ){
+			
+			BKS = S;
+			
+		}
+		
+			
+		
 		
 	}
-	*/
+	
+	
+	// BKS.printSol();
+	
+	S.printSol();
+	
+	// S.toTXT(file_name);
 	
 	// printInt(S.unmet_demand_clients);
 	
+	 * 
+	 * */
+	 
 	return 0;
 	
 }

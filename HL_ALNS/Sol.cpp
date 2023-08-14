@@ -52,16 +52,15 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 	
 	// nodesPositions attribute (initializing with empty structures)
 	
-	std::vector<std::vector<int>> empty_2d_vec = {};
-	std::vector<int> empty_1d_vec = {};
+	// std::vector<std::vector<int>> empty_2d_vec = {};
+	// std::vector<int> empty_1d_vec = {};
 	
-	for (auto route_index {0}; route_index < inst.m; route_index++){
-		empty_2d_vec.push_back(empty_1d_vec);
-	}
+	// for (auto route_index {0}; route_index < inst.m; route_index++){
+	// 	empty_2d_vec.push_back(empty_1d_vec);
+	// }
 	
-	nodesPositions.resize(inst.counties.size());
-	std::fill(nodesPositions.begin(), nodesPositions.end(), empty_2d_vec);
-	
+	// nodesPositions.resize(inst.counties.size());
+	// std::fill(nodesPositions.begin(), nodesPositions.end(), empty_2d_vec);
 	
 	
 
@@ -137,6 +136,7 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 			
 		}
 		
+		
 		// Inserting node at route
 		// R.at(route_index).push_back(next_pickup_node);
 		
@@ -147,6 +147,7 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 		double picked_up_load = std::min(inst.Q.at(route_index), G.at(next_pickup_node));
 		
 		insertNodeAt(next_pickup_node, route_index, insertion_index, picked_up_load);
+		
 		
 		// If insertion is the first one, epsilon values can be initialized, as totalZ will be different than 0!
 		if (totalZ == picked_up_load){
@@ -481,7 +482,7 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 	
 	for (int segment_element {0}; segment_element < segment_size; segment_element++){
 		
-		// Node which is being deleted (information used to update nodesPositions!)
+		// Node which is being deleted
 		int current_node =  R.at(route_index).at(removal_index);
 		
 		// Removing node from route
@@ -520,6 +521,7 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		}
 		
 		
+		/*
 		// "nodesPositions" code starts here
 		
 		// The great advantage of this approach is that, instead of iterating in all routes and positions of solution to remove a node,
@@ -562,13 +564,19 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 		}
 		
 		// "nodesPositions" code ends here
-	
+		*/
 	}
 	
 	updateEpsilon();
 }
 
+void Sol::removeRandomNode(){
+	
+	;
+	
+}
 
+/*
 // Removes random case
 void Sol::removeNodeCase(int &node_index){
 	
@@ -578,21 +586,32 @@ void Sol::removeNodeCase(int &node_index){
 	// if pickup node (Z == 9999), G needs to be smaller than d
 	// if delivery node (Z != 9999), Z needs to be greater than 1
 	
-	if (((Z.at(node_index) == 9999) and (G.at(node_index) < inst.d.at(node_index))) or ((Z.at(node_index) != 9999) and (Z.at(node_index) > 0.0001))){
+	if (((Z.at(node_index) == 9999) and (G.at(node_index) < std::abs(inst.d.at(node_index)))) or ((Z.at(node_index) != 9999) and (Z.at(node_index) > 0.001))){
 		
 		// Getting random route
-		
 		int random_route = rand()%inst.m;
+		
+		// Getting random position at route, not including position 0!
 		
 		// Node need to be on route 
 		
-		while (nodesPositions.at(node_index).at(random_route).size() == 0){
+		
+		int it = 0;
+		
+		while ((nodesPositions.at(node_index).at(random_route).size() == 0) and (it < 100)){
+		
+		// while ((nodesPositions.at(node_index).at(random_route).size() == 0)){
 			
+			// std::cout << nodesPositions.at(node_index).at(random_route).size() << std::endl;
 			random_route = rand()%inst.m;
 			
+			it += 1;
 		}
 		
+			
 		// Getting random position
+		
+		if (it < 100){
 		
 		int number_of_occurrences = nodesPositions.at(node_index).at(random_route).size();
 		
@@ -604,20 +623,26 @@ void Sol::removeNodeCase(int &node_index){
 		removeNodeAt(random_route, random_occasion);
 		
 		// std::cout << node_index << " " << random_route << " " << random_occasion << " " << W.at(random_route) << std::endl;
+		}
+		
 		
 		
 		
 	} else {
 		
-		//std::cout << "BUG: Node not visited in solution" << std::endl;
-		;
+		std::cout << "BUG: Node not visited in solution" << std::endl;
+		
 	}
 	
 	
 	
 }
+*/
+
 
 // Removes all cases
+
+/*
 void Sol::removeNodeCases(int &node_index){
 	
 	// Node needs to have already been visited in solution for removal to be possible!
@@ -649,6 +674,9 @@ void Sol::removeNodeCases(int &node_index){
 	}
 	
 }
+
+*/
+
 
 // Replace node at specific route and position, used in insertion methods
 void Sol::replaceNodeAt(int node_index, int route_index, int replace_index){
@@ -707,7 +735,7 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 	// Updating routes length in number of nodes
 	RSize.at(route_index) += 1;
 	
-	nodesPositions.at(node_index).at(route_index).push_back(insertion_index);
+	// nodesPositions.at(node_index).at(route_index).push_back(insertion_index);
 	
 	// Counting picked-up/delivered demand at corresponding attributes
 	

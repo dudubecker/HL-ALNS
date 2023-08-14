@@ -68,26 +68,46 @@ Sol PartialRandomRemoval::specificApply(Sol &S) {
 	
 	int current_number_of_nodes = initial_number_of_nodes;
 	
+	/*
 	// Vector with valid nodes to be removed (P U D)
 	std::vector<int> nodes = S.inst.P;
 	nodes.insert(nodes.end(), S.inst.D.begin(), S.inst.D.end());
 	
+	std::cout << "Mi : " << mi << std::endl;
+	
 	int amount_of_valid_nodes = nodes.size();
 	
+	
 	while ((initial_number_of_nodes - current_number_of_nodes) < mi){
+		
+		// std::cout << initial_number_of_nodes << std::endl;
+		// std::cout << current_number_of_nodes << std::endl;
 		
 		// Choosing random node
 		int random_index = rand()%amount_of_valid_nodes;
 		
 		int random_node = nodes.at(random_index);
 		
+		
+		// std::cout << "Node: " << random_node << "\n\n";
+		
+		// std::cout << "Solution before: \n";
+		
+		// S.printSol();
+		
 		// Removing node case
 		S.removeNodeCase(random_node);
+		
+		// std::cout << "Solution after: \n";
+		
+		// S.printSol();
 		
 		// Updating number of nodes in solution
 		current_number_of_nodes = std::accumulate(S.RSize.begin(), S.RSize.end(), 0);
 		
 	}
+	
+	*/
 	
 	
 	return S;
@@ -138,6 +158,8 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 	
 	// While "mi" nodes haven't been removed or while there's still cases of nodes to be removed in neighborhood
 	
+	/*
+	
 	while (((initial_number_of_nodes - current_number_of_nodes) < mi) and (S.containsAny(neighborhood_nodes))){
 		
 		// // Choosing random node
@@ -159,6 +181,7 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 	
 	// std::cout << "current_number_of_nodes = " << current_number_of_nodes << std::endl;
 	
+	*/
 	
 	return S;
 }
@@ -180,7 +203,7 @@ Sol WorstRemoval::specificApply(Sol &S) {
 		
 		// Chance of a segment being selected instead of a node
 		
-		double segment_removal_chance = 0.7;
+		double segment_removal_chance = 0.8;
 		
 		
 		// Removing node
@@ -631,7 +654,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 								
 								// If delta is the lowest, positions and delta are updated
 								
-								
 								min_cost_delta = cost_delta;
 								
 								min_cost_node = insertion_node;
@@ -736,10 +758,10 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	// Available nodes to be inserted: starts with all nodes in D
 	std::vector<int> available_nodes = {};
 	
-	double global_epsilon = 0.05;
+	double global_epsilon = 0.15;
 	
 	// Threshold for min best score
-	double min_best_score = -3000;
+	double min_best_score = -500;
 	
 	// Route max length - maybe there's a better way for doing that!
 	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
@@ -749,7 +771,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	
 	while ((max_epsilon > global_epsilon)){
 		
-		S.printSol();
+		// S.printSol();
 		
 		// Available nodes to be inserted: starts with all nodes in D
 		
@@ -823,7 +845,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 							std::tie(delta_epsilon, transferred_demand) = deltaEpsilonInsertion(S, source_node_index, receiver_node_index, route_index, position_index);
 							
 							double delta_costs_insertion_before = deltaInsertion("cost", S, receiver_node_index, route_index, position_before);
-							double score_insertion_before = delta_epsilon*1000000 + delta_costs_insertion_before;
+							double score_insertion_before = delta_epsilon*100000 + delta_costs_insertion_before;
 							
 							if (score_insertion_before < min_score){
 								
@@ -860,7 +882,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 							
 							double delta_costs_insertion_after = deltaInsertion("cost", S, receiver_node_index, route_index, position_after);
 							
-							double score_insertion_after = delta_epsilon*1000000 + delta_costs_insertion_after;
+							double score_insertion_after = delta_epsilon*100000 + delta_costs_insertion_after;
 							
 							if (score_insertion_after < min_score){
 								
@@ -897,7 +919,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 							std::tie(delta_epsilon, transferred_demand) = deltaEpsilonInsertion(S, source_node_index, receiver_node_index, route_index, position_index);
 							
 							double delta_costs_replacement = deltaReplacement("cost", S, receiver_node_index, route_index, position_index);
-							double score_replacement = delta_epsilon*1000000 + delta_costs_replacement;
+							double score_replacement = delta_epsilon*100000 + delta_costs_replacement;
 							
 							// std::cout << "Score: " << score_replacement << "\n\n";
 							
@@ -971,7 +993,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 									
 									// std::cout << "Delta in epsilon: " << delta_epsilon << std::endl;
 									
-									double score = delta_epsilon*1000000 + delta_costs;
+									double score = delta_epsilon*100000 + delta_costs;
 									
 									// std::cout << "Score of this insertion: " << score << "\n\n";
 									
@@ -1025,22 +1047,19 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 			
 		}
 		
-		std::cout << "\n\nMinimum found score: " << min_score << std::endl;
+		//std::cout << "\n\nMinimum found score: " << min_score << std::endl;
 		
-		// std::cout << "Corresponding node: " << min_score_node << std::endl;
-		// Corresponding route of minimum score
-		std::cout << "Corresponding route: " << min_score_route << std::endl;
+		//std::cout << "Corresponding route: " << min_score_route << std::endl;
 		// Corresponding position of minimum score
-		std::cout << "Corresponding position at route: " << min_score_position  << std::endl;
+		//std::cout << "Corresponding position at route: " << min_score_position  << std::endl;
 		// Corresponding source node
-		// std::cout << "Corresponding source node: " << S.R.at(min_score_route).at(min_score_position)  << std::endl;
-		// Corresponding transferred demand of minimum score
-		std::cout << "Corresponding demand to be transferred: " << min_score_transferred_demand << std::endl;
+		
+		//std::cout << "Corresponding demand to be transferred: " << min_score_transferred_demand << std::endl;
 		// Boolean variable, that controls if best score corresponds to a replacement
-		std::cout << "Is it a replacement? -> " << replacement << std::endl;
-		std::cout << "Is it an insertion_before? -> " << insertion_before << std::endl;
-		std::cout << "Is it an insertion_after? -> " << insertion_after << std::endl;
-		std::cout << "Is it an arc_insertion? -> " << arc_insertion << std::endl;
+		//std::cout << "Is it a replacement? -> " << replacement << std::endl;
+		//std::cout << "Is it an insertion_before? -> " << insertion_before << std::endl;
+		//std::cout << "Is it an insertion_after? -> " << insertion_after << std::endl;
+		//std::cout << "Is it an arc_insertion? -> " << arc_insertion << std::endl;
 		
 		// Making changes in Solution object
 		
@@ -1078,7 +1097,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	
 	// Last phase
 	
-	std::cout << "\n\nBeginning last phase\n\n" << std::endl;
+	// std::cout << "\n\nBeginning last phase\n\n" << std::endl;
 	
 	bool feasible_positions = true;
 	
@@ -1137,7 +1156,7 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 									
 									// std::cout << "Delta in epsilon: " << delta_epsilon << std::endl;
 									
-									double score = delta_epsilon*1000000 + delta_costs;
+									double score = delta_epsilon*100000 + delta_costs;
 									
 									// std::cout << "Score of this insertion: " << score << "\n\n";
 									
@@ -1182,9 +1201,9 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		if (feasible_positions){
 			
-			S.printSol();
+			// S.printSol();
 			
-			std::cout << "Inserting arc " << min_score_pickup_node << "-" << min_score_delivery_node << " in route " << min_score_route << " at position " << min_score_position << " with score " << min_score <<std::endl;
+			// std::cout << "Inserting arc " << min_score_pickup_node << "-" << min_score_delivery_node << " in route " << min_score_route << " at position " << min_score_position << " with score " << min_score <<std::endl;
 			
 			// std::string a;
 			
