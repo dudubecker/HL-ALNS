@@ -471,7 +471,6 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	}
 	
 	
-	
 	// While there are idle segments in solution:
 	while ((idle_segments) and (available_nodes.size() > 0)){
 		
@@ -578,20 +577,17 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		// Route max length - maybe there's a better way for doing that!
 		double routes_max_length = S.inst.T*S.inst.w_b.at(0);
 		
-		// Delta for insertion
-		double cost_delta = {};
-		
 		// Minimum insertion value
-		double min_cost_delta = 100000;
+		double min_score = 100000;
 		
 		// Corresponding idle demand of segment of minimum insertion costs
-		double min_cost_idle_demand = {};
+		double min_score_idle_demand = {};
 		
 		// Min costs node
-		int min_cost_node = {};
+		int min_score_node = {};
 		
 		// Pair with positions for insertion - First value is route, second is position
-		std::pair<int, int> min_cost_positions;
+		std::pair<int, int> min_score_positions;
 		
 		// Boolean variable that controls if inserting the node in any position is feasible
 		bool any_feasible_position = false;
@@ -644,21 +640,43 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 							
 							// Here, other types of scores can be calculated!
 							
-							cost_delta = deltaInsertion("cost", S, insertion_node, route_index, insertion_position);
+							double delta_costs = deltaInsertion("cost", S, insertion_node, route_index, insertion_position);
 							
-							// Checking if this is the position with lowest cost
-							if (cost_delta < min_cost_delta){
+							// Normalizing costs
+							double norm_delta_costs = (delta_costs - 2100)/(2100 - (-300));
+							
+							// Demand
+							double available_demand = std::min(segments_idle_demands_vector.at(route_index).at(segment_index), ( std::abs(S.inst.d.at(insertion_node)) - S.G.at(insertion_node)));
+							
+							// Calculating epsilon delta
+							double current_epsilon = std::abs((S.G.at(insertion_node))/(S.totalZ) - (std::abs(S.inst.d.at(insertion_node)))/(S.totalD));
+							
+							double epsilon_after_insertion = std::abs(((S.G.at(insertion_node) + available_demand))/(S.totalZ) - (std::abs(S.inst.d.at(insertion_node)))/(S.totalD));
+							
+							double delta_epsilon = epsilon_after_insertion - current_epsilon;
+							
+							// Normalizing epsilon
+							double norm_delta_epsilon = (delta_epsilon - (-0.05) )/(0.03 - (-0.05));
+							
+							// Calculating Z delta
+							
+							// double delta_unmet_demand = 
+							
+							double score = norm_delta_epsilon*gamma1 + norm_delta_costs*gamma2;
+							
+							// Checking if this is the position with lowest score
+							if (score < min_score){
 								
 								// If delta is the lowest, positions and delta are updated
 								
-								min_cost_delta = cost_delta;
+								min_score = score;
 								
-								min_cost_node = insertion_node;
+								min_score_node = insertion_node;
 								
-								min_cost_positions.first = route_index;
-								min_cost_positions.second = insertion_position;
+								min_score_positions.first = route_index;
+								min_score_positions.second = insertion_position;
 								
-								min_cost_idle_demand = segments_idle_demands_vector.at(route_index).at(segment_index);
+								min_score_idle_demand = available_demand;
 								
 								// std::cout << "\n" << cost_delta << std::endl;
 								
@@ -691,21 +709,21 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		// Calculating demand assigned to node
 		
 		// It's the minimum value between segment idle demand and client's current unmet demand (in absolute terms)
-		double demand = std::min(min_cost_idle_demand, ( std::abs(S.inst.d.at(min_cost_node)) - S.G.at(min_cost_node)));
+		double demand = std::min(min_score_idle_demand, ( std::abs(S.inst.d.at(min_score_node)) - S.G.at(min_score_node)));
 		
-		// std::cout << min_cost_node  << " " << min_cost_idle_demand << " " << std::abs(S.inst.d.at(min_cost_node)) - S.G.at(min_cost_node) << std::endl;
+		// std::cout << min_cost_node  << " " << min_score_idle_demand << " " << std::abs(S.inst.d.at(min_cost_node)) - S.G.at(min_cost_node) << std::endl;
 		
 		if ((any_feasible_position) and (demand > 0)){
 			
 			// Inserting client in positions with lowest delta
-			S.insertNodeAt(min_cost_node, min_cost_positions.first, min_cost_positions.second, demand);
+			S.insertNodeAt(min_score_node, min_score_positions.first, min_score_positions.second, demand);
 			
 		}
 		
 		// Node is no longer available if its demand is fully covered
-		if (S.Z.at(min_cost_node) > 0.999){
+		if (S.Z.at(min_score_node) > 0.999){
 			
-			available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&min_cost_node](int value) -> bool { return value == min_cost_node; }), available_nodes.end());
+			available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&min_score_node](int value) -> bool { return value == min_score_node; }), available_nodes.end());
 			
 		}
 		
@@ -752,21 +770,23 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	}
 	*/
 	
-}
+}	
 	
-	
-	
+	/*
+	// Route max length - maybe there's a better way for doing that!
+	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
 	
 	// Second part of insertion - Giving feasibility to solution regarding epsilon value
 	
+{
 	// Available nodes to be inserted: starts with all nodes in D
 	std::vector<int> available_nodes = {};
 	
-	double global_epsilon = 0.1;
+	double global_epsilon = 0.05;
 	
 	// Threshold for min best score
 	// double min_best_score = -500;
-	double min_best_score = -0.1;
+	double min_best_score = 0;
 	
 	// Route max length - maybe there's a better way for doing that!
 	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
@@ -774,14 +794,36 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	// Max epsilon
 	double max_epsilon = *std::max_element(S.epsilon.begin(), S.epsilon.end());
 	
-	while ((max_epsilon > global_epsilon)){
+	int it = 0;
 	
+	while ((max_epsilon > global_epsilon)){
 		
+		///////
+		
+		it += 1;
+		if (it>100){
+			break;
+		}
+		
+		///////
 		
 		
 		// Available nodes to be inserted: starts with all nodes in D
 		
-		available_nodes = S.unmet_demand_clients;
+		// available_nodes = S.unmet_demand_clients;
+		std::vector<int> available_nodes = S.inst.D;
+		// std::vector<int> available_nodes = S.unmet_demand_clients;
+		
+		// Taking out fully served clients
+		for (auto node: available_nodes){
+			
+			if (S.Z.at(node) == 1){
+				
+				available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&node](int value) -> bool { return value == node; }), available_nodes.end());
+				
+			}
+			
+		}
 		
 		// Minimum score found so far: great scores are negative scores!
 		double min_score = 9999;
@@ -1090,6 +1132,8 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 			
 		}
 		
+		std::cout << "Minimum score on iteration: " << min_score << std::endl;
+		
 		// Checking if mininum found score is better than threshold
 		if (min_best_score < min_score){
 			
@@ -1269,6 +1313,8 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 		
 	}
+//}
+	*/
 	
 	return S;
 	

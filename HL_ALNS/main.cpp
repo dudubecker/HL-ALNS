@@ -12,9 +12,9 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_CR_IM_IR_JO_MA_MA_NA_RE_TE_82_cpp.txt";
+	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	int number_of_periods = 30;
+	int number_of_periods = 5;
 	
 	// Randomness parameter
 	double p {4};
@@ -35,13 +35,13 @@ int main(){
 	
 	PartialRandomRemoval prr {};
 	
-	BasicGreedyInsertion bgi(1,1,0);
+	BasicGreedyInsertion bgi(1,1,1);
 	
 	ConcentricRemoval crr(300);
 	
 	Sol BKS = S;
 	
-	// Sol S_it = S;
+	Sol S_it = S;
 	
 	int it_BKS = 0;
 	
@@ -51,21 +51,23 @@ int main(){
 		
 		std::cout << "Iteration: " << i << std::endl;
 		
-		// std::string a;
+		std::string a;
 		
 		// S = S_it;
-		if (i%15 == 0){
 		
-			Gamma1 = ((double) rand() / (RAND_MAX));
-			Gamma2 = 1 - Gamma1;
-			
-			std::cout << Gamma1 << " " << Gamma2 << std::endl;
-			
-			Sol newS(inst, p, Gamma1, Gamma2);
-			
-			S = newS;
+		// if (i%15 == 0){
 		
-		}
+		Gamma1 = ((double) rand() / (RAND_MAX));
+		Gamma2 = 1 - Gamma1;
+		
+		std::cout << Gamma1 << " " << Gamma2 << std::endl;
+		
+		Sol newS(inst, p, Gamma1, Gamma2);
+		
+		S = newS;
+		
+		//}
+		
 		
 		double traveling_costs = {};
 		
@@ -93,6 +95,7 @@ int main(){
 		}
 		
 		
+		
 		if ((i % 2 == 0) and (i % 3 != 0)){
 			
 			wr.apply(S);
@@ -105,43 +108,49 @@ int main(){
 		} else {
 			
 			crr.apply(S);
-			// wr.apply(S);
+			// prr.apply(S);
 		}
 		
+		S.printSol();
 		
-		// S.printSol();
-		
-		// std::cin >> a;
+		std::cin >> a;
 		
 		bgi.apply(S);
 		
-		// S.printSol();
+		S.printSol();
 		
-		// std::cin >> a;
+		S.tidyUp();
+		
+		S.printSol();
+		
+		std::cin >> a;
 		
 		double FO = S.totalZ - 0.01*traveling_costs;
 		
-		int pen_unmet_demand = 2100;
+		int pen_unmet_demand = 1200;
 		
 		for (auto  &met_demand: S.Z){
 			
-			if (met_demand == 0){
+		 	if (met_demand == 0){
 				
-				FO -= pen_unmet_demand;
+		 		FO -= pen_unmet_demand;
 				
-			}
+		 	}
 			
 		}
 		
-		std::cout << "FO: " << FO << std::endl;
+		// std::cout << "FO: " << FO << std::endl;
 		
-		 if (FO > BKS.totalZ){
+		// std::cin >> a;
+		
+		
+		if (FO > BKS.totalZ){
 			
 		 	BKS = S;
 			
-		// 	S_it = S;
+		 	S_it = S;
 			
-		//	it_BKS = i;
+			it_BKS = i;
 			
 		}
 		
@@ -150,11 +159,9 @@ int main(){
 	}
 	
 	
-	
-	
 	BKS.printSol();
 	
-	// std::cout << "It: " << it_BKS << std::endl;
+	std::cout << "It: " << it_BKS << std::endl;
 	
 	// S.printSol();
 	

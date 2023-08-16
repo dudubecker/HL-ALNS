@@ -957,6 +957,199 @@ bool Sol::containsAny(std::vector<int> &nodes_vector){
 	
 }
 
+
+void Sol::tidyUp(){
+	
+	// For each node in solution
+	for (auto route_index {0}; route_index < inst.m; route_index++){
+		
+		// For each position
+		for (auto node_position {1}; node_position < RSize.at(route_index); node_position++){
+			
+			// Actual node index
+			int node = R.at(route_index).at(node_position);
+			
+			// If it's pickup node and there's still pickup capacity
+			if ((Z.at(node) == 9999) and (G.at(node) > 0)){
+				
+				// Check if picked-up amount is lower than vehicle capacity
+				if (z.at(route_index).at(node_position) < inst.Q.at(route_index)){
+					
+					// Amount of load that I can add to segment
+					// It's the minimum value between available load on pickup point and the difference of vehicle capacity and picked up amount!
+					double transferrable_load = std::min((inst.Q.at(route_index) - z.at(route_index).at(node_position)),(G.at(node)));
+					
+					// If it's possible to transfer any demand at all
+					if (transferrable_load > 0){
+						
+						// std::cout << "Pickup node " << node << " has " << transferrable_load << " transferrable load at route " << route_index << " and position " << node_position << std::endl;
+						
+						// Calculating unmet demand of segment
+						double segment_unmet_demand = 0;
+						
+						// Vector of old picked up and delivered amounts in segment
+						std::vector<double> segment_old_z = {z.at(route_index).at(node_position)};
+						
+						// Vector for clients in segment
+						std::vector<int> segment_nodes = {node};
+						
+						for (auto node_segment_position {node_position + 1}; node_segment_position < RSize.at(route_index); node_segment_position++){
+							
+							int node_at_segment = R.at(route_index).at(node_segment_position);
+							
+							
+							// If pickup node, segment is over
+							if (Z.at(node_at_segment) == 9999){
+								
+								break;
+								
+							}
+							
+							double unmet_demand = std::abs(inst.d.at(node_at_segment)) - G.at(node_at_segment);
+							
+							// std::cout << "Client " << node_at_segment << " has " << unmet_demand << " unmet demand." << std::endl;
+							
+							// Storing old delivered amount, for next step
+							segment_old_z.push_back(z.at(route_index).at(node_segment_position));
+							
+							// Storing node in segment
+							segment_nodes.push_back(node_at_segment);
+							
+							segment_unmet_demand += unmet_demand;
+							
+						}
+						
+						// If my segment has any client with unmet demands:
+						if (segment_unmet_demand > 0){
+							
+							// The load that I can add to the pickup visit is the minimum value
+							// between the full segment unmet demand and the transferrable demand
+							
+							transferrable_load = std::min(transferrable_load, segment_unmet_demand);
+							
+							// New amount picked up in visit - it's equal to transferrable demand plus the old collected demand!
+							double new_pickup_load = transferrable_load + z.at(route_index).at(node_position);
+							
+							// Vector of new picked up and delivered amounts in segment
+							std::vector<double> segment_new_z = segment_old_z;
+							segment_new_z.at(0) = new_pickup_load;
+							
+							// Variable that controls how much load was added to segment
+							double total_additional_load = 0;
+							
+							// Variable that controls the position _in segment_ (iterations)
+							int it {1};
+							
+							// For each delivery node on segment
+							for (auto node_segment_position {node_position + 1}; node_segment_position < RSize.at(route_index); node_segment_position++){
+								
+								int node_at_segment = R.at(route_index).at(node_segment_position);
+								
+								// Unmet demand of client
+								double unmet_demand = std::abs(inst.d.at(node_at_segment)) - G.at(node_at_segment);
+								
+								// Additional load - minimum value between transferrable load and client current unmet demand
+								double additional_load = std::min(unmet_demand, transferrable_load);
+								
+								// Updating new z values with additional load at position
+								double new_z = segment_old_z.at(it) - additional_load;
+								segment_new_z.at(it) = new_z;
+								
+								total_additional_load += additional_load;
+								
+								
+								if (total_additional_load == transferrable_load){
+									
+									break;
+									
+								}
+								
+								it += 1;
+								
+							}
+							
+							printDouble(segment_old_z);
+							printDouble(segment_new_z);
+							
+							// Manually updating values, without remove/insert operators:
+							// This is done because by removing/inserting nodes, main for loops bug, leading to errors in solutions!
+							
+							// Variable that stores iteration (position in segment)
+							
+							it = 0;
+							
+							// Adding nodes again
+							for (auto node_segment_position {node_position}; node_segment_position < RSize.at(route_index); node_segment_position++){
+								
+								int node_at_segment = segment_nodes.at(it);
+								double demand_at_segment = std::abs(segment_new_z.at(it));
+								
+								// If pickup node
+								if (Z.at(node_at_segment) == 9999){
+									
+									// Updating z value
+									z.at(route_index).at(node_segment_position) = demand_at_segment;
+									
+									// Updating G value
+									G.at(node_at_segment) -= demand_at_segment;
+									
+									// Updating global Z value
+									totalZ += (segment_new_z.at(it) - segment_old_z.at(it));
+									
+									
+								// If delivery node
+								} else {
+									
+									// Updating z value
+									z.at(route_index).at(node_segment_position) = -demand_at_segment;
+									
+									// Updating G value
+									G.at(node_at_segment) += std::abs(std::abs(segment_new_z.at(it)) - std::abs(segment_old_z.at(it)));
+									
+									// Updating Z value
+									Z.at(node_at_segment) = G.at(node_at_segment)/std::abs(inst.d.at(node_at_segment));
+									
+								}
+								
+								it += 1;
+								
+								// If segment has ended, loop breaks
+								if (it == segment_nodes.size()){
+									
+									break;
+								}
+							}
+							
+							
+							
+							
+							printSol();
+							
+							
+						}
+						
+						
+					}
+					
+					
+					
+				}
+				
+			}
+			
+		}
+		
+		
+	}
+	
+	
+	
+	// Updating epsilons
+	updateEpsilon();
+	
+	
+}
+
 //// Print/Output methods
 
 void Sol::printSol(){

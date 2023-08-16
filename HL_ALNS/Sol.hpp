@@ -22,7 +22,7 @@ public:
 	
 	// The first key is the route index, and the second key is the position of node in route
 	// std::vector<std::vector<std::pair<int, int>>> nodesPositions {};
-	std::vector<std::vector<std::vector<int>>> nodesPositions {};
+	// std::vector<std::vector<std::vector<int>>> nodesPositions {};
 	
 	// Current amount of goods in each node
 	std::vector<double> G {};
@@ -100,7 +100,11 @@ public:
 	// Returns true if solution contains at least one node in vector and false otherwise
 	bool containsAny(std::vector<int> &nodes_vector);
 	
+	// Updates epsilon values
 	void updateEpsilon();
+	
+	// Rebalances pickup visits with all possibly picked up capacity
+	void tidyUp();
 	
 
 };
