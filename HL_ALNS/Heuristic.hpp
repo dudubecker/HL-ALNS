@@ -104,7 +104,25 @@ public:
 
 class WorstRemoval : public RemovalHeuristic {
 public:
-    // Sobrescrita do método "specificApply" para a PartialRandomRemoval
+    
+	
+	// Attribute - weight for epsilon
+	double gamma1 {};
+	
+	// Attribute - weight for costs
+	double gamma2 {};
+	
+	// Attribute - weight for unmet_demand
+	double gamma3 {};
+	
+	// Constructor:
+	WorstRemoval(int epsilon_weight, int costs_weight, int unmet_demand_weight){
+		gamma1 = epsilon_weight;
+		gamma2 = costs_weight;
+		gamma3 = unmet_demand_weight;
+	};
+	
+	
     Sol specificApply(Sol &S) override;
 	
 	
@@ -130,6 +148,7 @@ public:
 
 class InsertionHeuristic : public Heuristic {
 public:
+
 	
 	// Sobrescrita do método "specificApply" para a RemovalHeuristic
     int initializeMethod(Sol &S) override {};
@@ -141,7 +160,24 @@ public:
 // Insertion heuristics inherited objects
 class BasicGreedyInsertion : public InsertionHeuristic {
 public:
-    // Sobrescrita do método "specificApply" para a PartialRandomRemoval
+	
+	// Attribute - weight for epsilon
+	double gamma1 {};
+	
+	// Attribute - weight for costs
+	double gamma2 {};
+	
+	// Attribute - weight for unmet_demand
+	double gamma3 {};
+	
+	// Constructor:
+	BasicGreedyInsertion(int epsilon_weight, int costs_weight, int unmet_demand_weight){
+		gamma1 = epsilon_weight;
+		gamma2 = costs_weight;
+		gamma3 = unmet_demand_weight;
+	};
+	
+	
     Sol specificApply(Sol &S) override;
 };
 

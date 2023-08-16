@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ctime>
 #include "Instance.hpp"
 #include "Sol.hpp"
 #include "Heuristic.hpp"
@@ -11,18 +12,18 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_JO_NA_9_cpp.txt";
+	std::string file_name = "INST_CR_IM_IR_JO_MA_MA_NA_RE_TE_82_cpp.txt";
 	
-	int number_of_periods = 4;
+	int number_of_periods = 30;
 	
 	// Randomness parameter
 	double p {4};
 	
 	// Proximity weight
-	double Gamma1 {0.6};
+	double Gamma1 {0.8};
 	
 	// Met demand weight
-	double Gamma2 {0.4};
+	double Gamma2 {0.2};
 	
 	Instance inst(file_name, number_of_periods);
 	
@@ -30,45 +31,137 @@ int main(){
 	
 	S.printSol();
 	
-	
-	WorstRemoval wr {};
+	WorstRemoval wr(1,1,1);
 	
 	PartialRandomRemoval prr {};
 	
-	BasicGreedyInsertion bgi {};
+	BasicGreedyInsertion bgi(1,1,0);
+	
+	ConcentricRemoval crr(300);
 	
 	Sol BKS = S;
 	
-	for (auto i {0}; i < 10; i++){
+	// Sol S_it = S;
+	
+	int it_BKS = 0;
+	
+	// srand(time(NULL));
+	
+	for (auto i {0}; i < 100; i++){
 		
+		std::cout << "Iteration: " << i << std::endl;
 		
-		prr.apply(S);
+		// std::string a;
 		
-		bgi.apply(S);
+		// S = S_it;
+		if (i%15 == 0){
 		
-		// wr.apply(S);
-		
-		// bgi.apply(S);
-		
-		if (S.totalZ > BKS.totalZ){
+			Gamma1 = ((double) rand() / (RAND_MAX));
+			Gamma2 = 1 - Gamma1;
 			
-			BKS = S;
+			std::cout << Gamma1 << " " << Gamma2 << std::endl;
+			
+			Sol newS(inst, p, Gamma1, Gamma2);
+			
+			S = newS;
+		
+		}
+		
+		double traveling_costs = {};
+		
+		for (int route_index {0}; route_index < S.R.size(); route_index++){
+			
+			// double route_traveling_time = 0;
+			
+			for (int node_index {0}; node_index < S.R.at(route_index).size() - 1; node_index++){
+				
+				int first_arc_node = S.R.at(route_index).at(node_index);
+				
+				int second_arc_node = S.R.at(route_index).at(node_index  + 1);
+				
+				double arc_costs = S.inst.c.at(first_arc_node).at(second_arc_node).at(route_index);
+				
+				double arc_time = S.inst.t.at(first_arc_node).at(second_arc_node).at(route_index);
+				
+				traveling_costs += arc_costs;
+				//route_traveling_time += arc_time;
+				
+			}
+			
+			// std::cout << "Route " << route_index << ": " << route_traveling_time << std::endl;
 			
 		}
 		
+		
+		if ((i % 2 == 0) and (i % 3 != 0)){
 			
+			wr.apply(S);
+			
+			
+		} else if (i % 3 == 0){
+			
+			prr.apply(S);
+			
+		} else {
+			
+			crr.apply(S);
+			// wr.apply(S);
+		}
+		
+		
+		// S.printSol();
+		
+		// std::cin >> a;
+		
+		bgi.apply(S);
+		
+		// S.printSol();
+		
+		// std::cin >> a;
+		
+		double FO = S.totalZ - 0.01*traveling_costs;
+		
+		int pen_unmet_demand = 2100;
+		
+		for (auto  &met_demand: S.Z){
+			
+			if (met_demand == 0){
+				
+				FO -= pen_unmet_demand;
+				
+			}
+			
+		}
+		
+		std::cout << "FO: " << FO << std::endl;
+		
+		 if (FO > BKS.totalZ){
+			
+		 	BKS = S;
+			
+		// 	S_it = S;
+			
+		//	it_BKS = i;
+			
+		}
+		
 		
 		
 	}
 	
 	
+	
+	
 	BKS.printSol();
+	
+	// std::cout << "It: " << it_BKS << std::endl;
 	
 	// S.printSol();
 	
-	// S.toTXT(file_name);
+	// BKS.toTXT(file_name);
 	
 	// printInt(S.unmet_demand_clients);
+	
 	
 	
 	 

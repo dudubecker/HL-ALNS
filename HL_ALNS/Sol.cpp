@@ -3,6 +3,7 @@
 #include <random>
 #include <chrono>
 #include <algorithm>
+#include <iomanip>
 
 
 // Initialization already constructs initial solution!
@@ -15,7 +16,7 @@ Sol::Sol(Instance &inst_val, double &p, double &Gamma1, double &Gamma2){
 	std::cout << "\n\nConstructed solution: \n\n";
 	
 	// Replicable data
-	srand(120);
+	// srand(120);
 	
 	// True random data
 	// srand(time(NULL);
@@ -505,7 +506,8 @@ void Sol::removeNodeAt(int &route_index, int &removal_index){
 			
 			
 			// Including client in unmet demand, if it was previously fully served
-			if (Z.at(current_node) > 0.999){
+			// if (Z.at(current_node) > 0.999){
+			if ((Z.at(current_node) >= 1) and (!count(unmet_demand_clients.begin(), unmet_demand_clients.end(), current_node))){
 				
 				unmet_demand_clients.push_back(current_node);
 				
@@ -599,7 +601,7 @@ void Sol::removeNodeCase(int &node_index){
 		int random_route = rand()%inst.m;
 		
 		// Getting random position at route, not including position 0!
-		int random_position = 1 + rand()%(RSize.at(random_route) - 1);
+		int random_position = 1 + rand()%(RSize.at(random_route) - 2);
 		
 		// Node in route
 		int node = R.at(random_route).at(random_position);
@@ -627,7 +629,7 @@ void Sol::removeNodeCase(int &node_index){
 		
 	} else {
 		
-		std::cout << "Node not visited in solution" << std::endl;
+		//std::cout << "Node not visited in solution" << std::endl;
 		
 	}
 	
@@ -653,6 +655,17 @@ void Sol::replaceNodeAt(int node_index, int route_index, int replace_index){
 
 // Inserts node at specific position
 void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, double &demand){
+	
+	// Trying to fix bug: clients reveicing more than demand
+	if ((Z.at(node_index) != 9999)){
+		
+		double unmet_demand = std::abs(inst.d.at(node_index)) - G.at(node_index);
+		
+		demand = std::min(demand, unmet_demand);
+		
+	}
+	
+	
 	
 	// Boolean to control exception 1 - Inserted node is equal to left node
 	bool exception1 = false;
@@ -723,7 +736,7 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 			} else if (node_index == R.at(route_index).at(insertion_index + 1)){
 				
 				
-				std::cout << "\n\n\n HERE IS THE EXCEPTION 2!!! \n\n\n";
+				// std::cout << "\n\n\n HERE IS THE EXCEPTION 2!!! \n\n\n";
 				
 				// std::cout << demand << " " << z.at(route_index).at(insertion_index + 1) << std::endl;
 				
@@ -762,10 +775,13 @@ void Sol::insertNodeAt(int &node_index, int &route_index, int &insertion_index, 
 		
 		G.at(node_index) += demand;
 		totalZ += demand;
-		Z.at(node_index) += demand/std::abs(inst.d.at(node_index));
+		// Z.at(node_index) += demand/std::abs(inst.d.at(node_index));
+		Z.at(node_index) = G.at(node_index)/std::abs(inst.d.at(node_index));
 		z.at(route_index).insert(z.at(route_index).begin() + insertion_index, -demand);
 		
-		if (Z.at(node_index) > 0.999){
+		// if (Z.at(node_index) > 0.999){
+		if (Z.at(node_index) == 1){
+			
 			
 			unmet_demand_clients.erase(std::remove_if(unmet_demand_clients.begin(), unmet_demand_clients.end(), [&node_index](int value) -> bool { return value == node_index; }), unmet_demand_clients.end());
 			
@@ -887,7 +903,6 @@ void Sol::updateEpsilon(){
 	}
 	
 }
-
 
 // Checking if solution contains all node(s)
 bool Sol::containsAll(std::vector<int> &nodes_vector){

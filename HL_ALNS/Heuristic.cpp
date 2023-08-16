@@ -35,7 +35,7 @@ int RemovalHeuristic::initializeMethod(Sol &S) {
 	// std::cout << "Removal heuristics base code\n";
 	
 	// Replicable data
-	srand(119);
+	// srand(119);
 	
 	// True random data
 	// srand(time(NULL));
@@ -47,7 +47,7 @@ int RemovalHeuristic::initializeMethod(Sol &S) {
 	int low_mi = round(number_of_nodes*0.2);
 	
 	// Valor máximo de mi (40% da quantidade de pedidos)
-	int high_mi = round(number_of_nodes*0.3);
+	int high_mi = round(number_of_nodes*0.4);
 	
 	int mi = low_mi + rand()%(high_mi - low_mi + 1);
 	
@@ -126,6 +126,9 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 	
 	// While "mi" nodes haven't been removed or while there's still cases of nodes to be removed in neighborhood
 	
+	// Limiting number of iterations - very rare case when while loop does not stop!
+	int it = 0;
+	
 	
 	while (((initial_number_of_nodes - current_number_of_nodes) < mi) and (S.containsAny(neighborhood_nodes))){
 		
@@ -140,6 +143,15 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 		// Updating number of nodes in solution
 		current_number_of_nodes = std::accumulate(S.RSize.begin(), S.RSize.end(), 0);
 		
+		////
+		it += 1;
+		if (it > 3000){
+			
+			break;
+			
+		}
+		////
+		
 	}
 	
 	// std::cout << "mi = " << mi << std::endl;
@@ -153,6 +165,7 @@ Sol ConcentricRemoval::specificApply(Sol &S) {
 }
 
 // Sobrescrita do método "specificApply" para a PartialRandomRemoval
+
 Sol WorstRemoval::specificApply(Sol &S) {
 	
 	std::cout << "\n\nWorst Removal: \n";
@@ -162,22 +175,25 @@ Sol WorstRemoval::specificApply(Sol &S) {
 	// Counter for removed nodes in solution
 	int amount_of_removed_nodes = 0;
 	
+	
+	
 	while (amount_of_removed_nodes < mi){
+		
+		
 		
 		double random_number = {};
 		random_number = ((double) rand() / (RAND_MAX));
 		
 		// Chance of a segment being selected instead of a node
 		
-		double segment_removal_chance = 0.8;
-		
+		double segment_removal_chance = 1;
 		
 		// Removing node
 		if (random_number > segment_removal_chance){
 			
 			// Evaluating delta in costs and epsilon for removing delivery node
 			
-			std::cout << "\n\n\nREMOVING NODE\n\n\n";
+			// std::cout << "\n\n\nREMOVING NODE\n\n\n";
 			
 			double min_score = 9999;
 			
@@ -189,7 +205,7 @@ Sol WorstRemoval::specificApply(Sol &S) {
 			
 			for (auto route_index {0}; route_index < S.inst.m; route_index++){
 				
-				for (auto node_position {0}; node_position < S.RSize.at(route_index); node_position++){
+				for (auto node_position {1}; node_position < S.RSize.at(route_index); node_position++){
 					
 					
 					int node = S.R.at(route_index).at(node_position);
@@ -197,15 +213,25 @@ Sol WorstRemoval::specificApply(Sol &S) {
 					// Node needs to be delivery node
 					if (S.Z.at(node) != 9999){
 						
-						
+						// Costs:
 						double delta_costs = deltaRemoval("cost", S, node, route_index, node_position);
+						
+						// Normalizing delta costs
+						// std::cout << delta_costs << "," << std::endl;
+						
+						double norm_delta_costs = (delta_costs - (-700))/(320 - (700));
+						
+						double norm_delta_unmet_demand = std::abs(S.z.at(route_index).at(node_position))/std::abs(S.inst.d.at(node));
+						
+						
 						// double delta_epsilon = deltaEpsilonRemoval(S, node, route_index, node_position);
 						
 						// std::cout << "Node: " << node << ", Route: " << route_index << ", position: " << node_position << std::endl;
 						// std::cout << "Delta in costs: " << delta_costs << std::endl;
 						// std::cout << "Delta in epsilon: " << delta_epsilon << "\n\n";
 						
-						double score = delta_costs;
+						// double score = delta_costs;
+						double score = (norm_delta_costs*gamma2 - norm_delta_unmet_demand*gamma3);
 						
 						if (score < min_score){
 							
@@ -227,7 +253,8 @@ Sol WorstRemoval::specificApply(Sol &S) {
 			}
 			
 			
-			std::cout << "\n\nRemoved node: " << min_score_node << ", Route: " << min_score_route << ", position: " << min_score_position << ", and delta: " << min_score << "\n\n";
+			
+			// std::cout << "\n\nRemoved node: " << min_score_node << ", Route: " << min_score_route << ", position: " << min_score_position << ", and delta: " << min_score << "\n\n";
 			
 			// Old length of route
 			int route_old_length = S.RSize.at(min_score_route);
@@ -245,10 +272,12 @@ Sol WorstRemoval::specificApply(Sol &S) {
 			// Incrementing counter
 			amount_of_removed_nodes += removed_nodes;
 			
-		// Removing segment
+		// Removing segment - Handling error!
 		} else {
 			
-			std::cout << "\n\n\nREMOVING SEGMENT\n\n\n";
+				
+				
+			// std::cout << "\n\n\nREMOVING SEGMENT\n\n\n";
 			
 			double min_score = 9999;
 			
@@ -280,7 +309,7 @@ Sol WorstRemoval::specificApply(Sol &S) {
 					int node = S.R.at(route_index).at(node_position);
 					
 					// If not last segment
-					if ((S.Z.at(node) == 9999) and (node_position > 1)){
+					if ((S.Z.at(node) == 9999) and ((node_position > 1))){
 						
 						// std::cout << "First node (pickup): " << segment.at(0) << std::endl;
 						// std::cout << "Route: " << route_index << std::endl;
@@ -367,14 +396,17 @@ Sol WorstRemoval::specificApply(Sol &S) {
 				
 			}
 			
-			std::cout << "\n\nRemoved node: " << min_score_segment_first_node << ", Route: " << min_score_route << ", position: " << min_score_position << ", and delta: " << min_score << "\n\n";
+			
+			
+			// std::cout << "\n\nRemoved node: " << min_score_segment_first_node << ", Route: " << min_score_route << ", position: " << min_score_position << ", and delta: " << min_score << "\n\n";
 			
 			// Old length of route
 			int route_old_length = S.RSize.at(min_score_route);
 			
-			// Removing minimum score segment
-			S.removeNodeAt(min_score_route, min_score_position);
-			
+			// Removing minimum score segment - Only if segment of right length was found!
+			if (min_score != 9999){
+				S.removeNodeAt(min_score_route, min_score_position);
+			}
 			// New length of route
 			int route_new_length = S.RSize.at(min_score_route);
 			
@@ -386,13 +418,6 @@ Sol WorstRemoval::specificApply(Sol &S) {
 			
 			
 		}
-		
-		
-		// S.printSol();
-		
-		// std::string a;
-		
-		// std::cin >> a;
 		
 		
 	}
@@ -407,7 +432,7 @@ void InsertionHeuristic::initializeMethod() {
 	// std::cout << "Initializing Insertion" << std::endl;
 	
 	// Replicable data
-	srand(136);
+	// srand(130);
 	
 	// True random data
 	// srand(time(NULL));
@@ -422,7 +447,8 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	InsertionHeuristic::initializeMethod();
 	
 	std::cout << "\n\nBasic Greedy Insertion\n\n" << std::endl;
-
+	
+	
 	// First part of insertion - Getting rid of idle segments
 {
 	bool idle_segments {true};
@@ -431,22 +457,25 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	
 	// Available nodes to be inserted: starts with all nodes in D
 	std::vector<int> available_nodes = S.inst.D;
+	// std::vector<int> available_nodes = S.unmet_demand_clients;
 	
 	// Taking out fully served clients
 	for (auto node: available_nodes){
 		
-		if (S.Z.at(node) == 1){
+	 	if (S.Z.at(node) == 1){
 			
-			available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&node](int value) -> bool { return value == node; }), available_nodes.end());
+	 		available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&node](int value) -> bool { return value == node; }), available_nodes.end());
 			
 		}
 		
 	}
 	
+	
+	
 	// While there are idle segments in solution:
 	while ((idle_segments) and (available_nodes.size() > 0)){
 		
-		std::cout << available_nodes.size() << std::endl;
+		// std::cout << available_nodes.size() << std::endl;
 		
 		// The solution will now be segmented, and the "segments_vector" variable
 		// will store, for each route (key), all idle segments, by positions in route
@@ -461,6 +490,8 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 			}
 			segment.clear();
 		}
+		
+		
 		
 		// Variable that stores idle demand values in each segment
 		std::vector<std::vector<double>> segments_idle_demands_vector(S.inst.m, std::vector<double>());
@@ -680,9 +711,12 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		
 	}
 	
+	
+	
 	// Last part of initialization - If some segment could not have any feasible insertion, it is then removed
 	// This is done because in the next part of the insertion, no segment can be idle!
 	
+	/*
 	for (auto route_index {0}; route_index < segments_vector.size(); route_index++){
 		
 		for (auto segment_index {0}; segment_index < segments_vector.at(route_index).size(); segment_index++){
@@ -716,7 +750,11 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		}
 		
 	}
+	*/
+	
 }
+	
+	
 	
 	
 	// Second part of insertion - Giving feasibility to solution regarding epsilon value
@@ -724,10 +762,11 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	// Available nodes to be inserted: starts with all nodes in D
 	std::vector<int> available_nodes = {};
 	
-	double global_epsilon = 0.15;
+	double global_epsilon = 0.1;
 	
 	// Threshold for min best score
-	double min_best_score = -500;
+	// double min_best_score = -500;
+	double min_best_score = -0.1;
 	
 	// Route max length - maybe there's a better way for doing that!
 	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
@@ -736,12 +775,12 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	double max_epsilon = *std::max_element(S.epsilon.begin(), S.epsilon.end());
 	
 	while ((max_epsilon > global_epsilon)){
+	
 		
-		// S.printSol();
+		
 		
 		// Available nodes to be inserted: starts with all nodes in D
 		
-		////// It would be more efficient if this was an attribute!
 		available_nodes = S.unmet_demand_clients;
 		
 		// Minimum score found so far: great scores are negative scores!
@@ -804,19 +843,39 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 						// Feasibility for inserting node before source node
 						if ((S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_before) < routes_max_length) and (receiver_node_index != node_before_source)){
 							
-							// std::cout << "Feasible insertion before found!" << std::endl;
-							
 							// Calculating scores
 							
+							// Epsilon
 							std::tie(delta_epsilon, transferred_demand) = deltaEpsilonInsertion(S, source_node_index, receiver_node_index, route_index, position_index);
 							
-							double delta_costs_insertion_before = deltaInsertion("cost", S, receiver_node_index, route_index, position_before);
-							double score_insertion_before = delta_epsilon*100000 + delta_costs_insertion_before;
+							// Normalizing epsilon:
+							double norm_delta_epsilon = (delta_epsilon - (-0.05) )/(0.03 - (-0.05));
 							
-							if (score_insertion_before < min_score){
+							// Costs
+							double delta_costs_insertion_before = deltaInsertion("cost", S, receiver_node_index, route_index, position_before);
+							
+							// Normalizing costs:
+							double norm_delta_costs_insertion_before = (delta_costs_insertion_before - 2100)/(2100 - (-300));
+							
+							// Unmet demand (naturally normalized) - the bigger this value, the better!
+							double norm_delta_unmet_demand = transferred_demand/std::abs(S.inst.d.at(receiver_node_index));
+							
+							// Score:
+							double norm_score_insertion_before = norm_delta_epsilon*gamma1 + norm_delta_costs_insertion_before*gamma2 - norm_delta_unmet_demand*gamma3;
+							
+							// std::cout << "Delta epsilon: " << delta_epsilon << "," << std::endl;
+							// std::cout << "Delta costs: " << delta_costs_insertion_before << "," << std::endl;
+							// std::cout << "Delta unmet demand: " << norm_delta_unmet_demand << "," << std::endl;
+							// std::cout << "Normalized delta epsilon:" << norm_delta_epsilon << "," << std::endl;
+							// std::cout << "Normalized delta costs:" << norm_delta_costs_insertion_before << "," << std::endl;
+							// std::cout << "Normalized delta unmet demand:" << norm_delta_unmet_demand << "," << std::endl;
+							// std::cout << "Normalized score: " << norm_score_insertion_before << ",\n\n" << std::endl;
+							
+							if (norm_score_insertion_before < min_score){
 								
 								// Updating values with corresponding data from iteration
-								min_score = score_insertion_before;
+								// min_score = score_insertion_before;
+								min_score = norm_score_insertion_before;
 								// Corresponding node of minimum score
 								min_score_node = receiver_node_index;
 								// Corresponding route of minimum score
@@ -832,28 +891,37 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 								arc_insertion = false;
 								
 							}
-							
-							// std::cout << "Score: " << score_insertion_before << "\n\n";
 						}
 						
 						// Feasibility for inserting node after source node
 						if ((S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_after) < routes_max_length) and (position_after <= S.RSize.at(route_index))){
 						//if ((S.W.at(route_index) + deltaInsertion("time", S, receiver_node_index, route_index, position_after) < routes_max_length) and (S.Z.at(position_after) != 9999)){
-						
-							// std::cout << "Feasible insertion after found!" << std::endl;
 							
 							// Calculating scores
 							
+							// Epsilon
 							std::tie(delta_epsilon, transferred_demand) = deltaEpsilonInsertion(S, source_node_index, receiver_node_index, route_index, position_index);
 							
+							// Normalizing epsilon
+							double norm_delta_epsilon = (delta_epsilon - (-0.05) )/(0.03 - (-0.05));
+							
+							// Costs:
 							double delta_costs_insertion_after = deltaInsertion("cost", S, receiver_node_index, route_index, position_after);
 							
-							double score_insertion_after = delta_epsilon*100000 + delta_costs_insertion_after;
+							// Normalizing costs:
+							double norm_delta_costs_insertion_after = (delta_costs_insertion_after - 2100)/(2100 - (-300));
 							
-							if (score_insertion_after < min_score){
+							// Unmet demand (naturally normalized)
+							double norm_delta_unmet_demand = transferred_demand/std::abs(S.inst.d.at(receiver_node_index));;
+							
+							// Score:
+							double norm_score_insertion_after = norm_delta_epsilon*gamma1 + norm_delta_costs_insertion_after*gamma2 - norm_delta_unmet_demand*gamma3;
+							
+							if (norm_score_insertion_after < min_score){
 								
 								// Updating values with corresponding data from iteration
-								min_score = score_insertion_after;
+								// min_score = score_insertion_after;
+								min_score = norm_score_insertion_after;
 								// Corresponding node of minimum score
 								min_score_node = receiver_node_index;
 								// Corresponding route of minimum score
@@ -876,26 +944,35 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 						// Feasibility for replacing source node for receiving node
 						if (S.W.at(route_index) + deltaReplacement("time", S, receiver_node_index, route_index, position_index) < routes_max_length){
 							
-							// std::cout << S.W.at(route_index) + deltaReplacement("time", S, receiver_node_index, route_index, position_index) << std::endl;
-							// std::cout << "Feasible replacement found!" << std::endl;
-							
-							
 							// Calculating scores
 							
+							// Epsilon
 							std::tie(delta_epsilon, transferred_demand) = deltaEpsilonInsertion(S, source_node_index, receiver_node_index, route_index, position_index);
 							
-							double delta_costs_replacement = deltaReplacement("cost", S, receiver_node_index, route_index, position_index);
-							double score_replacement = delta_epsilon*100000 + delta_costs_replacement;
+							// Normalizing epsilon
+							double norm_delta_epsilon = (delta_epsilon - (-0.05) )/(0.03 - (-0.05));
 							
-							// std::cout << "Score: " << score_replacement << "\n\n";
+							// Costs:
+							double delta_costs_replacement = deltaReplacement("cost", S, receiver_node_index, route_index, position_index);
+							
+							// Normalizing costs:
+							double norm_delta_costs_replacement = (delta_costs_replacement - 2100)/(2100 - (-300));
+							
+							// Unmet demand (naturally normalized)
+							double norm_delta_unmet_demand = transferred_demand/std::abs(S.inst.d.at(receiver_node_index));;
+							
+							// Score:
+							double norm_score_replacement = norm_delta_epsilon*gamma1 + norm_delta_costs_replacement*gamma2 - norm_delta_unmet_demand*gamma3;
+							
 							
 							// Replacement has an additional constraint: I can only replace if transferring all demand doesn't impact epsilon sums!
-							if ((score_replacement < min_score) and (transferred_demand == std::abs(S.z.at(route_index).at(position_index)))){
+							if ((norm_score_replacement < min_score) and (transferred_demand == std::abs(S.z.at(route_index).at(position_index)))){
 								
 								// std::cout << "\n\n\nREPLACEMENT POSITION HAS BECOME THE BEST ONE\n\n\n" << std::endl;
 								
 								// Updating values with corresponding data from iteration
-								min_score = score_replacement;
+								// min_score = score_replacement;
+								min_score = norm_score_replacement;
 								// Corresponding node of minimum score
 								min_score_node = receiver_node_index;
 								// Corresponding route of minimum score
@@ -945,29 +1022,36 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 								
 								if (S.W.at(route_index) + deltaInsertionArc("time", S, pickup_node, delivery_node, route_index, arc_insertion_position) < routes_max_length){
 									
+									// Calculating scores
 									
-									// std::cout << "Arc " << pickup_node << "-" << delivery_node << " can be inserted in route " << route_index << " at position " << arc_insertion_position << std::endl;
-									
-									double delta_costs = deltaInsertionArc("costs", S, pickup_node, delivery_node, route_index, arc_insertion_position);
-									
-									// Available demand in arc: minimum value between pickup node current capacity and vehicle capacity
+									// Available demand in arc: minimum value between pickup node current capacity, vehicle capacity and current node unmet demand
 									double available_demand = std::min(S.inst.Q.at(route_index), S.G.at(pickup_node));
 									
+									//////// JUST ADDED, IT CAN LEAD TO A BUG!!!!!!!!
+									available_demand = std::min(available_demand, (S.G.at(node_at_position) - std::abs(S.inst.d.at(node_at_position))));
+									
+									// Epsilon:
 									double delta_epsilon = deltaEpsilonInsertionArc(S, delivery_node, available_demand);
 									
-									// std::cout << "Delta in costs: " << delta_costs << std::endl;
+									// Normalizing epsilon:
+									double norm_delta_epsilon = (delta_epsilon - (-0.05) )/(0.03 - (-0.05));
 									
-									// std::cout << "Delta in epsilon: " << delta_epsilon << std::endl;
+									// Costs:
+									double delta_costs = deltaInsertionArc("costs", S, pickup_node, delivery_node, route_index, arc_insertion_position);
 									
-									double score = delta_epsilon*100000 + delta_costs;
+									// Normalizing costs:
+									double norm_delta_costs = (delta_costs - 2100)/(2100 - (-300));
 									
-									// std::cout << "Score of this insertion: " << score << "\n\n";
+									// Unmet demand (naturally normalized)
+									double norm_delta_unmet_demand = available_demand/std::abs(S.inst.d.at(delivery_node));;
+									
+									double norm_score = norm_delta_epsilon*gamma1 + norm_delta_costs*gamma2 - norm_delta_unmet_demand*gamma3;
 									
 									// If arc insertion corresponds to minimum score found in search
-									if (score < min_score){
+									if (norm_score < min_score){
 										
 										// Updating values with corresponding data from iteration
-										min_score = score;
+										min_score = norm_score;
 										// Corresponding pickup node of minimum score
 										min_score_pickup_node = pickup_node;
 										// Corresponding pickup node of minimum score
