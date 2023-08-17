@@ -730,47 +730,177 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	}
 	
 	
+}	
 	
-	// Last part of initialization - If some segment could not have any feasible insertion, it is then removed
-	// This is done because in the next part of the insertion, no segment can be idle!
+	// S.printSol();
 	
-	/*
-	for (auto route_index {0}; route_index < segments_vector.size(); route_index++){
+	// Beginning second phase new code:
+	double routes_max_length = S.inst.T*S.inst.w_b.at(0);
+	
+	// Tidying up solution
+	S.tidyUp();
+	
+	// While there are feasible positions (this is only temporary)
+	
+	bool feasible_positions = true;
+	
+	while (feasible_positions){
 		
-		for (auto segment_index {0}; segment_index < segments_vector.at(route_index).size(); segment_index++){
+		// Insert P-D probability - important parameter to tune for method!
+		double pd_insertion_prob = 1;
+		
+		double random_value = 0;
+		random_value = ((double) rand() / (RAND_MAX));
+		
+		// Here begins P-D insertion code:
+		if (random_value < pd_insertion_prob){
 			
-			for (auto &removal_index: segments_vector.at(route_index).at(segment_index)){
+			// Boolean variable that controls if there are feasible insertion positions
+			feasible_positions = false;
+			
+			// Updating values with corresponding data from iteration
+			double min_score = 9999;
+			// Corresponding pickup node of minimum score
+			int min_score_pickup_node = {};
+			// Corresponding pickup node of minimum score
+			int min_score_delivery_node = {};
+			// Corresponding route of minimum score
+			int min_score_route = {};
+			// Corresponding position of minimum score
+			int min_score_position = {};
+			// Corresponding transferred demand of minimum score
+			double min_score_transferred_demand = {};
+			
+			// Available nodes to be inserted: starts with all nodes in D
+			std::vector<int> available_nodes = S.inst.D;
+			// std::vector<int> available_nodes = S.unmet_demand_clients;
+			
+			// Taking out fully served clients
+			for (auto node: available_nodes){
 				
-				// Initial route size
-				int initial_route_size = S.RSize.at(route_index);
-				
-				// Excluding idle segment
-				S.removeNodeAt(route_index, removal_index);
-				
-				// Route size after removal
-				int final_route_size = S.RSize.at(route_index);
-				
-				// Segment size, which is equal to variation in route size
-				int segment_size = initial_route_size - final_route_size;
-				
-				// Updating position in segments_vector object, based on delta in route size
-				for (auto index_position {0}; index_position < segments_vector.at(route_index).at(segment_index).size(); index_position++){
+				if (S.Z.at(node) == 1){
 					
-					segments_vector.at(route_index).at(segment_index).at(index_position) -= segment_size;
+					available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&node](int value) -> bool { return value == node; }), available_nodes.end());
 					
 				}
 				
+			}
+			
+			// unmet_demand_clients attribute still isn't 100% trustable
+			
+			//for (auto &delivery_node: S.unmet_demand_clients){
+			for (auto &delivery_node: available_nodes){
+				
+				for (auto &pickup_node: S.inst.P){
+					
+					if (S.G.at(pickup_node) > 0){
+						
+						// With arc, all possible insertion positions are searched
+						// An arc cannot be inserted at the middle of a segment!
+						for (auto route_index {0}; route_index < S.inst.m; route_index++){
+							
+							// Starts in one because of depot node
+							for (auto arc_insertion_position {1}; arc_insertion_position < S.RSize.at(route_index); arc_insertion_position++){
+								
+								int node_at_position = S.R.at(route_index).at(arc_insertion_position);
+								
+								// If node in position is pickup node, it means that it is the beginning of a segment.
+								// Thus, arcs can only be inserted at these positions
+								if (S.Z.at(node_at_position) == 9999){
+									
+									if (S.W.at(route_index) + deltaInsertionArc("time", S, pickup_node, delivery_node, route_index, arc_insertion_position) < routes_max_length){
+										
+										// Boolean variable
+										// feasible_positions = true;
+										
+										// std::cout << "Arc " << pickup_node << "-" << delivery_node << " can be inserted in route " << route_index << " at position " << arc_insertion_position << std::endl;
+										
+										double delta_costs = deltaInsertionArc("costs", S, pickup_node, delivery_node, route_index, arc_insertion_position);
+										
+										// Available demand in arc: minimum value between pickup node current capacity, vehicle capacity and unmet demand of client
+										double available_demand = std::min(S.inst.Q.at(route_index), S.G.at(pickup_node));
+										double unmet_demand = std::abs(S.inst.d.at(delivery_node)) - S.G.at(delivery_node);
+										available_demand = std::min(available_demand, unmet_demand);
+										
+										// If available demand is greater than zero:
+										
+										if (available_demand > 0){
+											
+											
+											double delta_epsilon = deltaEpsilonInsertionArc(S, delivery_node, available_demand);
+											
+											// Normalizing values
+											double norm_delta_costs = (delta_costs - 60)/(2000 - 60);
+											
+											double norm_delta_epsilon = (delta_epsilon - (-0.03))/(0.03 - (-0.03));
+											
+											// std::cout << "Delta in costs: " << delta_costs << std::endl;
+											
+											// std::cout << "Delta in epsilon: " << delta_epsilon << std::endl;
+											
+											double score = norm_delta_epsilon*gamma1 + norm_delta_costs*gamma2;
+											
+											// double score = delta_epsilon*100000 + delta_costs;
+											
+											// std::cout << "Score of this insertion: " << score << "\n\n";
+											
+											// If arc insertion corresponds to minimum score found in search
+											if (score < min_score){
+												
+												// Updating values with corresponding data from iteration
+												min_score = score;
+												// Corresponding pickup node of minimum score
+												min_score_pickup_node = pickup_node;
+												// Corresponding pickup node of minimum score
+												min_score_delivery_node = delivery_node;
+												// Corresponding route of minimum score
+												min_score_route = route_index;
+												// Corresponding position of minimum score
+												min_score_position = arc_insertion_position;
+												// Corresponding transferred demand of minimum score
+												min_score_transferred_demand = available_demand;
+												// Boolean variable
+												feasible_positions = true;
+												
+											}
+										
+										}
+									}
+									
+									
+								}
+								
+								
+							}
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+			if (feasible_positions){
+				
+				// std::cout << "Inserting arc " << min_score_pickup_node << "-" << min_score_delivery_node << " in route " << min_score_route << " at position " << min_score_position << " with score " << min_score <<std::endl;
+				
+				S.insertArcAt(min_score_pickup_node, min_score_delivery_node, min_score_route, min_score_position, min_score_transferred_demand);
 				
 			}
 			
 			
+		// Here begins split insertion code:
+		} else {
+			
+			
 			
 		}
-		
-	}
-	*/
 	
-}	
+	}
+	
+	S.tidyUp();
+	
 	
 	/*
 	// Route max length - maybe there's a better way for doing that!

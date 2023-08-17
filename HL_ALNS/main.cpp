@@ -12,18 +12,18 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_JO_NA_9_cpp.txt";
+	std::string file_name = "INST_MA_RE_20_cpp.txt";
 	
-	int number_of_periods = 5;
+	int number_of_periods = 20;
 	
 	// Randomness parameter
 	double p {4};
 	
 	// Proximity weight
-	double Gamma1 {0.8};
+	double Gamma1 {0.5};
 	
 	// Met demand weight
-	double Gamma2 {0.2};
+	double Gamma2 {0.5};
 	
 	Instance inst(file_name, number_of_periods);
 	
@@ -35,7 +35,7 @@ int main(){
 	
 	PartialRandomRemoval prr {};
 	
-	BasicGreedyInsertion bgi(1,1,1);
+	BasicGreedyInsertion bgi(2,1,1);
 	
 	ConcentricRemoval crr(300);
 	
@@ -47,24 +47,24 @@ int main(){
 	
 	// srand(time(NULL));
 	
-	for (auto i {0}; i < 100; i++){
+	for (auto i {0}; i < 500; i++){
 		
 		std::cout << "Iteration: " << i << std::endl;
 		
 		std::string a;
 		
-		// S = S_it;
+		S = S_it;
 		
 		// if (i%15 == 0){
 		
-		Gamma1 = ((double) rand() / (RAND_MAX));
-		Gamma2 = 1 - Gamma1;
+		// Gamma1 = ((double) rand() / (RAND_MAX));
+		// Gamma2 = 1 - Gamma1;
 		
-		std::cout << Gamma1 << " " << Gamma2 << std::endl;
+		// std::cout << Gamma1 << " " << Gamma2 << std::endl;
 		
-		Sol newS(inst, p, Gamma1, Gamma2);
-		
-		S = newS;
+		// Sol newS(inst, p, Gamma1, Gamma2);
+		// 
+		// S = newS;
 		
 		//}
 		
@@ -111,40 +111,41 @@ int main(){
 			// prr.apply(S);
 		}
 		
-		S.printSol();
+		// S.printSol();
 		
-		std::cin >> a;
+		//std::cin >> a;
 		
 		bgi.apply(S);
 		
-		S.printSol();
+		// S.printSol();
 		
-		S.tidyUp();
+		// printDouble(S.G);
 		
-		S.printSol();
-		
-		std::cin >> a;
-		
-		double FO = S.totalZ - 0.01*traveling_costs;
-		
-		int pen_unmet_demand = 1200;
-		
-		for (auto  &met_demand: S.Z){
-			
-		 	if (met_demand == 0){
-				
-		 		FO -= pen_unmet_demand;
-				
-		 	}
-			
-		}
-		
-		// std::cout << "FO: " << FO << std::endl;
 		
 		// std::cin >> a;
 		
+		double FO = S.totalZ - 0.001*traveling_costs;
 		
-		if (FO > BKS.totalZ){
+		double target_epsilon = 0.1;
+		
+		double max_epsilon = *std::max_element(S.epsilon.begin(), S.epsilon.end());
+		
+		//int pen_unmet_demand = 1200;
+		
+		//for (auto  &met_demand: S.Z){
+			
+		// 	if (met_demand == 0){
+				
+		// 		FO -= pen_unmet_demand;
+				
+		// 	}
+			
+		//}
+		
+		std::cout << "FO: " << FO << std::endl;
+		
+		
+		if ((FO > BKS.totalZ) and max_epsilon <= target_epsilon){
 			
 		 	BKS = S;
 			

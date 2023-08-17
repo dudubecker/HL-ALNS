@@ -306,7 +306,7 @@ double Heuristic::deltaEpsilonInsertionArc(Sol &S, int &delivery_node_index, dou
 	
 	double new_met_demand = old_met_demand + demand;
 	
-	double new_epsilon = std::abs((new_met_demand/S.totalZ) - (std::abs(S.inst.d.at(delivery_node_index))/S.totalD));
+	double new_epsilon = std::abs((new_met_demand/(S.totalZ + demand)) - (std::abs(S.inst.d.at(delivery_node_index))/S.totalD));
 	
 	// double delta_epsilon = old_epsilon - new_epsilon;
 	

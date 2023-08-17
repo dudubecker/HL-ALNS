@@ -1068,8 +1068,8 @@ void Sol::tidyUp(){
 								
 							}
 							
-							printDouble(segment_old_z);
-							printDouble(segment_new_z);
+							// printDouble(segment_old_z);
+							// printDouble(segment_new_z);
 							
 							// Manually updating values, without remove/insert operators:
 							// This is done because by removing/inserting nodes, main for loops bug, leading to errors in solutions!
@@ -1091,7 +1091,7 @@ void Sol::tidyUp(){
 									z.at(route_index).at(node_segment_position) = demand_at_segment;
 									
 									// Updating G value
-									G.at(node_at_segment) -= demand_at_segment;
+									G.at(node_at_segment) -= std::abs(std::abs(segment_new_z.at(it)) - std::abs(segment_old_z.at(it)));
 									
 									// Updating global Z value
 									totalZ += (segment_new_z.at(it) - segment_old_z.at(it));
@@ -1120,10 +1120,6 @@ void Sol::tidyUp(){
 								}
 							}
 							
-							
-							
-							
-							printSol();
 							
 							
 						}
