@@ -585,7 +585,6 @@ void Sol::removeRandomNode(){
 	
 }
 
-
 // Removes random case
 void Sol::removeNodeCase(int &node_index){
 	
@@ -636,8 +635,6 @@ void Sol::removeNodeCase(int &node_index){
 	
 	
 }
-
-
 
 // Replace node at specific route and position, used in insertion methods
 void Sol::replaceNodeAt(int node_index, int route_index, int replace_index){
@@ -957,7 +954,6 @@ bool Sol::containsAny(std::vector<int> &nodes_vector){
 	
 }
 
-
 void Sol::tidyUp(){
 	
 	// For each node in solution
@@ -1143,6 +1139,85 @@ void Sol::tidyUp(){
 	// Updating epsilons
 	updateEpsilon();
 	
+	
+}
+
+bool Sol::isAtSegment(int &node_index, int &route_index, int &node_position){
+	
+	bool return_bool = false;
+	
+	// Finding position in route of the first node of segment (pickup)
+	int first_segment_node_position = {};
+	
+	int position = node_position;
+	
+	int node = R.at(route_index).at(position);
+	
+	while (true){
+		
+		position -= 1;
+		
+		node = R.at(route_index).at(position);
+		
+		if (Z.at(node) == 9999){
+			
+			first_segment_node_position = position;
+			
+			break;
+			
+		}
+		
+	}
+	
+	// Finding position in route of the last node of segment (last delivery)
+	int last_segment_node_position = {};
+	
+	position = node_position;
+	
+	while (true){
+		
+		node = R.at(route_index).at(position);
+		
+		if (Z.at(node) == 9999){
+			
+			last_segment_node_position = position - 1;
+			
+			break;
+			
+		}
+		
+		position += 1;
+		
+	}
+	
+	// std::cout << "First node of segment: " << R.at(route_index).at(first_segment_node_position) << std::endl;
+	
+	// std::cout << "Position in route: " << first_segment_node_position << std::endl;
+	
+	// std::cout << "Last node of segment: " << R.at(route_index).at(last_segment_node_position) << std::endl;
+	
+	// std::cout << "Position in route: " << last_segment_node_position << std::endl;
+	
+	
+	// Now, iterating at segment
+	for (auto position {first_segment_node_position}; position < last_segment_node_position + 1; position++){
+		
+		node = R.at(route_index).at(position);
+		
+		// std::cout << node << std::endl;
+		
+		if (node == node_index){
+			
+			return_bool = true;
+			
+		}
+		
+		
+	}
+	
+	// If node in segment is equal to node_index, boolean variable is assigned as true
+	
+	return return_bool;
 	
 }
 

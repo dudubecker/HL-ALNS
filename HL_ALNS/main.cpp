@@ -12,9 +12,9 @@ int main(){
 	
 	//// Problem data
 	
-	std::string file_name = "INST_MA_RE_20_cpp.txt";
+	std::string file_name = "INST_JO_NA_9_cpp.txt";
 	
-	int number_of_periods = 20;
+	int number_of_periods = 4;
 	
 	// Randomness parameter
 	double p {4};
@@ -31,11 +31,22 @@ int main(){
 	
 	S.printSol();
 	
+	int node_index = 4;
+	int route_index = 0;
+	int node_position = 22;
+	
+	
+	bool A = S.isAtSegment(node_index, route_index, node_position);
+	
+	std::cout << A << std::endl;
+	
+	/*
+	
 	WorstRemoval wr(1,1,1);
 	
 	PartialRandomRemoval prr {};
 	
-	BasicGreedyInsertion bgi(2,1,1);
+	BasicGreedyInsertion bgi(3,1,1);
 	
 	ConcentricRemoval crr(300);
 	
@@ -47,7 +58,9 @@ int main(){
 	
 	// srand(time(NULL));
 	
-	for (auto i {0}; i < 500; i++){
+	
+	
+	for (auto i {0}; i < 10; i++){
 		
 		std::cout << "Iteration: " << i << std::endl;
 		
@@ -113,24 +126,23 @@ int main(){
 		
 		// S.printSol();
 		
-		//std::cin >> a;
+		// std::cin >> a;
 		
 		bgi.apply(S);
 		
-		// S.printSol();
+		S.printSol();
 		
 		// printDouble(S.G);
 		
+		std::cin >> a;
 		
-		// std::cin >> a;
+		double FO = S.totalZ - 0.01*traveling_costs;
 		
-		double FO = S.totalZ - 0.001*traveling_costs;
-		
-		double target_epsilon = 0.1;
+		double target_epsilon = 0.01;
 		
 		double max_epsilon = *std::max_element(S.epsilon.begin(), S.epsilon.end());
 		
-		//int pen_unmet_demand = 1200;
+		// int pen_unmet_demand = 1750;
 		
 		//for (auto  &met_demand: S.Z){
 			
@@ -139,7 +151,7 @@ int main(){
 		// 		FO -= pen_unmet_demand;
 				
 		// 	}
-			
+		//	
 		//}
 		
 		std::cout << "FO: " << FO << std::endl;
@@ -171,7 +183,7 @@ int main(){
 	// printInt(S.unmet_demand_clients);
 	
 	
-	
+	*/
 	 
 	return 0;
 	

@@ -92,8 +92,6 @@ public:
 	// Split insertion -> splits demand from "source_node" to "receiver_node", inserting in right positions
 	void splitInsertion(std::string how ,int node_index, int route_index, int insertion_index, double demand);
 	
-	
-	
 	// Returns true if solution contains all nodes in vector and false otherwise
 	bool containsAll(std::vector<int> &nodes_vector);
 	
@@ -105,6 +103,12 @@ public:
 	
 	// Rebalances pickup visits with all possibly picked up capacity
 	void tidyUp();
+	
+	// This method returns true if "node_index" is already present in segment in route_index and node_position
+	// It is used in insertion procedures, because a node can't be inserted in a segment that already contains the node
+	bool isAtSegment(int &node_index, int &route_index, int &node_position);
+	
+	
 	
 
 };

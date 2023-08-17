@@ -744,10 +744,10 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 	
 	bool feasible_positions = true;
 	
-	while (feasible_positions){
+	// while (feasible_positions){
 		
 		// Insert P-D probability - important parameter to tune for method!
-		double pd_insertion_prob = 1;
+		double pd_insertion_prob = 0;
 		
 		double random_value = 0;
 		random_value = ((double) rand() / (RAND_MAX));
@@ -893,11 +893,70 @@ Sol BasicGreedyInsertion::specificApply(Sol &S) {
 		// Here begins split insertion code:
 		} else {
 			
+			// Iterating, for all available nodes for insertion, for all routes and positions
+			// Available nodes to be inserted: starts with all nodes in D
+			std::vector<int> available_nodes = S.inst.D;
+			// std::vector<int> available_nodes = S.unmet_demand_clients;
+			
+			// Taking out fully served clients
+			for (auto node: available_nodes){
+				
+				if (S.Z.at(node) == 1){
+					
+					available_nodes.erase(std::remove_if(available_nodes.begin(), available_nodes.end(), [&node](int value) -> bool { return value == node; }), available_nodes.end());
+					
+				}
+				
+			}
+			
+			// unmet_demand_clients attribute still isn't 100% trustable
+			
+			// Minimum score found so far: great scores are negative scores!
+			double min_score = 9999;
+			
+			// Corresponding node of minimum score, for insertion after, before and replacement
+			int min_score_node = {};
+			
+			// Corresponding route of minimum score
+			int min_score_route = {};
+			
+			// Corresponding position of minimum score
+			int min_score_position = {};
+			
+			// Corresponding transferred demand of minimum score
+			double min_score_transferred_demand = {};
+			
+			// Boolean variable, that controls if best score corresponds to a insertion before
+			bool insertion_before = false;
+			
+			// Boolean variable, that controls if best score corresponds to a insertion after
+			bool insertion_after = false;
+			
+			// Boolean variable, that controls if best score corresponds to a replacement
+			bool replacement = false;
 			
 			
+			// The "receiver node" is the node being inserted by split insertion method
+			
+			for (auto &receiver_node_index : available_nodes){
+				
+				for (int route_index {0}; route_index < S.inst.m; route_index++){
+					
+					// Nodes can be inserted from position 2 of S, as position 0 is depot and position 1 is first pickup node
+					for (int position_index {2}; position_index < S.RSize.at(route_index); position_index++){
+						
+						// The "source node" is the node that will transfer some or all of its demand to the node being inserted
+						int source_node_index = S.R.at(route_index).at(position_index);
+						
+						
+						
+						
+					}
+				}
+			}
 		}
 	
-	}
+	//}
 	
 	S.tidyUp();
 	
