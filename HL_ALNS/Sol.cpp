@@ -866,21 +866,6 @@ void Sol::splitInsertion(std::string how ,int receiver_node_index, int route_ind
 		insertNodeAt(source_node_index, route_index, source_node_position, source_node_new_demand);
 		
 		
-		
-		
-		// Removing source node
-		// removeNodeAt(route_index, insertion_index);
-		
-		// Inserting receiver node
-		// insertNodeAt(receiver_node_index, route_index, insertion_index, splitted_demand);
-		
-		// int source_node_new_position = insertion_index - 1;
-		// double source_node_new_demand = total_demand - splitted_demand;
-		
-		// Inserting source node before receiver node
-		// insertNodeAt(source_node_index, route_index, source_node_new_position, source_node_new_demand);
-		
-		
 	} else {
 		
 		std::cout << "Not a valid type!" << std::endl;
@@ -968,8 +953,11 @@ void Sol::tidyUp(){
 			// If it's pickup node and there's still pickup capacity
 			if ((Z.at(node) == 9999) and (G.at(node) > 0)){
 				
+				
 				// Check if picked-up amount is lower than vehicle capacity
 				if (z.at(route_index).at(node_position) < inst.Q.at(route_index)){
+					
+					
 					
 					// Amount of load that I can add to segment
 					// It's the minimum value between available load on pickup point and the difference of vehicle capacity and picked up amount!
@@ -988,6 +976,7 @@ void Sol::tidyUp(){
 						
 						// Vector for clients in segment
 						std::vector<int> segment_nodes = {node};
+						
 						
 						for (auto node_segment_position {node_position + 1}; node_segment_position < RSize.at(route_index); node_segment_position++){
 							
@@ -1039,6 +1028,7 @@ void Sol::tidyUp(){
 							// For each delivery node on segment
 							for (auto node_segment_position {node_position + 1}; node_segment_position < RSize.at(route_index); node_segment_position++){
 								
+								
 								int node_at_segment = R.at(route_index).at(node_segment_position);
 								
 								// Unmet demand of client
@@ -1048,6 +1038,14 @@ void Sol::tidyUp(){
 								double additional_load = std::min(unmet_demand, transferrable_load);
 								
 								// Updating new z values with additional load at position
+								
+								// If segment has ended, loop breaks
+								if (it == segment_old_z.size()){
+									
+									break;
+									
+								}
+								
 								double new_z = segment_old_z.at(it) - additional_load;
 								segment_new_z.at(it) = new_z;
 								
@@ -1063,6 +1061,8 @@ void Sol::tidyUp(){
 								it += 1;
 								
 							}
+							
+							
 							
 							// printDouble(segment_old_z);
 							// printDouble(segment_new_z);
@@ -1159,7 +1159,7 @@ bool Sol::isAtSegment(int &node_index, int &route_index, int &node_position){
 		
 		node = R.at(route_index).at(position);
 		
-		if (Z.at(node) == 9999){
+		if ((Z.at(node) == 9999)){
 			
 			first_segment_node_position = position;
 			
@@ -1174,19 +1174,39 @@ bool Sol::isAtSegment(int &node_index, int &route_index, int &node_position){
 	
 	position = node_position;
 	
-	while (true){
+	// Case when tested node position is the last one in route
+	if (position == RSize.at(route_index) - 1){
 		
-		node = R.at(route_index).at(position);
+		last_segment_node_position = position;
 		
-		if (Z.at(node) == 9999){
+		
+	} else {
+		
+		while (true){
 			
-			last_segment_node_position = position - 1;
+			position += 1;
 			
-			break;
+			node = R.at(route_index).at(position);
 			
+			if ((Z.at(node) == 9999)){
+				
+				last_segment_node_position = position - 1;
+				
+				break;
+				
+			} else if ((position == RSize.at(route_index) - 1)){
+				
+				last_segment_node_position = position;
+				
+				break;
+				
+				
+				
+			}
+		
 		}
 		
-		position += 1;
+		
 		
 	}
 	
